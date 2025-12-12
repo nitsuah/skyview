@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFormHandling();
     initScrollEffects();
     initParallax();
+    initAnimationStates();
 });
 
 // ===================================
@@ -202,10 +203,12 @@ function initFormHandling() {
 
     // Form validation with visual feedback
     const inputs = form.querySelectorAll('input, select, textarea');
+    const errorColor = getComputedStyle(document.documentElement).getPropertyValue('--color-error') || '#ff4444';
+
     inputs.forEach(input => {
         input.addEventListener('blur', () => {
             if (input.value.trim() === '' && input.hasAttribute('required')) {
-                input.style.borderColor = '#ff4444';
+                input.style.borderColor = errorColor;
             } else {
                 input.style.borderColor = '';
             }
@@ -222,9 +225,15 @@ function showFormMessage(type, message) {
     const messageEl = document.createElement('div');
     messageEl.className = `form-message form-message-${type}`;
     messageEl.textContent = message;
+
+    // Dynamically calculate top offset based on header height
+    const header = document.querySelector('.header');
+    const headerHeight = header ? header.getBoundingClientRect().height : 0;
+    const topOffset = headerHeight + 20; // 20px margin below header
+
     messageEl.style.cssText = `
         position: fixed;
-        top: 100px;
+        top: ${topOffset}px;
         left: 50%;
         transform: translateX(-50%);
         background: ${type === 'success' ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)'};
@@ -255,7 +264,8 @@ function initScrollEffects() {
     const header = document.querySelector('.header');
     let lastScroll = 0;
 
-    window.addEventListener('scroll', () => {
+    // Use throttle for better performance
+    const throttledScroll = throttle(() => {
         const currentScroll = window.pageYOffset;
 
         // Add/remove header background on scroll
@@ -278,7 +288,9 @@ function initScrollEffects() {
 
         // Animate elements on scroll
         animateOnScroll();
-    });
+    }, 100);
+
+    window.addEventListener('scroll', throttledScroll);
 }
 
 function animateOnScroll() {
@@ -296,57 +308,49 @@ function animateOnScroll() {
     });
 }
 
-// Initialize animation states
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize animation states (called from main DOMContentLoaded)
+function initAnimationStates() {
     const elements = document.querySelectorAll('.service-card, .gallery-item, .preview-card, .contact-info, .contact-form');
     elements.forEach(element => {
         element.style.opacity = '0';
         element.style.transform = 'translateY(30px)';
         element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     });
-});
+}
 
 // ===================================
 // PARALLAX EFFECT
 // ===================================
 
 function initParallax() {
-    const heroImage = document.querySelector('.hero-image');
     const heroVideo = document.querySelector('.hero-video');
 
-    if (!heroImage && !heroVideo) return;
+    if (!heroVideo) return;
 
-    window.addEventListener('scroll', () => {
+    // Named constants for clarity
+    const BASE_OFFSET = 50;
+    const PARALLAX_SPEED = 0.3;
+    const PARALLAX_MULTIPLIER = 0.05;
+
+    // Use throttle for better performance
+    const throttledParallax = throttle(() => {
         const scrolled = window.pageYOffset;
-        const parallaxSpeed = 0.5;
 
-        if (heroImage) {
-            heroImage.style.transform = `translate(-50%, -${50 + scrolled * parallaxSpeed * 0.05}%)`;
-        }
+        // Only apply parallax to video, not the background image
+        // Background image uses CSS background-attachment: fixed for better performance
         if (heroVideo) {
-            heroVideo.style.transform = `translate(-50%, -${50 + scrolled * parallaxSpeed * 0.05}%)`;
+            heroVideo.style.transform = `translate(-50%, -${BASE_OFFSET + scrolled * PARALLAX_SPEED * PARALLAX_MULTIPLIER}%)`;
         }
-    });
+    }, 16); // ~60fps
+
+    window.addEventListener('scroll', throttledParallax);
 }
 
 // ===================================
 // UTILITY FUNCTIONS
 // ===================================
 
-// Debounce function for performance
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Throttle function for scroll events
+// Throttle function for scroll events (used for performance optimization)
 function throttle(func, limit) {
     let inThrottle;
     return function (...args) {

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyView Dynamics - Design Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1A1A1A 0%, #0D0D0D 100%);
+            color: #FFFFFF;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #FFFFFF, #00FFFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #CCCCCC;
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(26, 26, 26, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #00FFFF;
+            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.2);
+        }
+
+        .feature-card h3 {
+            color: #00FFFF;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .feature-card ul {
+            list-style: none;
+            color: #CCCCCC;
+        }
+
+        .feature-card li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .feature-card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #00FFFF;
+            font-weight: bold;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00FFFF;
+            border-radius: 20px;
+            margin-top: 3rem;
+        }
+
+        .cta-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            color: #CCCCCC;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: transparent;
+            border: 2px solid #00FFFF;
+            color: #FFFFFF;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background: #00FFFF;
+            color: #1A1A1A;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+            padding: 2rem;
+        }
+
+        .tech-badge {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            color: #00FFFF;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🚁 SkyView Dynamics</h1>
+        <p class="subtitle">Professional Drone Services Website - Now Live!</p>
+
+        <div class="preview-grid">
+            <div class="feature-card">
+                <h3>🎨 Design Features</h3>
+                <ul>
+                    <li>Deep charcoal/black theme</li>
+                    <li>Electric blue/cyan accents</li>
+                    <li>Glassmorphic effects</li>
+                    <li>Smooth animations</li>
+                    <li>Parallax scrolling</li>
+                    <li>Responsive design</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3>📱 Sections</h3>
+                <ul>
+                    <li>Full-screen hero</li>
+                    <li>Service showcase</li>
+                    <li>Image gallery + lightbox</li>
+                    <li>3D preview placeholder</li>
+                    <li>Contact form</li>
+                    <li>Social footer</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3>⚡ Interactive</h3>
+                <ul>
+                    <li>Mobile menu</li>
+                    <li>Smooth scrolling</li>
+                    <li>Lightbox gallery</li>
+                    <li>Form validation</li>
+                    <li>Hover effects</li>
+                    <li>Keyboard navigation</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>Your Website is Ready! 🎉</h2>
+            <p>A local server is running. Open your browser to see the full site.</p>
+            <a href="http://localhost:8000" class="cta-button" target="_blank">VIEW WEBSITE →</a>
+        </div>
+
+        <div class="tech-stack">
+            <span class="tech-badge">HTML5</span>
+            <span class="tech-badge">CSS3</span>
+            <span class="tech-badge">JavaScript</span>
+            <span class="tech-badge">Responsive</span>
+            <span class="tech-badge">SEO Ready</span>
+            <span class="tech-badge">No Dependencies</span>
+        </div>
+    </div>
+</body>
+
+</html>
