@@ -77,10 +77,31 @@ Use current timestamp (format: YYYYMMDDHHMMSS)
 
 ## 🌐 Deployment
 
-### Netlify (Recommended)
-1. Push to GitHub
-2. Connect repo to Netlify
-3. Deploy automatically
+### Netlify (Recommended - Easiest)
+
+**No build process needed!** Just push and deploy:
+
+1. **Push to GitHub:**
+   ```bash
+   git add .
+   git commit -m "Initial commit"
+   git push origin main
+   ```
+
+2. **Deploy to Netlify:**
+   - Go to [netlify.com](https://netlify.com) and sign up/login
+   - Click "Add new site" → "Import an existing project"
+   - Choose "Deploy with GitHub"
+   - Select your `skyview` repository
+   - **Build settings:** Leave empty (no build needed!)
+   - Click "Deploy site"
+
+3. **Done!** Your site will be live at `your-site-name.netlify.app`
+
+**Optional Enhancements:**
+- **Custom Domain:** Site settings → Domain management
+- **Netlify Forms:** Already configured! Form submissions will appear in Netlify dashboard
+- **HTTPS:** Enabled automatically
 
 ### Vercel
 ```bash
