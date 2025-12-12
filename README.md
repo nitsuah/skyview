@@ -10,246 +10,120 @@ A stunning, high-tech website for professional drone services featuring a minima
 - **Animations**: Smooth micro-animations, parallax effects, and glow effects
 - **Responsive**: Mobile-first design that adapts beautifully to all screen sizes
 
-## 🏗️ Project Structure
-
-```
-skyview/
-├── index.html          # Main HTML structure
-├── style.css           # Complete design system and styling
-├── script.js           # Interactive features and animations
-├── assets/
-│   ├── hero-bg.jpg     # Hero section background image
-│   ├── hero-video.mp4  # (Optional) Hero video loop
-│   └── gallery/
-│       ├── image1.jpg  # Festival/event photography
-│       ├── image2.jpg  # Coastal sunset aerial
-│       ├── image3.jpg  # Modern building architecture
-│       ├── image4.jpg  # Historic castle
-│       ├── image5.jpg  # Construction site
-│       └── image6.jpg  # Urban cityscape
-└── README.md
-```
-
 ## 🚀 Quick Start
 
-### Option 1: Simple Local Server (Recommended)
+### Run Locally
 
-1. **Using Python** (if installed):
-   ```bash
-   python -m http.server 8000
-   ```
-   Then open: http://localhost:8000
+```bash
+# Option 1: Python
+python -m http.server 8000
 
-2. **Using Node.js** (if installed):
-   ```bash
-   npx serve
-   ```
+# Option 2: Node.js
+npx serve
 
-3. **Using VS Code**:
-   - Install "Live Server" extension
-   - Right-click `index.html` → "Open with Live Server"
-
-### Option 2: Direct File Opening
-
-Simply open `index.html` in your web browser. Note: Some features like video may not work without a server.
-
-## 📋 Setup Checklist
-
-### Required Assets
-
-The website is functional with placeholder images, but for the best experience:
-
-- [ ] **Hero Background**: Replace `assets/hero-bg.jpg` with a high-resolution (1920x1080+) dramatic aerial photo
-- [ ] **Hero Video** (Optional): Add `assets/hero-video.mp4` for a cinematic video loop
-- [ ] **Gallery Images**: Add 6 high-quality drone photos to `assets/gallery/` (named image1.jpg through image6.jpg)
-
-### Recommended Image Specifications
-
-- **Hero Background**: 1920x1080px or higher, landscape orientation, dramatic/cinematic
-- **Hero Video**: MP4 format, 1920x1080px, 10-30 seconds loop, muted
-- **Gallery Images**: 1200x900px minimum, 4:3 aspect ratio, high quality
-
-## 🎯 Features Implemented
-
-### ✅ Phase 1 Complete
-
-- [x] **High-Impact Landing Page**
-  - Full-screen hero with video/image background
-  - Clear value proposition
-  - Prominent CTA button with glow effect
-  - Smooth scroll indicator
-
-- [x] **Service Showcase**
-  - 3 glassmorphic service cards
-  - Hover effects with animations
-  - Icon-based visual hierarchy
-  - Modular, easy-to-update structure
-
-- [x] **Visual Gallery**
-  - Responsive 3-column grid (adapts to mobile)
-  - Lightbox modal with keyboard navigation
-  - Image counter and navigation arrows
-  - Smooth transitions
-
-- [x] **3D Preview Placeholder**
-  - Dedicated card for future 3D features
-  - "Coming Soon" badge
-  - Animated floating icon
-
-- [x] **Contact & Scheduling**
-  - Clean contact form
-  - Project type dropdown
-  - Form validation with visual feedback
-  - Success/error message system
-  - Formspree-ready (just add your endpoint)
-
-- [x] **Navigation & UX**
-  - Fixed header with glassmorphic effect
-  - Smooth scroll to sections
-  - Mobile hamburger menu
-  - Responsive design for all devices
-
-## 🎨 Customization Guide
-
-### Colors
-
-Edit CSS variables in `style.css`:
-
-```css
-:root {
-    --color-primary: #1A1A1A;      /* Main background */
-    --color-secondary: #00FFFF;    /* Accent color */
-    --color-accent: #00D4FF;       /* Secondary accent */
-    --color-text-primary: #FFFFFF; /* Main text */
-    --color-text-secondary: #CCCCCC; /* Secondary text */
-}
+# Option 3: VS Code Live Server extension
 ```
 
-### Content
+Then open: http://localhost:8000
 
-1. **Company Name**: Search and replace "SkyView Dynamics" in `index.html`
-2. **Services**: Edit the service cards in the `<section class="services">` section
-3. **Contact Info**: Update email and phone in the footer and contact section
-4. **Social Links**: Update URLs in the footer social links
+### Direct File Opening
 
-### Form Integration
+Simply open `index.html` in your browser (some features like video may not work without a server).
 
-To connect the contact form to Formspree:
+## 🎯 Customization
 
+### Update Company Info
+
+In `index.html`, find and replace:
+- `SkyView Dynamics` → Your company name
+- `contact@skyviewdynamics.com` → Your email
+- `+1 (555) 123-4567` → Your phone
+
+### Update Images
+
+- **Hero Background**: Replace `assets/hero-bg.jpg` (1920x1080px+)
+- **Gallery Images**: Replace `assets/gallery/image1-6.jpg` (1200x900px recommended)
+- **Hero Video** (Optional): Add `assets/hero-video.mp4` (MP4, 1920x1080px, 10-30s loop)
+
+### Connect Contact Form
+
+**Option A: Formspree**
 1. Sign up at [formspree.io](https://formspree.io)
-2. Create a new form
-3. Copy your form endpoint
-4. In `index.html`, replace:
-   ```html
-   <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
-   ```
+2. Create a form and get your ID
+3. In `index.html`, replace `YOUR_FORM_ID` in the form action
 
-Alternatively, use Netlify Forms by adding `netlify` attribute to the form tag.
+**Option B: Netlify Forms**
+Add `netlify` attribute to the form tag and deploy to Netlify
 
 ### Cache-Busting
 
-The site uses version parameters to prevent browser caching issues. When you update CSS or JS files:
+When you update CSS or JS, change the version parameter:
 
-**Manual Method:**
-1. Generate a new timestamp: `Get-Date -Format "yyyyMMddHHmmss"` (PowerShell)
-2. Update version in `index.html`:
-   ```html
-   <link rel="stylesheet" href="style.css?v=NEW_VERSION">
-   <script src="script.js?v=NEW_VERSION"></script>
-   ```
-
-**Automated Method:**
-```powershell
-.\update-version.ps1
+```html
+<link rel="stylesheet" href="style.css?v=20241211225000">
+<script src="scripts/main.js?v=20241211225000"></script>
 ```
 
-See `CACHE-BUSTING.md` for detailed instructions.
+Use current timestamp (format: YYYYMMDDHHMMSS)
 
-## 🌐 Deployment Options
+## 📋 Pre-Launch Checklist
+
+- [ ] Replace placeholder images
+- [ ] Update company info
+- [ ] Configure contact form
+- [ ] Update social media links
+- [ ] Test on mobile devices
+- [ ] Update version parameters
+
+## 🌐 Deployment
 
 ### Netlify (Recommended)
-
-1. Push code to GitHub
-2. Connect repository to Netlify
+1. Push to GitHub
+2. Connect repo to Netlify
 3. Deploy automatically
-4. Enable Netlify Forms (no backend needed!)
-
-### GitHub Pages
-
-1. Push code to GitHub
-2. Go to Settings → Pages
-3. Select branch and deploy
 
 ### Vercel
+```bash
+npm i -g vercel
+vercel
+```
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Run: `vercel`
-3. Follow prompts
+### GitHub Pages
+1. Push to GitHub
+2. Settings → Pages → Deploy
 
-## 📱 Browser Support
+## 🆘 Troubleshooting
 
-- ✅ Chrome/Edge (latest)
-- ✅ Firefox (latest)
-- ✅ Safari (latest)
-- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
+**Images not showing?** Use a local server and hard refresh (Ctrl+Shift+R)
 
-## 🎬 Adding Video
+**Video not playing?** Add MP4 file and use local server
 
-For the hero video:
+**Form not working?** Replace `YOUR_FORM_ID` in form action
 
-1. Record or source a 10-30 second aerial drone video
-2. Convert to MP4 format (H.264 codec recommended)
-3. Optimize for web (compress to ~5-10MB)
-4. Save as `assets/hero-video.mp4`
-5. The video will auto-play, loop, and be muted
-
-Tools for video optimization:
-- [HandBrake](https://handbrake.fr/) (Free)
-- [FFmpeg](https://ffmpeg.org/) (Command line)
-- Online: [CloudConvert](https://cloudconvert.com/)
+**Styles broken?** Clear cache or update version parameters
 
 ## 🔧 Technical Stack
 
 - **HTML5**: Semantic structure with SEO best practices
 - **CSS3**: Modern features (Grid, Flexbox, Custom Properties, Backdrop Filter)
-- **Vanilla JavaScript**: No dependencies, lightweight and fast
+- **Vanilla JavaScript**: Modular ES6 modules, no dependencies
 - **Google Fonts**: Inter font family
 
 ## 📊 Performance
 
 - Lazy loading for images
-- Optimized animations with CSS transforms
-- Debounced/throttled scroll events
+- Throttled scroll events
 - Minimal JavaScript bundle
 - No external dependencies
 
-## 🎯 SEO Features
+## 🎯 Features
 
-- Semantic HTML5 structure
-- Meta descriptions and title tags
-- Proper heading hierarchy (single H1)
-- Alt text for all images
-- Descriptive link text
-- Mobile-friendly responsive design
-
-## 🚀 Future Enhancements (Phase 2+)
-
-- [ ] Interactive 3D model viewer
-- [ ] Video portfolio section
-- [ ] Client testimonials
-- [ ] Blog/news section
-- [ ] Booking system integration
-- [ ] Multi-language support
-- [ ] Advanced animations with GSAP
-- [ ] CMS integration (Contentful, Sanity)
-
-## 📝 License
-
-This is a custom website design. Modify as needed for your business.
-
-## 🤝 Support
-
-For questions or customization requests, contact your development team.
+- ✅ Full-screen hero with parallax
+- ✅ Glassmorphic service cards
+- ✅ Responsive gallery with lightbox
+- ✅ Contact form with validation
+- ✅ Mobile hamburger menu
+- ✅ Smooth scroll navigation
 
 ---
 
