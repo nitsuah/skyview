@@ -57,4 +57,7 @@ export function initAnimationStates() {
         element.style.transform = 'translateY(30px)';
         element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     });
+
+    // Immediately show elements that are already in viewport
+    setTimeout(() => animateOnScroll(), 100);
 }
