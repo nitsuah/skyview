@@ -28,3 +28,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Services**: Updated service cards with real-world offerings (Real Estate, Cinematography, Mapping).
 - **Contact Form**: Configured for Netlify Forms (`data-netlify="true"`).
 - **Structure**: Gallery is now rendered dynamically on page load.
+- **Infrastructure**: Replaced incorrect Dockerfile and removed confused linter/test configs. Added `stylelint.config.mjs` and correct valid `Dockerfile` for static serving.

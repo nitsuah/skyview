@@ -1,6 +1,6 @@
-# Contributing to Skyview
+# Contributing to SkyView Dynamics
 
-Thank you for your interest in contributing to Skyview! We welcome contributions to make this drone services site even better.
+Thank you for your interest in contributing to SkyView Dynamics! We welcome contributions to make this drone services site even better.
 
 ## 📋 Table of Contents
 
@@ -24,23 +24,21 @@ This project adheres to a Code of Conduct. By participating, you are expected to
 
 ## 🛠️ Development Setup
 
-Skyview is currently a static site built with HTML, CSS, and Vanilla JavaScript.
+SkyView Dynamics is a static site built with HTML, CSS, and Vanilla JavaScript.
 
 ### Prerequisites
 
-- A modern web browser
+- Node.js (recommended for tools) or Python
 - A text editor (VS Code recommended)
 
 ### Running Locally
 
-Since this is a static site, you can simply open `index.html` in your browser.
-For a better experience (hot reloading), use a simple server:
-
 ```bash
-# If you have python installed
-python3 -m http.server
+# Using Node.js (Recommended)
+npx http-server . -p 3000
 
-# Or using VS Code Live Server extension
+# Using Python
+python -m http.server 3000
 ```
 
 ## 📝 Coding Standards

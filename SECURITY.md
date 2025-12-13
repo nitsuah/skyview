@@ -4,7 +4,7 @@
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-If you discover a security vulnerability, please report it by emailing the maintainers directly.
+If you discover a security vulnerability, please report it by emailing the maintainers directly at **contact@skyviewdynamics.com**.
 
 ### What to Include
 
