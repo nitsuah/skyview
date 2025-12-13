@@ -41,12 +41,89 @@ Then open: [localhost:3000](http://localhost:3000)
 
 ## 🎯 Features
 
-- ✅ Full-screen hero with parallax
+### Core Features
+- ✅ Full-screen hero with video background
 - ✅ Glassmorphic service cards
-- ✅ Responsive gallery with lightbox
-- ✅ Contact form with validation
+- ✅ Dynamic gallery with lightbox
+- ✅ Contact form with Netlify Forms
+- ✅ Calendly booking integration
 - ✅ Mobile hamburger menu
 - ✅ Smooth scroll navigation
+- ✅ WebP images with fallbacks
+- ✅ Performance monitoring
+
+### Business Features
+- ✅ Privacy policy page (GDPR-compliant)
+- ✅ Testimonials section
+- ✅ Client portal prototype
+- ✅ Admin CMS (Decap CMS)
+- ✅ Feature flags system
+- ✅ Email notifications
+
+## 📦 NPM Scripts
+
+```bash
+# Development
+npm run serve          # Start dev server on port 8080
+
+# Testing
+npm test              # Run Playwright E2E tests
+npx vitest run        # Run unit tests
+
+# Optimization
+npm run optimize:images  # Convert images to WebP
+```
+
+## 📚 Documentation
+
+- 📖 [Quick Start Guide](QUICKSTART.md) - 5-minute setup
+- 📖 [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - Production deployment
+- 📖 [Feature Flags](docs/CONFIG.md) - Toggle features on/off
+- 📖 [WebP Optimization](docs/WEBP_OPTIMIZATION.md) - Image optimization
+- 📖 [Performance Checklist](docs/PERFORMANCE_CHECKLIST.md) - Speed optimization
+- 📖 [Manual Setup](docs/MANUAL_SETUP.md) - Configuration steps
+- 📖 [Project Status](PROJECT_STATUS.md) - Complete overview
+
+## ⚙️ Configuration
+
+### Feature Flags
+Edit `config.js` to enable/disable features:
+
+```javascript
+features: {
+    testimonials: false,    // Testimonials section
+    contactForm: false,     // Contact form
+    calendly: true,         // Booking widget
+    clientPortal: false,    // Client file access
+    adminCMS: true,         // Admin dashboard
+    preview3D: false,       // 3D preview (future)
+    analytics: false        // Analytics tracking
+}
+```
+
+### Quick Setup
+1. Update Calendly URL in `config.js`
+2. Enable features you want
+3. Run `npm run optimize:images`
+4. Deploy to Netlify
+
+See [MANUAL_SETUP.md](docs/MANUAL_SETUP.md) for detailed steps.
+
+## 🚀 Deployment
+
+### Deploy to Netlify
+1. Push to GitHub
+2. Connect to Netlify
+3. Deploy! (automatic)
+
+See [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for complete instructions.
+
+### Performance
+- ✅ WebP images (30-40% smaller)
+- ✅ Lazy loading
+- ✅ Optimized assets
+- ✅ CDN delivery
+- 🎯 Lighthouse Score: 90+
 
 ---
 
