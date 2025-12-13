@@ -253,19 +253,6 @@ button {
     z-index: 1;
 }
 
-.hero-video {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    transform: translate(-50%, -50%);
-    object-fit: cover;
-    z-index: 0;
-}
-
 .hero-image {
     position: absolute;
     top: -10%;
@@ -276,6 +263,30 @@ button {
     background-attachment: fixed;
     z-index: 0;
     animation: subtleZoom 20s ease-in-out infinite alternate;
+}
+
+.hero-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    z-index: 1;
+    opacity: 0;
+    animation: fadeInVideo 2s ease-in 0.5s forwards;
+}
+
+@keyframes fadeInVideo {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .hero-content {
