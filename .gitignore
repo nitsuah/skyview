@@ -5,3 +5,4 @@ playwright-report/
 node_modules/
 test-results/
 test-results.json
+coverage/
