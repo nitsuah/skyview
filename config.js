@@ -55,8 +55,8 @@ window.SKYVIEW_CONFIG = {
     analytics: {
         // Choose provider: 'plausible', 'netlify', 'goatcounter', 'none'
         provider: 'plausible',
-        // Your domain for analytics
-        domain: 'yourdomain.com'
+        // TODO: Replace with your actual domain before enabling analytics
+        domain: 'REPLACE_WITH_YOUR_DOMAIN.com'
     }
 };
 
