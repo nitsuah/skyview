@@ -30,11 +30,12 @@ This roadmap outlines the path to building a professional, high-impact drone ser
 - [ ] **Client Deliverables**
     - [ ] Simple password-protected pages for clients to view their specific footage? (TBD).
 
-## Phase 3: Business Automation (Long Term)
+## Phase 3: Business Automation (In Progress)
 *Focus: Scaling the business side.*
 
-- [ ] **Booking System**
-    - [ ] Integrate Calendly or similar for "Consultation Requests".
+- [x] **Booking System**
+    - [x] Integrated Calendly inline widget for consultation bookings.
+    - [x] Added dedicated "BOOKING" section with responsive design.
 - [ ] **Notifications**
     - [ ] Automated email responses upon form submission.
 - [ ] **Analytics**
