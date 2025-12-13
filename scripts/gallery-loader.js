@@ -3,6 +3,8 @@
  * @returns {Promise<void>}
  */
 export async function loadGallery() {
+    const ANIMATION_DURATION = '0.5s';
+    const ANIMATION_STAGGER_DELAY = 0.1;
     const galleryGrid = document.querySelector('.gallery-grid');
     if (!galleryGrid) return;
 
@@ -24,14 +26,19 @@ export async function loadGallery() {
 
             // Fade in animation class (handled by CSS)
             galleryItem.style.opacity = '0';
-            galleryItem.style.animation = `fadeInUp 0.5s ease forwards ${index * 0.1}s`;
+            galleryItem.style.animation = `fadeInUp ${ANIMATION_DURATION} ease forwards ${index * ANIMATION_STAGGER_DELAY}s`;
 
-            galleryItem.innerHTML = `
-                <img src="${item.src}" alt="${item.alt}" loading="lazy">
-                <div class="gallery-overlay">
-                    <span class="gallery-icon">+</span>
-                </div>
-            `;
+            const img = document.createElement('img');
+            img.src = item.src;
+            img.alt = item.alt;
+            img.loading = 'lazy';
+
+            const overlay = document.createElement('div');
+            overlay.classList.add('gallery-overlay');
+            overlay.innerHTML = '<span class="gallery-icon">+</span>';
+
+            galleryItem.appendChild(img);
+            galleryItem.appendChild(overlay);
 
             galleryGrid.appendChild(galleryItem);
         });

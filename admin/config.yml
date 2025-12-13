@@ -20,4 +20,4 @@ collections:
             fields:
               - {label: "Image", name: "src", widget: "image"}
               - {label: "Alt Text", name: "alt", widget: "string"}
-              - {label: "Category", name: "category", widget: "select", options: ["events", "real-estate", "landscape", "commercial"]}
+              - {label: "Category", name: "category", widget: "select", options: ["events", "real_estate", "landscape", "commercial"]}

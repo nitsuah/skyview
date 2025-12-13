@@ -13,7 +13,7 @@
         {
             "src": "assets/gallery/image3.jpg",
             "alt": "Modern residential building aerial view",
-            "category": "real-estate"
+            "category": "real_estate"
         },
         {
             "src": "assets/gallery/image4.jpg",
