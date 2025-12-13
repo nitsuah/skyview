@@ -19,5 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - In Progress
 
 ### Added
-- Initial project structure with HTML/CSS.
-- Basic routing and layout.
+- **Dynamic Gallery**: Implemented `gallery-loader.js` to fetch images from `assets/gallery.json`.
+- **E2E Testing**: Added Playwright tests (`tests/site.spec.ts`) covering critical paths.
+- **Admin Panel**: Added Decap CMS (`admin/`) for managing gallery assets without code.
+- **Documentation**: Added `docs/ASSET_MANAGEMENT.md`.
+
+### Changed
+- **Services**: Updated service cards with real-world offerings (Real Estate, Cinematography, Mapping).
+- **Contact Form**: Configured for Netlify Forms (`data-netlify="true"`).
+- **Structure**: Gallery is now rendered dynamically on page load.

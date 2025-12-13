@@ -1,0 +1,34 @@
+{
+    "items": [
+        {
+            "src": "assets/gallery/image1.jpg",
+            "alt": "Aerial view of concert festival at night",
+            "category": "events"
+        },
+        {
+            "src": "assets/gallery/image2.jpg",
+            "alt": "Coastal sunset aerial photography",
+            "category": "landscape"
+        },
+        {
+            "src": "assets/gallery/image3.jpg",
+            "alt": "Modern residential building aerial view",
+            "category": "real-estate"
+        },
+        {
+            "src": "assets/gallery/image4.jpg",
+            "alt": "Historic castle drone photography",
+            "category": "landscape"
+        },
+        {
+            "src": "assets/gallery/image5.jpg",
+            "alt": "Industrial construction site aerial view",
+            "category": "commercial"
+        },
+        {
+            "src": "assets/gallery/image6.jpg",
+            "alt": "Urban cityscape at dusk",
+            "category": "landscape"
+        }
+    ]
+}

@@ -2,11 +2,11 @@
 
 ## Todo
 
-- [ ] **Content**: Populate Service Packages with real data (pricing, descriptions) (P0)
-- [ ] **Feature**: Connect Contact Form (Netlify Forms/Formspree) (P0)
-- [ ] **Gallery**: Implement dynamic loading logic (move away from hardcoded HTML if possible) (P1)
-- [ ] **Assets**: Setup Cloudinary/External Host for video assets (P1)
-- [ ] **Admin**: Investigate Netlify Identity for "Friend" login/upload portal (P2)
+- [x] **Content**: Populate Service Packages with real data (pricing, descriptions) (P0)
+- [x] **Feature**: Connect Contact Form (Netlify Forms/Formspree) (P0)
+- [x] **Gallery**: Implement dynamic loading logic (move away from hardcoded HTML if possible) (P1)
+- [x] **Assets**: Setup Cloudinary/External Host for video assets (P1) - *Doc added*
+- [x] **Admin**: Investigate Netlify Identity for "Friend" login/upload portal (P2) - *Implemented Decap CMS*
 - [ ] **Booking**: Research Calendly embed for consultation scheduling (P2)
 
 ## In Progress

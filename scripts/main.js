@@ -5,11 +5,17 @@ import { initGalleryLightbox } from './gallery.js';
 import { initFormHandling } from './form.js';
 import { initScrollEffects, initAnimationStates } from './scroll-effects.js';
 import { initParallax } from './parallax.js';
+import { loadGallery } from './gallery-loader.js';
 
 // Initialize all modules when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     initMobileMenu();
     initSmoothScroll();
+
+    // Load dynamic content
+    await loadGallery();
+
+    // Initialize interactive modules that depend on content
     initGalleryLightbox();
     initFormHandling();
     initScrollEffects();

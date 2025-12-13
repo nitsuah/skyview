@@ -1,0 +1,24 @@
+{
+  "name": "skyview",
+  "version": "1.0.0",
+  "description": "A stunning, high-tech website for professional drone services featuring a minimalist design with full-bleed photography, dark high-contrast aesthetics, and glassmorphic UI elements.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nitsuah/skyview.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nitsuah/skyview/issues"
+  },
+  "homepage": "https://github.com/nitsuah/skyview#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
+  }
+}
