@@ -20,7 +20,7 @@
 
 ## 🔧 What YOU Need to Do:
 
-### 0. Enable/Disable Features (2 min) ⚡
+### Prerequisite: Enable/Disable Features (2 min) ⚡
 **This controls what shows on your site!**
 
 1. Open `config.js` in your code editor
