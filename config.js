@@ -23,6 +23,9 @@ window.SKYVIEW_CONFIG = {
         // Admin CMS - Enable when Netlify Identity is configured
         adminCMS: true,
         
+        // 3D Preview - Enable when 3D viewer is implemented
+        preview3D: false,
+        
         // Analytics - Enable when analytics provider is set up
         analytics: false
     },
@@ -120,6 +123,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (calendlyWidget) {
             const url = `${window.SKYVIEW_CONFIG.calendly.url}?hide_gdpr_banner=${window.SKYVIEW_CONFIG.calendly.hideGdprBanner ? '1' : '0'}&primary_color=${window.SKYVIEW_CONFIG.calendly.primaryColor}`;
             calendlyWidget.setAttribute('data-url', url);
+        }
+    }
+    
+    // Hide 3D preview if disabled
+    if (!config.preview3D) {
+        const preview3D = document.getElementById('preview3d');
+        if (preview3D) {
+            preview3D.style.display = 'none';
         }
     }
     
