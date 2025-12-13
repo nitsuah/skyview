@@ -108,9 +108,9 @@ export async function loadGallery() {
     console.log(`🖼️ WebP Support: ${hasWebP ? '✅ Enabled' : '❌ Using fallback'}`);
 
     try {
-        // Add cache busting to ensure fresh gallery data
-        const cacheBuster = new Date().getTime();
-        const url = `assets/gallery.json?v=${cacheBuster}`;
+        // Cache busting with static version - update on deployment when gallery.json changes
+        const GALLERY_VERSION = '1.0.0';
+        const url = `assets/gallery.json?v=${GALLERY_VERSION}`;
         console.log(`📥 Fetching gallery from: ${url}`);
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to load gallery manifest');

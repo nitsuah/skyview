@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 /**
  * WebP Image Loader with Automatic Fallback
  * 

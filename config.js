@@ -44,8 +44,8 @@ window.SKYVIEW_CONFIG = {
     
     // Calendly configuration
     calendly: {
-        // Replace with your actual Calendly URL
-        url: 'https://calendly.com/skyviewdynamics/consultation',
+        // TODO: Replace with your actual Calendly URL (e.g., https://calendly.com/YOUR_USERNAME/consultation)
+        url: 'https://calendly.com/YOUR_CALENDLY_USERNAME/consultation',
         // Customization
         primaryColor: '00d4ff',
         hideGdprBanner: true

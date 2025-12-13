@@ -26,7 +26,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚁 SkyView Dynamics - Website Initialized');
     
     // Initialize performance monitoring (development only)
-    initPerformanceMonitoring();
+    if (typeof initPerformanceMonitoring === 'function') {
+        try {
+            initPerformanceMonitoring();
+        } catch (e) {
+            console.warn('Performance monitoring failed to initialize:', e);
+        }
+    }
 });
 
 // Lazy load images
