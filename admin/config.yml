@@ -1,0 +1,23 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "assets/gallery"
+public_folder: "assets/gallery"
+
+collections:
+  - name: "gallery"
+    label: "Gallery"
+    files:
+      - name: "items"
+        label: "Gallery Items"
+        file: "assets/gallery.json"
+        description: "Manage the images displayed in the main gallery"
+        fields:
+          - label: "Images"
+            name: "items"
+            widget: "list"
+            fields:
+              - {label: "Image", name: "src", widget: "image"}
+              - {label: "Alt Text", name: "alt", widget: "string"}
+              - {label: "Category", name: "category", widget: "select", options: ["events", "real_estate", "landscape", "commercial"]}
