@@ -306,7 +306,7 @@
                 // Check if access code matches pattern (demo purposes)
                 if (accessCode.length >= 8) {
                     // Success - redirect to client-specific gallery
-                    window.location.href = `/client-gallery.html?code=${accessCode}`;
+                    window.location.href = `/client-gallery.html?code=${encodeURIComponent(accessCode)}`;
                 } else {
                     // Error
                     loadingView.classList.remove('show');

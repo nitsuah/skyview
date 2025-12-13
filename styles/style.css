@@ -629,6 +629,8 @@ button {
 }
 
 .calendly-inline-widget {
+    min-width: 320px;
+    height: 700px;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
@@ -1240,7 +1242,7 @@ button {
     }
 
     .calendly-inline-widget {
-        height: 600px !important;
+        height: 600px;
     }
 
     .booking-subtitle {
@@ -1307,7 +1309,7 @@ button {
     }
 
     .calendly-inline-widget {
-        height: 550px !important;
+        height: 550px;
     }
 
     .booking-subtitle {

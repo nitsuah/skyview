@@ -194,7 +194,7 @@ skyview/
 - Mobile menu works
 - All pages are complete
 
-##Edit `config.js` to enable/disable features
+## Edit `config.js` to enable/disable features
 - Calendly link (in `config.js`)
 - Email notifications (enable in `config.js` after Netlify setup)
 - Email notifications
@@ -248,9 +248,8 @@ This website provides:
 
 ## 🆘 Support Resources
 
-###config.js](config.js) - **Feature flags & settings**
+- [config.js](config.js) - **Feature flags & settings**
 - [CONFIG.md](docs/CONFIG.md) - **Feature flags guide**
-- [ Documentation
 - [MANUAL_SETUP.md](MANUAL_SETUP.md) - Configuration checklist
 - [ANALYTICS_SETUP.md](docs/ANALYTICS_SETUP.md) - Analytics guide
 - [EMAIL_NOTIFICATIONS.md](docs/EMAIL_NOTIFICATIONS.md) - Email setup

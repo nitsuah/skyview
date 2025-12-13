@@ -108,11 +108,7 @@ This document tracks configuration tasks that need to be completed in external s
        domain: 'yourdomain.com'  // Your actual domain
    }
    ```
-4. Deploy changes - analytics will auto-load!n
-3. Update `index.html` line 19:
-   - Uncomment the script
-   - Replace `yourdomain.com` with your actual domain
-4. Deploy changes
+4. Deploy changes - analytics will auto-load!
 
 **Option B: Netlify Analytics (Easiest)**
 1. Go to Netlify Dashboard → Analytics
