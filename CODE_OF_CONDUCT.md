@@ -32,7 +32,7 @@ This Code of Conduct applies within all community spaces, and also applies when 
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project maintainers, @nitsuah. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project maintainers, @nitsuah, or via email at **contact@skyviewdynamics.com**. All complaints will be reviewed and investigated promptly and fairly.
 
 ## Attribution
 

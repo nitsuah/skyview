@@ -12,8 +12,8 @@
 - **Performance**: Lazy loading for gallery images to ensure fast initial paint.
 - **Netlify Integration**:
     - **Forms**: Built-in form handling for zero-config contact forms.
-    - **(Planned) Identity**: Simple header-based authentication for admin tasks.
+    - **Identity**: Authentication for the admin content management system.
 
-## Admin Tools (Planned)
-- **Asset Upload**: Method to easily add new photos without code changes.
-- **Booking Management**: Integration with external scheduling tools.
+## Admin Tools
+- **Asset Upload**: Decap CMS integration allows adding new photos without code changes.
+- **Booking Management (Planned)**: Integration with external scheduling tools.
