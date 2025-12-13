@@ -272,7 +272,7 @@ button {
     left: 0;
     width: 100%;
     height: 120%;
-    background: url('../assets/hero-bg.jpg') center/cover no-repeat;
+    background: url('../assets/gallery/sunset-marina.jpg') center/cover no-repeat;
     background-attachment: fixed;
     z-index: 0;
     animation: subtleZoom 20s ease-in-out infinite alternate;

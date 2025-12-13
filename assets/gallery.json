@@ -1,34 +1,14 @@
 {
     "items": [
         {
-            "src": "assets/gallery/image1.jpg",
-            "alt": "Aerial view of concert festival at night",
-            "category": "events"
-        },
-        {
-            "src": "assets/gallery/image2.jpg",
-            "alt": "Coastal sunset aerial photography",
+            "src": "assets/gallery/sunset-marina.jpg",
+            "alt": "Stunning sunset over marina with boats and waterfront homes",
             "category": "landscape"
         },
         {
-            "src": "assets/gallery/image3.jpg",
-            "alt": "Modern residential building aerial view",
+            "src": "assets/gallery/aerial-waterfront.jpg",
+            "alt": "Aerial view of waterfront residential community",
             "category": "real_estate"
-        },
-        {
-            "src": "assets/gallery/image4.jpg",
-            "alt": "Historic castle drone photography",
-            "category": "landscape"
-        },
-        {
-            "src": "assets/gallery/image5.jpg",
-            "alt": "Industrial construction site aerial view",
-            "category": "commercial"
-        },
-        {
-            "src": "assets/gallery/image6.jpg",
-            "alt": "Urban cityscape at dusk",
-            "category": "landscape"
         }
     ]
 }

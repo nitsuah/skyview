@@ -154,7 +154,27 @@ adminCMS: false
 
 ---
 
-### 6. Analytics (`analytics`)
+### 6. 3D Preview (`preview3D`)
+
+**Default:** `false` (hidden)
+
+**What it does:**
+- Shows/hides the "INTERACTIVE 3D PREVIEW" card in the gallery section
+- This is a placeholder for future 3D viewer functionality
+
+**When to enable:**
+- When you implement a 3D viewer/model viewer
+- When you have 3D scans or models to showcase
+- Currently just a "Coming Soon" placeholder
+
+**To enable:**
+```javascript
+preview3D: true
+```
+
+---
+
+### 7. Analytics (`analytics`)
 
 **Default:** `false` (disabled)
 
@@ -212,6 +232,7 @@ features: {
     calendly: true,          // Ready! ✅
     clientPortal: false,     // Not needed yet
     adminCMS: true,          // Set up for managing gallery
+    preview3D: false,        // Not implemented yet
     analytics: false         // Will add later
 }
 ```
@@ -224,6 +245,7 @@ features: {
     calendly: true,          // ✅
     clientPortal: false,     // Working on it
     adminCMS: true,          // ✅
+    preview3D: false,        // Future feature
     analytics: true          // Now tracking! ✅
 }
 ```
@@ -236,6 +258,7 @@ features: {
     calendly: true,          // ✅
     clientPortal: true,      // Delivering files! ✅
     adminCMS: true,          // ✅
+    preview3D: true,         // 3D viewer implemented! ✅
     analytics: true          // ✅
 }
 ```

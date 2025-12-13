@@ -11,6 +11,7 @@ features: {
     calendly: true,          // ✅ Visible (ready to use!)
     clientPortal: false,     // ❌ Hidden (not needed yet)
     adminCMS: true,          // ✅ Ready (configure Netlify Identity)
+    preview3D: false,        // ❌ Hidden (future feature)
     analytics: false         // ❌ Hidden (add later)
 }
 ```
