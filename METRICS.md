@@ -6,7 +6,7 @@ This document outlines the key success metrics for the Skyview project.
 
 | Metric                      | Current | Target | Status |
 |-----------------------------|---------|--------|--------|
-| Code Coverage               | TBD     | > 80   | 🟡     |
+| Code Coverage               | 3.96%   | > 80   | 🟡     |
 | **Page Speed (Lighthouse)** | TBD     | > 90   | 🟡     |
 | **Mobile Responsiveness**   | TBD     | Pass   | 🟡     |
 | **Contact Form Conversions**| 0       | Tracking | ⚪     |
