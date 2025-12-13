@@ -13,34 +13,19 @@
             "featured": true
         },
         {
-            "src": "assets/gallery/image1.jpg",
-            "alt": "Breathtaking coastal sunset with vibrant orange and purple sky",
+            "src": "assets/gallery/dji-example-1.jpg",
+            "alt": "Professional aerial photography sample - coastal landscape",
             "category": "landscape"
         },
         {
-            "src": "assets/gallery/image2.jpg",
-            "alt": "Modern luxury home exterior with architectural details",
+            "src": "assets/gallery/dji-example-2.jpg",
+            "alt": "Professional aerial photography sample - urban development",
             "category": "real_estate"
         },
         {
-            "src": "assets/gallery/image3.jpg",
-            "alt": "Scenic mountain landscape with rolling hills and valleys",
+            "src": "assets/gallery/dji-example-3.jpg",
+            "alt": "Professional aerial photography sample - scenic vista",
             "category": "landscape"
-        },
-        {
-            "src": "assets/gallery/image4.jpg",
-            "alt": "Commercial property aerial view showing parking and building layout",
-            "category": "commercial"
-        },
-        {
-            "src": "assets/gallery/image5.jpg",
-            "alt": "Outdoor wedding ceremony setup with elegant decorations",
-            "category": "events"
-        },
-        {
-            "src": "assets/gallery/image6.jpg",
-            "alt": "Construction site progress documentation from elevated perspective",
-            "category": "commercial"
         }
     ]
 }

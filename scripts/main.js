@@ -5,7 +5,7 @@ import { initGalleryLightbox } from './gallery.js';
 import { initFormHandling } from './form.js';
 import { initScrollEffects, initAnimationStates } from './scroll-effects.js';
 import { initParallax } from './parallax.js';
-import { loadGallery } from './gallery-loader.js';
+import { loadGallery } from './gallery-loader-v2.js';
 import { initPerformanceMonitoring } from './performance-monitor.js';
 
 // Initialize all modules when DOM is ready

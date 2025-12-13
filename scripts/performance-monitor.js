@@ -201,7 +201,7 @@ export function initPerformanceMonitoring() {
     }
 }
 
-// Auto-initialize if this script is loaded
-if (typeof window !== 'undefined') {
-    initPerformanceMonitoring();
-}
+// Don't auto-initialize - let main.js control it to avoid duplicates
+// if (typeof window !== 'undefined') {
+//     initPerformanceMonitoring();
+// }
