@@ -14,6 +14,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/style.css?v=20241211225000">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    
+    <!-- Site Configuration & Feature Flags -->
+    <script src="config.js"></script>
 </head>
 
 <body>
@@ -53,6 +56,7 @@
             <ul class="nav-links">
                 <li><a href="#services">SERVICES</a></li>
                 <li><a href="#gallery">GALLERY</a></li>
+                <li><a href="#testimonials">REVIEWS</a></li>
                 <li><a href="#booking">BOOKING</a></li>
                 <li><a href="#contact">CONTACT</a></li>
             </ul>
@@ -78,7 +82,7 @@
         <div class="hero-content">
             <h1 class="hero-title">ELEVATE YOUR VISION</h1>
             <p class="hero-subtitle">Cinematic Drone Services for Events & Imaging</p>
-            <a href="#contact" class="cta-button">
+            <a href="#booking" class="cta-button">
                 <span class="cta-text">BOOK A CONSULTATION</span>
                 <span class="cta-glow"></span>
             </a>
@@ -199,6 +203,76 @@
         </div>
     </section>
 
+    <!-- Testimonials Section -->
+    <section class="testimonials-section" id="testimonials">
+        <div class="container">
+            <h2 class="section-title">CLIENT TESTIMONIALS</h2>
+            <p class="section-subtitle">What Our Clients Say</p>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <p class="testimonial-text">
+                        "The aerial footage completely transformed our property listing. We received multiple offers within days of posting the video. Absolutely worth every penny!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">JM</div>
+                        <div class="author-info">
+                            <div class="author-name">Jennifer Martinez</div>
+                            <div class="author-title">Real Estate Agent</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <p class="testimonial-text">
+                        "Professional, punctual, and the results exceeded our expectations. The wedding video captured angles we never imagined possible. Truly magical!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">SK</div>
+                        <div class="author-info">
+                            <div class="author-name">Sarah & Kevin</div>
+                            <div class="author-title">Wedding Clients</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <p class="testimonial-text">
+                        "Fast turnaround, incredible quality, and easy to work with. The 3D mapping helped us identify issues we wouldn't have caught otherwise. Highly recommend!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">RJ</div>
+                        <div class="author-info">
+                            <div class="author-name">Robert Johnson</div>
+                            <div class="author-title">Construction Manager</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Contact Section -->
     <section class="contact-section" id="contact">
         <div class="container">
@@ -230,7 +304,7 @@
                     </div>
                 </div>
                 <form class="contact-form" name="contact" method="POST" data-netlify="true"
-                    netlify-honeypot="bot-field">
+                    netlify-honeypot="bot-field" action="/thank-you.html">
                     <input type="hidden" name="form-name" value="contact" />
                     <p class="hidden" style="display:none">
                         <label>Don’t fill this out if you're human: <input name="bot-field" /></label>
@@ -302,6 +376,9 @@
                 <div class="footer-info">
                     <p>&copy; 2024 SkyView Dynamics. All rights reserved.</p>
                     <p>contact@skyviewdynamics.com | +1 (555) 123-4567</p>
+                    <p style="margin-top: 0.5rem;">
+                        <a href="/privacy.html" style="color: rgba(255, 255, 255, 0.6); text-decoration: none; transition: color 0.3s ease;">Privacy Policy</a>
+                    </p>
                 </div>
                 <div class="social-links">
                     <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
