@@ -34,7 +34,9 @@ Then open: http://localhost:3000
 - **CSS3**: Modern variables, flexbox/grid, glassmorphism.
 - **JavaScript**: ES6 Modules (`scripts/`).
 - **CMS**: Decap CMS (git-based content management).
-- **Testing**: Playwright (E2E).
+- **Testing**:
+  - **E2E**: Playwright (`npx playwright test`)
+  - **Unit**: Vitest (`npx vitest run`)
 - **Netlify**: Hosting, Forms, and Identity.
 
 
