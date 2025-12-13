@@ -26,7 +26,7 @@ npx http-server . -p 3000
 python -m http.server 3000
 ```
 
-Then open: http://localhost:3000
+Then open: [localhost:3000](http://localhost:3000)
 
 ## 🔧 Technical Stack
 
@@ -39,7 +39,6 @@ Then open: http://localhost:3000
   - **Unit**: Vitest (`npx vitest run`)
 - **Netlify**: Hosting, Forms, and Identity.
 
-
 ## 🎯 Features
 
 - ✅ Full-screen hero with parallax
@@ -51,6 +50,4 @@ Then open: http://localhost:3000
 
 ---
 
-**Built with ❤️ for SkyView Dynamics**
-
-*Elevate Your Vision*
+> **Built with ❤️ for SkyView Dynamics by nitsuah**
