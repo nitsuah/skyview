@@ -9,7 +9,7 @@ This document outlines the key success metrics for the Skyview project.
 | Code Coverage               | 85.02%  | > 80   | 🟡     |
 | **Page Speed (Lighthouse)** | TBD     | > 90   | 🟡     |
 | **Mobile Responsiveness**   | TBD     | Pass   | 🟡     |
-| **Contact Form Conversions**| 0       | tbd    | ⚪   |
+| **Contact Form Conversions**| 0       | TBD    | ⚪     |
 | **Gallery Load Time**       | TBD     | < 2s   | 🟡     |
 | **SEO Score**               | TBD     | > 90   | 🟡     |
 

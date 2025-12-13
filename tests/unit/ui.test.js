@@ -100,7 +100,7 @@ describe('UI Effects', () => {
             // Check that it calls animateOnScroll after timeout
             await vi.advanceTimersByTimeAsync(150);
 
-            // Should be visible again beause it's in viewport (mocked rect)
+            // Should be visible again because it's in viewport (mocked rect)
             expect(element.style.opacity).toBe('1');
         });
     });

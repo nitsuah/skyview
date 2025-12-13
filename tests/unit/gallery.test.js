@@ -86,7 +86,7 @@ describe('gallery lightbox', () => {
         expect(lightbox.classList.contains('active')).toBe(false);
     });
 
-    it('should ignored keyboard if closed', () => {
+    it('should ignore keyboard if closed', () => {
         initGalleryLightbox();
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
         // Expect no errors, no state change (hard to test without spy, but checking if active class mysteriously appears)

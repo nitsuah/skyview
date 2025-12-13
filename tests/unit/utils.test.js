@@ -1,7 +1,11 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { throttle } from '../../scripts/utils.js';
 
 describe('utils', () => {
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
     describe('throttle', () => {
         it('should execute the function immediately', () => {
             const func = vi.fn();
