@@ -26,6 +26,19 @@
             "src": "assets/gallery/dji-example-3.jpg",
             "alt": "Professional aerial photography sample - scenic vista",
             "category": "landscape"
+        },
+        {
+            "src": "assets/gallery/sunset-marina.mp4",
+            "alt": "Aerial video of sunset over marina with boats",
+            "category": "landscape",
+            "featured": true,
+            "type": "video"
+        },
+        {
+            "src": "assets/gallery/dji-example-4.mov",
+            "alt": "Professional aerial videography sample",
+            "category": "landscape",
+            "type": "video"
         }
     ]
 }

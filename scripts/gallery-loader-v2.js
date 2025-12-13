@@ -11,6 +11,40 @@ function supportsWebP() {
 }
 
 /**
+ * Check if the item is a video based on file extension or type property
+ * @param {Object} item - Gallery item
+ * @returns {boolean}
+ */
+function isVideo(item) {
+    return item.type === 'video' || /\.(mp4|mov|webm|ogg)$/i.test(item.src);
+}
+
+/**
+ * Create video element for video files
+ * @param {Object} item - Gallery item with src, alt properties
+ * @returns {HTMLVideoElement}
+ */
+function createVideoElement(item) {
+    const video = document.createElement('video');
+    video.src = item.src;
+    video.alt = item.alt;
+    video.title = item.alt;
+    video.controls = true;
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    video.loading = 'lazy';
+    
+    // Add poster image if available (same name as video, but .jpg)
+    const posterPath = item.src.replace(/\.(mp4|mov|webm|ogg)$/i, '.jpg');
+    if (posterPath !== item.src) {
+        video.poster = posterPath;
+    }
+    
+    return video;
+}
+
+/**
  * Create picture element with WebP and fallback sources
  * @param {Object} item - Gallery item with src, alt properties
  * @returns {HTMLPictureElement}
@@ -88,14 +122,14 @@ export async function loadGallery() {
             galleryItem.style.opacity = '0';
             galleryItem.style.animation = `fadeInUp ${ANIMATION_DURATION} ease forwards ${index * staggerDelayVal}s`;
 
-            // Use picture element for WebP with fallback
-            const picture = createPictureElement(item);
+            // Use video element for videos, picture element for images
+            const mediaElement = isVideo(item) ? createVideoElement(item) : createPictureElement(item);
 
             const overlay = document.createElement('div');
             overlay.classList.add('gallery-overlay');
             overlay.innerHTML = '<span class="gallery-icon">+</span>';
 
-            galleryItem.appendChild(picture);
+            galleryItem.appendChild(mediaElement);
             galleryItem.appendChild(overlay);
 
             galleryGrid.appendChild(galleryItem);

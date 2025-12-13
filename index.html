@@ -412,9 +412,12 @@
     <!-- Lightbox Modal -->
     <div class="lightbox" id="lightbox">
         <button class="lightbox-close" aria-label="Close lightbox">&times;</button>
-        <button class="lightbox-prev" aria-label="Previous image">&#10094;</button>
-        <button class="lightbox-next" aria-label="Next image">&#10095;</button>
-        <img class="lightbox-image" src="" alt="">
+        <button class="lightbox-prev" aria-label="Previous media">&#10094;</button>
+        <button class="lightbox-next" aria-label="Next media">&#10095;</button>
+        <div class="lightbox-media-container">
+            <img class="lightbox-image" src="" alt="" style="display: none;">
+            <video class="lightbox-video" controls muted playsinline style="display: none;"></video>
+        </div>
         <div class="lightbox-counter"></div>
     </div>
 
