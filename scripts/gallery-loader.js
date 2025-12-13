@@ -3,10 +3,15 @@
  * @returns {Promise<void>}
  */
 export async function loadGallery() {
-    const ANIMATION_DURATION = '0.5s';
-    const ANIMATION_STAGGER_DELAY = 0.1;
     const galleryGrid = document.querySelector('.gallery-grid');
     if (!galleryGrid) return;
+
+    // Read animation constants from CSS custom properties
+    const computedStyles = getComputedStyle(galleryGrid);
+    const ANIMATION_DURATION = computedStyles.getPropertyValue('--gallery-animation-duration').trim() || '0.5s';
+    // Parse the delay to a number if used in a calculation, or handle string manipulation. 
+    // The previous logic used `index * 0.1`. If the CSS val is '0.1s', parseFloat works.
+    const staggerDelayVal = parseFloat(computedStyles.getPropertyValue('--gallery-animation-stagger-delay')) || 0.1;
 
     try {
         const response = await fetch('assets/gallery.json');
@@ -15,7 +20,7 @@ export async function loadGallery() {
         const data = await response.json();
         const items = data.items || [];
 
-        // Clear existing static items (if any, though we will remove them from HTML)
+        // Clear existing static items
         galleryGrid.innerHTML = '';
 
         items.forEach((item, index) => {
@@ -26,7 +31,7 @@ export async function loadGallery() {
 
             // Fade in animation class (handled by CSS)
             galleryItem.style.opacity = '0';
-            galleryItem.style.animation = `fadeInUp ${ANIMATION_DURATION} ease forwards ${index * ANIMATION_STAGGER_DELAY}s`;
+            galleryItem.style.animation = `fadeInUp ${ANIMATION_DURATION} ease forwards ${index * staggerDelayVal}s`;
 
             const img = document.createElement('img');
             img.src = item.src;
@@ -45,6 +50,6 @@ export async function loadGallery() {
 
     } catch (error) {
         console.error('Error loading gallery:', error);
-        galleryGrid.innerHTML = '<p class="error-message">Unable to load gallery images at this time.</p>';
+        galleryGrid.innerHTML = '<p class="error-message" role="alert" aria-live="polite">Unable to load gallery images at this time.</p>';
     }
 }
