@@ -33,7 +33,8 @@ export function logPerformanceMetrics() {
 export function trackImageLoading() {
     if (!isDev) return;
     
-    const images = document.querySelectorAll('img, picture source');
+    // Only track actual img elements, not source elements
+    const images = document.querySelectorAll('img');
     const imageMetrics = {
         total: images.length,
         loaded: 0,
@@ -43,6 +44,15 @@ export function trackImageLoading() {
     };
     
     images.forEach(img => {
+        // Skip if this is inside a video element (poster images)
+        if (img.closest('video')) return;
+        
+        // Skip if the src is a video file
+        if (img.src && /\.(mp4|mov|webm|ogg)$/i.test(img.src)) {
+            imageMetrics.total--;
+            return;
+        }
+        
         if (img.complete) {
             imageMetrics.loaded++;
             if (img.currentSrc && img.currentSrc.includes('.webp')) {
@@ -66,7 +76,10 @@ export function trackImageLoading() {
             
             img.addEventListener('error', () => {
                 imageMetrics.failed++;
-                console.warn('❌ Failed to load image:', img.src || img.srcset);
+                // Don't warn about video files
+                if (!img.src || !/\.(mp4|mov|webm|ogg)$/i.test(img.src)) {
+                    console.warn('❌ Failed to load image:', img.src || img.srcset);
+                }
                 
                 if (imageMetrics.loaded + imageMetrics.failed === imageMetrics.total) {
                     logImageMetrics();

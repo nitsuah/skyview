@@ -52,6 +52,16 @@ function createVideoElement(item) {
 function createPictureElement(item) {
     const picture = document.createElement('picture');
     
+    // Safety check: don't process video files
+    if (isVideo(item)) {
+        console.warn('Attempted to create picture element for video:', item.src);
+        const img = document.createElement('img');
+        img.src = item.src;
+        img.alt = item.alt;
+        picture.appendChild(img);
+        return picture;
+    }
+    
     // Remove extension from src to get base path
     const basePath = item.src.replace(/\.(jpg|jpeg|png|webp)$/i, '');
     
@@ -123,7 +133,9 @@ export async function loadGallery() {
             galleryItem.style.animation = `fadeInUp ${ANIMATION_DURATION} ease forwards ${index * staggerDelayVal}s`;
 
             // Use video element for videos, picture element for images
-            const mediaElement = isVideo(item) ? createVideoElement(item) : createPictureElement(item);
+            const itemIsVideo = isVideo(item);
+            console.log(`Processing item ${index}: ${item.src} - ${itemIsVideo ? '🎬 VIDEO' : '🖼️ IMAGE'}`);
+            const mediaElement = itemIsVideo ? createVideoElement(item) : createPictureElement(item);
 
             const overlay = document.createElement('div');
             overlay.classList.add('gallery-overlay');
