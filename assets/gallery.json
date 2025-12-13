@@ -2,13 +2,45 @@
     "items": [
         {
             "src": "assets/gallery/sunset-marina.jpg",
-            "alt": "Stunning sunset over marina with boats and waterfront homes",
-            "category": "landscape"
+            "alt": "Stunning sunset over marina with boats and waterfront homes at golden hour",
+            "category": "landscape",
+            "featured": true
         },
         {
             "src": "assets/gallery/aerial-waterfront.jpg",
-            "alt": "Aerial view of waterfront residential community",
+            "alt": "Aerial view of waterfront residential community with pristine landscaping",
+            "category": "real_estate",
+            "featured": true
+        },
+        {
+            "src": "assets/gallery/image1.jpg",
+            "alt": "Breathtaking coastal sunset with vibrant orange and purple sky",
+            "category": "landscape"
+        },
+        {
+            "src": "assets/gallery/image2.jpg",
+            "alt": "Modern luxury home exterior with architectural details",
             "category": "real_estate"
+        },
+        {
+            "src": "assets/gallery/image3.jpg",
+            "alt": "Scenic mountain landscape with rolling hills and valleys",
+            "category": "landscape"
+        },
+        {
+            "src": "assets/gallery/image4.jpg",
+            "alt": "Commercial property aerial view showing parking and building layout",
+            "category": "commercial"
+        },
+        {
+            "src": "assets/gallery/image5.jpg",
+            "alt": "Outdoor wedding ceremony setup with elegant decorations",
+            "category": "events"
+        },
+        {
+            "src": "assets/gallery/image6.jpg",
+            "alt": "Construction site progress documentation from elevated perspective",
+            "category": "commercial"
         }
     ]
 }
