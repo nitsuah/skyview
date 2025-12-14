@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Client Portal - Skyview Aerial Media</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .portal-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo svg {
+            width: 60px;
+            height: 60px;
+            stroke: #00d4ff;
+            margin-bottom: 1rem;
+        }
+
+        .logo h1 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+        }
+
+        .login-form {
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #00d4ff, #0066ff);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .login-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .login-button:hover::before {
+            left: 100%;
+        }
+
+        .error-message {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            color: #ff6b6b;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .help-text {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .help-text p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .help-text a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .help-text a:hover {
+            color: #00ffff;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .portal-container {
+                padding: 2rem 1.5rem;
+            }
+
+            .logo h1 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="portal-container">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="10" y="10" width="4" height="3" rx="0.5" stroke="currentColor" stroke-width="1.5" fill="currentColor" />
+                <circle cx="12" cy="13.5" r="1" fill="#1A1A1A" />
+                <line x1="10" y1="11" x2="4" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <line x1="14" y1="11" x2="20" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <line x1="10" y1="12" x2="4" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <line x1="14" y1="12" x2="20" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <circle cx="4" cy="5" r="2" stroke="currentColor" stroke-width="1.5" />
+                <circle cx="20" cy="5" r="2" stroke="currentColor" stroke-width="1.5" />
+                <circle cx="4" cy="18" r="2" stroke="currentColor" stroke-width="1.5" />
+                <circle cx="20" cy="18" r="2" stroke="currentColor" stroke-width="1.5" />
+            </svg>
+            <h1>CLIENT PORTAL</h1>
+            <p>Skyview Aerial Media</p>
+        </div>
+
+        <div id="loginView" class="login-form">
+            <div id="errorMessage" class="error-message"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="accessCode">Access Code</label>
+                    <input 
+                        type="password" 
+                        id="accessCode" 
+                        name="accessCode" 
+                        placeholder="Enter your access code"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+
+                <button type="submit" class="login-button">
+                    Access Your Files
+                </button>
+            </form>
+
+            <div class="help-text">
+                <p>Don't have an access code?</p>
+                <p>
+                    <a href="/#contact">Contact us</a> or check your email for your unique portal link.
+                </p>
+            </div>
+        </div>
+
+        <div id="loadingView" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Verifying access...</p>
+        </div>
+    </div>
+
+    <script>
+        // Client Portal Authentication
+        // This is a simple prototype. In production, use Netlify Identity or a proper auth system.
+        
+        const form = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const loginView = document.getElementById('loginView');
+        const loadingView = document.getElementById('loadingView');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const accessCode = document.getElementById('accessCode').value;
+            
+            // Show loading
+            loginView.style.display = 'none';
+            loadingView.classList.add('show');
+            
+            // Simulate authentication
+            setTimeout(() => {
+                // In production, this would verify against Netlify Identity or a database
+                // For now, this is a placeholder that shows how it would work
+                
+                // Check if access code matches pattern (demo purposes)
+                if (accessCode.length >= 8) {
+                    // Success - redirect to client-specific gallery
+                    window.location.href = `/client-gallery.html?code=${encodeURIComponent(accessCode)}`;
+                } else {
+                    // Error
+                    loadingView.classList.remove('show');
+                    loginView.style.display = 'block';
+                    showError('Invalid access code. Please check your email or contact us for help.');
+                }
+            }, 1500);
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
+        }
+
+        // Auto-fill if access code is in URL (from email link)
+        const urlParams = new URLSearchParams(window.location.search);
+        const codeFromUrl = urlParams.get('code');
+        if (codeFromUrl) {
+            document.getElementById('accessCode').value = codeFromUrl;
+            form.dispatchEvent(new Event('submit'));
+        }
+    </script>
+</body>
+
+</html>

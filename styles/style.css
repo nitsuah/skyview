@@ -253,6 +253,18 @@ button {
     z-index: 1;
 }
 
+.hero-image {
+    position: absolute;
+    top: -10%;
+    left: 0;
+    width: 100%;
+    height: 120%;
+    background: url('../assets/gallery/sunset-marina.jpg') center/cover no-repeat;
+    background-attachment: fixed;
+    z-index: 0;
+    animation: subtleZoom 20s ease-in-out infinite alternate;
+}
+
 .hero-video {
     position: absolute;
     top: 50%;
@@ -263,18 +275,18 @@ button {
     height: auto;
     transform: translate(-50%, -50%);
     object-fit: cover;
-    z-index: 0;
+    z-index: 1;
+    opacity: 0;
+    animation: fadeInVideo 2s ease-in 0.5s forwards;
 }
 
-.hero-image {
-    position: absolute;
-    top: -10%;
-    left: 0;
-    width: 100%;
-    height: 120%;
-    background: url('../assets/hero-bg.jpg') center/cover no-repeat;
-    background-attachment: fixed;
-    z-index: 0;
+@keyframes fadeInVideo {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .hero-content {
@@ -283,7 +295,7 @@ button {
     text-align: center;
     max-width: 900px;
     padding: var(--spacing-md);
-    animation: fadeInUp 1s ease-out;
+    animation: fadeInUp 1.2s ease-out;
 }
 
 .hero-title {
@@ -292,7 +304,7 @@ button {
     letter-spacing: 0.15em;
     margin-bottom: var(--spacing-sm);
     text-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
-    animation: glowPulse 3s ease-in-out infinite;
+    animation: glowPulse 3s ease-in-out infinite, fadeInUp 1s ease-out 0.2s backwards;
 }
 
 .hero-subtitle {
@@ -301,6 +313,7 @@ button {
     color: var(--color-text-secondary);
     margin-bottom: var(--spacing-lg);
     letter-spacing: 0.05em;
+    animation: fadeInUp 1s ease-out 0.4s backwards;
 }
 
 .cta-button {
@@ -317,6 +330,7 @@ button {
     overflow: hidden;
     transition: var(--transition-normal);
     cursor: pointer;
+    animation: fadeInUp 1s ease-out 0.6s backwards, ctaPulse 2s ease-in-out 2s infinite;
 }
 
 .cta-text {
@@ -517,11 +531,16 @@ button {
     transition: var(--transition-normal);
 }
 
-.gallery-item img {
+.gallery-item img,
+.gallery-item video {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: var(--transition-slow);
+}
+
+.gallery-item video {
+    cursor: pointer;
 }
 
 .gallery-overlay {
@@ -603,6 +622,138 @@ button {
     border-radius: 25px;
     font-size: 0.9rem;
     box-shadow: 0 0 20px var(--glow-color);
+}
+
+/* ===================================
+   BOOKING SECTION
+   =================================== */
+
+.booking-section {
+    padding: var(--spacing-xl) 0;
+    background: linear-gradient(180deg, var(--color-dark) 0%, var(--color-primary) 50%, var(--color-dark) 100%);
+}
+
+.booking-subtitle {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-lg);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+.calendly-inline-widget {
+    min-width: 320px;
+    height: 700px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+}
+
+/* ===================================
+   TESTIMONIALS SECTION
+   =================================== */
+
+.testimonials-section {
+    padding: var(--spacing-xl) 0;
+    background: var(--color-dark);
+}
+
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.testimonial-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: var(--spacing-lg);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.testimonial-card::before {
+    content: '"';
+    position: absolute;
+    top: -20px;
+    left: 20px;
+    font-size: 120px;
+    color: rgba(0, 212, 255, 0.1);
+    font-family: Georgia, serif;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-accent);
+    box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+}
+
+.testimonial-rating {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.testimonial-rating .star {
+    color: #FFD700;
+    font-size: 1.25rem;
+}
+
+.testimonial-text {
+    color: var(--color-text-secondary);
+    font-size: 1.05rem;
+    line-height: 1.8;
+    margin-bottom: var(--spacing-md);
+    position: relative;
+    z-index: 1;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-accent), var(--color-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--font-weight-bold);
+    color: white;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.author-info {
+    flex: 1;
+}
+
+.author-name {
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-semibold);
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.author-title {
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
 }
 
 /* ===================================
@@ -829,12 +980,25 @@ button {
     display: flex;
 }
 
-.lightbox-image {
+.lightbox-media-container {
     max-width: 90%;
     max-height: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-image,
+.lightbox-video {
+    max-width: 100%;
+    max-height: 90vh;
     object-fit: contain;
     border-radius: 10px;
     box-shadow: 0 0 50px rgba(0, 255, 255, 0.3);
+}
+
+.lightbox-video {
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .lightbox-close,
@@ -981,18 +1145,47 @@ button {
     }
 }
 
+@keyframes ctaPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 var(--glow-color);
+    }
+
+    50% {
+        box-shadow: 0 0 20px 5px rgba(0, 255, 255, 0.3);
+    }
+}
+
+@keyframes subtleZoom {
+    0% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1.05);
+    }
+}
+
 /* ===================================
    RESPONSIVE DESIGN
    =================================== */
 
 @media (max-width: 768px) {
+    .container {
+        padding: 0 var(--spacing-sm);
+    }
+
+    .nav-container {
+        padding: var(--spacing-sm);
+    }
+
     .nav-links {
         position: fixed;
         top: 70px;
         left: -100%;
         width: 100%;
         height: calc(100vh - 70px);
-        background: var(--color-primary);
+        background: rgba(26, 26, 26, 0.98);
+        backdrop-filter: blur(10px);
         flex-direction: column;
         align-items: center;
         justify-content: center;
@@ -1002,6 +1195,10 @@ button {
 
     .nav-links.active {
         left: 0;
+    }
+
+    .nav-links a {
+        font-size: 1.2rem;
     }
 
     .mobile-menu-toggle {
@@ -1020,21 +1217,46 @@ button {
         transform: rotate(-45deg) translate(7px, -7px);
     }
 
-    .services-grid,
+    .services-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+
     .gallery-grid {
         grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
     }
 
     .contact-content {
         grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+
+    .hero {
+        height: 100svh;
     }
 
     .hero-title {
-        font-size: 2rem;
+        font-size: 2.5rem;
+        line-height: 1.2;
     }
 
     .hero-subtitle {
-        font-size: 1rem;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .hero-content {
+        padding: var(--spacing-md) var(--spacing-sm);
+    }
+
+    .service-card {
+        padding: var(--spacing-md);
+    }
+
+    .section-title {
+        font-size: 2rem;
+        margin-bottom: var(--spacing-md);
     }
 
     .lightbox-prev,
@@ -1043,21 +1265,63 @@ button {
         height: 40px;
         font-size: 1.5rem;
     }
+
+    .scroll-indicator {
+        bottom: 20px;
+    }
+
+    .calendly-inline-widget {
+        height: 600px;
+    }
+
+    .booking-subtitle {
+        font-size: 1rem;
+        padding: 0 var(--spacing-sm);
+    }
 }
 
 @media (max-width: 480px) {
     :root {
         --spacing-lg: 2rem;
         --spacing-xl: 3rem;
+        --spacing-md: 1.5rem;
+    }
+
+    .hero-title {
+        font-size: 1.8rem;
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .hero-subtitle {
+        font-size: 0.95rem;
+        margin-bottom: var(--spacing-md);
     }
 
     .cta-button {
         padding: 0.875rem 2rem;
-        font-size: 0.9rem;
+        font-size: 0.875rem;
+        letter-spacing: 0.1em;
     }
 
     .service-card {
-        padding: var(--spacing-md);
+        padding: var(--spacing-sm) var(--spacing-sm);
+    }
+
+    .service-card h3 {
+        font-size: 1.25rem;
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    .logo-text {
+        font-size: 0.9rem;
+    }
+
+    .logo-icon {
+        width: 28px;
+        height: 28px;
     }
 
     .lightbox-close {
@@ -1066,6 +1330,19 @@ button {
         width: 40px;
         height: 40px;
         font-size: 1.5rem;
+    }
+
+    .scroll-arrow {
+        width: 24px;
+        height: 40px;
+    }
+
+    .calendly-inline-widget {
+        height: 550px;
+    }
+
+    .booking-subtitle {
+        font-size: 0.9rem;
     }
 }
 

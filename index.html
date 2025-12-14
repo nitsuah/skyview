@@ -4,14 +4,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="description"
         content="SkyView Dynamics - Professional cinematic drone services for events, aerial imaging, and 3D mapping. Elevate your vision with cutting-edge aerial photography and videography.">
+    <meta name="keywords" content="drone services, aerial photography, aerial videography, drone video, real estate photography, event coverage, 3D mapping, drone pilot, cinematic drone, FPV drone">
+    <meta name="author" content="SkyView Dynamics">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://skyviewdynamics.com/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://skyviewdynamics.com/">
+    <meta property="og:title" content="SkyView Dynamics | Professional Cinematic Drone Services">
+    <meta property="og:description" content="Professional drone services for events, real estate, and aerial imaging. Cutting-edge aerial photography and videography that elevates your vision.">
+    <meta property="og:image" content="https://skyviewdynamics.com/assets/gallery/sunset-marina.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:site_name" content="SkyView Dynamics">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://skyviewdynamics.com/">
+    <meta name="twitter:title" content="SkyView Dynamics | Professional Cinematic Drone Services">
+    <meta name="twitter:description" content="Professional drone services for events, real estate, and aerial imaging. Cutting-edge aerial photography and videography.">
+    <meta name="twitter:image" content="https://skyviewdynamics.com/assets/gallery/sunset-marina.jpg">
+    
     <title>SkyView Dynamics | Cinematic Drone Services for Events & Imaging</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/style.css?v=20241211225000">
+    <link rel="stylesheet" href="styles/style.css?v=20251213001">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    
+    <!-- Site Configuration & Feature Flags -->
+    <script src="config.js?v=20251213001"></script>
 </head>
 
 <body>
@@ -51,6 +81,8 @@
             <ul class="nav-links">
                 <li><a href="#services">SERVICES</a></li>
                 <li><a href="#gallery">GALLERY</a></li>
+                <li><a href="#testimonials">REVIEWS</a></li>
+                <li><a href="#booking">BOOKING</a></li>
                 <li><a href="#contact">CONTACT</a></li>
             </ul>
             <button class="mobile-menu-toggle" aria-label="Toggle menu">
@@ -65,17 +97,18 @@
     <section class="hero" id="home">
         <div class="hero-background">
             <div class="hero-overlay"></div>
-            <!-- Optional: Add hero-video.mp4 to enable video background -->
-            <!-- <video class="hero-video" autoplay muted loop playsinline>
-                <source src="assets/hero-video.mp4" type="video/mp4">
-            </video> -->
-            <!-- Fallback image if video doesn't load -->
+            <!-- Fallback image loads first -->
             <div class="hero-image"></div>
+            <!-- Video fades in over image -->
+            <video class="hero-video" autoplay muted loop playsinline poster="assets/gallery/sunset-marina.jpg">
+                <source src="assets/gallery/sunset-marina.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
         </div>
         <div class="hero-content">
             <h1 class="hero-title">ELEVATE YOUR VISION</h1>
             <p class="hero-subtitle">Cinematic Drone Services for Events & Imaging</p>
-            <a href="#contact" class="cta-button">
+            <a href="#booking" class="cta-button">
                 <span class="cta-text">BOOK A CONSULTATION</span>
                 <span class="cta-glow"></span>
             </a>
@@ -166,7 +199,7 @@
             </div>
 
             <!-- 3D Preview Placeholder -->
-            <div class="preview-card">
+            <div class="preview-card" id="preview3d">
                 <div class="preview-icon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"
@@ -180,6 +213,88 @@
                 <h3 class="preview-title">INTERACTIVE 3D PREVIEW</h3>
                 <p class="preview-description">Coming Soon: Explore our work in an immersive 3D environment</p>
                 <div class="preview-badge">COMING SOON</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Section -->
+    <section class="booking-section" id="booking">
+        <div class="container">
+            <h2 class="section-title">SCHEDULE A CONSULTATION</h2>
+            <p class="booking-subtitle">Book a free 15-minute consultation to discuss your project and how we can help bring your vision to life.</p>
+            <!-- Calendly inline widget begin -->
+            <div class="calendly-inline-widget" data-url="https://calendly.com/skyviewdynamics?hide_gdpr_banner=1&primary_color=00d4ff"></div>
+            <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+            <!-- Calendly inline widget end -->
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section" id="testimonials">
+        <div class="container">
+            <h2 class="section-title">CLIENT TESTIMONIALS</h2>
+            <p class="section-subtitle">What Our Clients Say</p>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <p class="testimonial-text">
+                        "The aerial footage completely transformed our property listing. We received multiple offers within days of posting the video. Absolutely worth every penny!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">JM</div>
+                        <div class="author-info">
+                            <div class="author-name">Jennifer Martinez</div>
+                            <div class="author-title">Real Estate Agent</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <p class="testimonial-text">
+                        "Professional, punctual, and the results exceeded our expectations. The wedding video captured angles we never imagined possible. Truly magical!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">SK</div>
+                        <div class="author-info">
+                            <div class="author-name">Sarah & Kevin</div>
+                            <div class="author-title">Wedding Clients</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <p class="testimonial-text">
+                        "Fast turnaround, incredible quality, and easy to work with. The 3D mapping helped us identify issues we wouldn't have caught otherwise. Highly recommend!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">RJ</div>
+                        <div class="author-info">
+                            <div class="author-name">Robert Johnson</div>
+                            <div class="author-title">Construction Manager</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -215,7 +330,7 @@
                     </div>
                 </div>
                 <form class="contact-form" name="contact" method="POST" data-netlify="true"
-                    netlify-honeypot="bot-field">
+                    netlify-honeypot="bot-field" action="/thank-you.html">
                     <input type="hidden" name="form-name" value="contact" />
                     <p class="hidden" style="display:none">
                         <label>Don’t fill this out if you're human: <input name="bot-field" /></label>
@@ -285,8 +400,11 @@
                     <span class="logo-text">SkyView Dynamics</span>
                 </div>
                 <div class="footer-info">
-                    <p>&copy; 2024 SkyView Dynamics. All rights reserved.</p>
+                    <p>&copy; 2025 SkyView Dynamics - DEMO. All rights reserved. THIS SITE IS JUST A DEMO</p>
                     <p>contact@skyviewdynamics.com | +1 (555) 123-4567</p>
+                    <p style="margin-top: 0.5rem;">
+                        <a href="/privacy.html" style="color: rgba(255, 255, 255, 0.6); text-decoration: none; transition: color 0.3s ease;">Privacy Policy</a>
+                    </p>
                 </div>
                 <div class="social-links">
                     <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
@@ -317,13 +435,109 @@
     <!-- Lightbox Modal -->
     <div class="lightbox" id="lightbox">
         <button class="lightbox-close" aria-label="Close lightbox">&times;</button>
-        <button class="lightbox-prev" aria-label="Previous image">&#10094;</button>
-        <button class="lightbox-next" aria-label="Next image">&#10095;</button>
-        <img class="lightbox-image" src="" alt="">
+        <button class="lightbox-prev" aria-label="Previous media">&#10094;</button>
+        <button class="lightbox-next" aria-label="Next media">&#10095;</button>
+        <div class="lightbox-media-container">
+            <img class="lightbox-image" src="" alt="" style="display: none;">
+            <video class="lightbox-video" controls muted playsinline style="display: none;"></video>
+        </div>
         <div class="lightbox-counter"></div>
     </div>
 
-    <script type="module" src="scripts/main.js?v=20241211225000"></script>
+    <script type="module" src="scripts/main.js?v=20251213007"></script>
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "SkyView Dynamics",
+        "description": "Professional cinematic drone services for events, aerial imaging, and 3D mapping",
+        "url": "https://skyviewdynamics.com",
+        "logo": "https://skyviewdynamics.com/assets/favicon.svg",
+        "image": "https://skyviewdynamics.com/assets/gallery/sunset-marina.jpg",
+        "telephone": "+1-555-SKYVIEW",
+        "email": "info@skyviewdynamics.com",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Your City",
+            "addressRegion": "State",
+            "addressCountry": "US"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "0.0",
+            "longitude": "0.0"
+        },
+        "openingHours": "Mo-Fr 09:00-18:00",
+        "priceRange": "$$",
+        "sameAs": [
+            "https://facebook.com/skyviewdynamics",
+            "https://instagram.com/skyviewdynamics",
+            "https://twitter.com/skyviewdynamics"
+        ],
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Drone Services",
+            "itemListElement": [
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Real Estate Aerial Photography",
+                        "description": "Professional aerial photography and videography for real estate listings",
+                        "provider": {
+                            "@type": "LocalBusiness",
+                            "name": "SkyView Dynamics"
+                        }
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Event Coverage",
+                        "description": "Cinematic aerial coverage for weddings, concerts, and special events",
+                        "provider": {
+                            "@type": "LocalBusiness",
+                            "name": "SkyView Dynamics"
+                        }
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "3D Mapping & Modeling",
+                        "description": "Advanced 3D scanning and mapping services for construction and surveying",
+                        "provider": {
+                            "@type": "LocalBusiness",
+                            "name": "SkyView Dynamics"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+    </script>
+
+    <!-- VideoObject Schema for Gallery Videos -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "VideoGallery",
+        "name": "SkyView Dynamics Drone Footage Gallery",
+        "description": "Professional aerial photography and videography showcase",
+        "publisher": {
+            "@type": "Organization",
+            "name": "SkyView Dynamics",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://skyviewdynamics.com/assets/favicon.svg"
+            }
+        }
+    }
+    </script>
 </body>
 
 </html>

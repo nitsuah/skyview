@@ -8,6 +8,12 @@
 [build.environment]
   # No environment variables needed
 
+# Form submission notifications
+# Note: Configure actual email address in Netlify UI under Site Settings > Forms > Form notifications
+# This section documents the form setup
+[functions]
+  # No functions needed for now
+
 # Redirect rules (optional)
 [[redirects]]
   from = "/*"

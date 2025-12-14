@@ -14,6 +14,7 @@ describe('gallery lightbox', () => {
             </div>
             <div id="lightbox">
                 <img class="lightbox-image" />
+                <video class="lightbox-video"></video>
                 <div class="lightbox-close"></div>
                 <div class="lightbox-prev"></div>
                 <div class="lightbox-next"></div>

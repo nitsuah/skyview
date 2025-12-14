@@ -1,0 +1,26 @@
+# SkyView Dynamics - Robots.txt
+# Allow all search engines to index the site
+
+User-agent: *
+Allow: /
+
+# Disallow admin and sensitive areas
+Disallow: /admin/
+Disallow: /.netlify/
+Disallow: /node_modules/
+
+# Sitemap location
+Sitemap: https://skyviewdynamics.com/sitemap.xml
+
+# Crawl delay (optional, be nice to servers)
+Crawl-delay: 1
+
+# Additional instructions for specific bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /assets/gallery/
+
+User-agent: Googlebot-Video
+Allow: /assets/gallery/

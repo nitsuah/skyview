@@ -6,16 +6,32 @@ export function initGalleryLightbox() {
     if (!lightbox) return;
 
     const lightboxImage = lightbox.querySelector('.lightbox-image');
+    const lightboxVideo = lightbox.querySelector('.lightbox-video');
     const lightboxClose = lightbox.querySelector('.lightbox-close');
     const lightboxPrev = lightbox.querySelector('.lightbox-prev');
     const lightboxNext = lightbox.querySelector('.lightbox-next');
     const lightboxCounter = lightbox.querySelector('.lightbox-counter');
 
     let currentIndex = 0;
-    const images = Array.from(galleryItems).map(item => ({
-        src: item.querySelector('img').src,
-        alt: item.querySelector('img').alt
-    }));
+    const mediaItems = Array.from(galleryItems).map(item => {
+        const img = item.querySelector('img');
+        const video = item.querySelector('video');
+        
+        if (video) {
+            return {
+                src: video.src,
+                alt: video.alt || video.title,
+                type: 'video'
+            };
+        } else if (img) {
+            return {
+                src: img.src,
+                alt: img.alt,
+                type: 'image'
+            };
+        }
+        return null;
+    }).filter(item => item !== null);
 
     // Open lightbox
     galleryItems.forEach((item, index) => {
@@ -63,19 +79,35 @@ export function initGalleryLightbox() {
     }
 
     function showPrevImage() {
-        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        currentIndex = (currentIndex - 1 + mediaItems.length) % mediaItems.length;
         updateLightboxImage();
     }
 
     function showNextImage() {
-        currentIndex = (currentIndex + 1) % images.length;
+        currentIndex = (currentIndex + 1) % mediaItems.length;
         updateLightboxImage();
     }
 
     function updateLightboxImage() {
-        const image = images[currentIndex];
-        lightboxImage.src = image.src;
-        lightboxImage.alt = image.alt;
-        lightboxCounter.textContent = `${currentIndex + 1} / ${images.length}`;
+        const media = mediaItems[currentIndex];
+        
+        if (media.type === 'video') {
+            // Show video, hide image
+            lightboxVideo.style.display = 'block';
+            lightboxImage.style.display = 'none';
+            lightboxVideo.src = media.src;
+            lightboxVideo.load();
+            lightboxVideo.play().catch(() => {});
+        } else {
+            // Show image, hide video
+            lightboxImage.style.display = 'block';
+            lightboxVideo.style.display = 'none';
+            lightboxVideo.pause();
+            lightboxVideo.src = '';
+            lightboxImage.src = media.src;
+            lightboxImage.alt = media.alt;
+        }
+        
+        lightboxCounter.textContent = `${currentIndex + 1} / ${mediaItems.length}`;
     }
 }

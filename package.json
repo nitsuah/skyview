@@ -4,7 +4,9 @@
   "description": "A stunning, high-tech website for professional drone services featuring a minimalist design with full-bleed photography, dark high-contrast aesthetics, and glassmorphic UI elements.",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "optimize:images": "node scripts/convert-to-webp.js",
+    "serve": "npx http-server . -p 8080"
   },
   "repository": {
     "type": "git",
@@ -23,5 +25,8 @@
     "@vitest/coverage-v8": "^4.0.15",
     "happy-dom": "^20.0.11",
     "vitest": "^4.0.15"
+  },
+  "dependencies": {
+    "sharp": "^0.34.5"
   }
 }
