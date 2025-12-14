@@ -19,7 +19,8 @@ export default tseslint.config(
       '@typescript-eslint': tseslint.configs.recommended.plugins['@typescript-eslint'],
     },
     rules: {
-      'no-unused-vars': 'warn',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
       'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'off',
