@@ -124,7 +124,35 @@ This document tracks configuration tasks that need to be completed in external s
 
 ---
 
-### 5. Domain & SSL (If not already done)
+### 5. Adding New Gallery Images/Videos
+**Status:** ✅ Automated  
+**Priority:** HIGH (for content updates)  
+**Time Estimate:** 5 minutes per batch
+
+**Steps:**
+1. **Add your JPG/PNG images** to `assets/gallery/` folder
+2. **Run the WebP converter:**
+   ```bash
+   npm run optimize:images
+   ```
+3. **Add videos** (MP4/MOV) directly to `assets/gallery/`
+4. **Update `assets/gallery.json`:**
+   ```json
+   {
+     "src": "assets/gallery/your-image.jpg",
+     "alt": "Description of image",
+     "category": "real_estate",
+     "featured": true
+   }
+   ```
+   For videos, add `"type": "video"`
+5. Gallery automatically loads images AND videos!
+
+**Documentation:** `docs/WEBP_OPTIMIZATION.md` and `docs/WEBP_IMPLEMENTATION.md`
+
+---
+
+### 6. Domain & SSL (If not already done)
 **Status:** ⏳ Pending  
 **Priority:** HIGH (for production)  
 **Time Estimate:** 20 minutes
@@ -145,6 +173,10 @@ This document tracks configuration tasks that need to be completed in external s
 - [x] Thank you page after form submission
 - [x] Analytics script prepared (needs account)
 - [x] Admin CMS configuration file created
+- [x] WebP image optimization system
+- [x] Video support in gallery (MP4/MOV)
+- [x] Performance monitoring (Core Web Vitals)
+- [x] Automatic image format detection and fallbacks
 
 ---
 
@@ -152,13 +184,16 @@ This document tracks configuration tasks that need to be completed in external s
 
 **Before Launch:**
 1. ✅ Deploy to Netlify
-2. 🔧 Set up Netlify Identity + Decap CMS
-3. 🔧 Update Calendly URL
-4. 🔧 Configure email notifications
+2. 🔧 Update `config.js` feature flags
+3. 🔧 Update Calendly URL in `config.js`
+4. 🔧 Add your images/videos to gallery (see section 5)
+5. 🔧 Set up Netlify Identity + Decap CMS
+6. 🔧 Configure email notifications
 
 **After Launch:**
-5. 🔧 Set up analytics
-6. 🔧 Configure custom domain
+7. 🔧 Set up analytics
+8. 🔧 Configure custom domain
+9. 🔧 Test all forms and booking flows
 
 ---
 
@@ -177,6 +212,10 @@ This document tracks configuration tasks that need to be completed in external s
 - Decap CMS Docs: https://decapcms.org/docs
 - Calendly Docs: https://help.calendly.com
 - Project Docs: `/docs/` folder
+  - `DEPLOYMENT_GUIDE.md` - How to deploy to Netlify
+  - `WEBP_OPTIMIZATION.md` - Image optimization details
+  - `PERFORMANCE_CHECKLIST.md` - Performance best practices
+  - `CONFIG.md` - All config.js options explained
 
 ---
 

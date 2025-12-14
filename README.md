@@ -14,6 +14,10 @@ A stunning, high-tech website for professional drone services featuring a minima
 
 ## 🚀 Quick Start
 
+**📘 New Owner?** Start with **[OWNER_GUIDE.md](OWNER_GUIDE.md)** - your complete 30-minute launch guide!
+
+**🛠️ Developer?** See **[Getting Started Guide](docs/GETTING_STARTED.md)** for technical setup.
+
 ### Run Locally
 
 You will need a local server to properly load JSON and modules.
@@ -27,6 +31,10 @@ python -m http.server 3000
 ```
 
 Then open: [localhost:3000](http://localhost:3000)
+
+### Deploy to Production
+
+See **[🚀 Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** for Netlify deployment steps.
 
 ## 🔧 Technical Stack
 
@@ -76,13 +84,31 @@ npm run optimize:images  # Convert images to WebP
 
 ## 📚 Documentation
 
-- 📖 [Quick Start Guide](QUICKSTART.md) - 5-minute setup
-- 📖 [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - Production deployment
-- 📖 [Feature Flags](docs/CONFIG.md) - Toggle features on/off
-- 📖 [WebP Optimization](docs/WEBP_OPTIMIZATION.md) - Image optimization
-- 📖 [Performance Checklist](docs/PERFORMANCE_CHECKLIST.md) - Speed optimization
-- 📖 [Manual Setup](docs/MANUAL_SETUP.md) - Configuration steps
-- 📖 [Project Status](PROJECT_STATUS.md) - Complete overview
+### Start Here
+- 📖 **[Getting Started Guide](docs/GETTING_STARTED.md)** - **Start here!** Complete setup walkthrough
+- 📖 [Quick Start](QUICKSTART.md) - 5-minute local setup
+- 📖 [Manual Setup Checklist](docs/MANUAL_SETUP.md) - All configuration steps
+
+### Deployment & Management
+- 🚀 [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - Netlify deployment
+- ⚙️ [Configuration Reference](docs/CONFIG.md) - All config.js options
+- 📧 [Email Notifications](docs/EMAIL_NOTIFICATIONS.md) - Form notification setup
+- 📊 [Analytics Setup](docs/ANALYTICS_SETUP.md) - Analytics options
+
+### Content Management
+- 🖼️ [WebP Optimization](docs/WEBP_OPTIMIZATION.md) - Image optimization guide
+- 🎬 [WebP Implementation](docs/WEBP_IMPLEMENTATION.md) - Technical details
+- 🔒 [Client Portal](docs/CLIENT_PORTAL.md) - Client file delivery system
+- 📁 [Asset Management](docs/ASSET_MANAGEMENT.md) - Organizing media files
+
+### Performance & Monitoring
+- ⚡ [Performance Checklist](docs/PERFORMANCE_CHECKLIST.md) - Speed optimization
+- 📈 [Optimization Flow](docs/OPTIMIZATION_FLOW.md) - Performance workflow
+
+### Project Overview
+- 📋 [Roadmap](ROADMAP.md) - Project phases and progress
+- ✅ [Tasks](TASKS.md) - Todo list
+- 📊 [Project Status](PROJECT_STATUS.md) - Complete overview
 
 ## ⚙️ Configuration
 
