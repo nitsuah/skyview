@@ -20,7 +20,7 @@ export default tseslint.config(
     },
     rules: {
       'no-unused-vars': 'warn',
-      'no-console': 'warn', // Or "error" in production
+      'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
