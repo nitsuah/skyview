@@ -6,13 +6,19 @@ All core development is complete. The site is ready to deploy and use.
 
 ---
 
-## 📋 Optional Enhancements
+## 📋 Post-Launch Tasks
 
-### SEO Improvements (Priority: Low)
-- [ ] **Structured Data**: Add Schema.org markup for LocalBusiness, VideoObject, Service (P3)
-- [ ] **Social Sharing**: Add Open Graph and Twitter Card meta tags (P3)
-- [ ] **Sitemap**: Generate XML sitemap and submit to Google Search Console (P3)
-- [ ] **Meta Tags**: Optimize title and description tags for better rankings (P3)
+### After Deployment (Required)
+- [ ] **Update Business Info**: Replace placeholder phone/address in Schema.org (5 min)
+- [ ] **Submit Sitemap**: Google Search Console and Bing Webmaster Tools (10 min)
+- [ ] **Test Social Sharing**: Facebook/Twitter card validators (5 min)
+- [ ] **Update Domain**: Replace skyviewdynamics.com with actual domain in all files (10 min)
+
+**Guide:** `docs/SEO_GUIDE.md`
+
+---
+
+## 📋 Optional Enhancements
 
 ### Client Portal Enhancements (Priority: Low)
 - [ ] **Email Notifications**: Notify clients when files are ready (P3)

@@ -31,8 +31,8 @@ The Skyview Client Portal provides a secure, professional way for clients to acc
 
 ### 1. Access Code System
 
-- Each client receives a unique access code (e.g., `PROJ2024-12345`)
-- Codes can be sent via email with direct link: `https://yourdomain.com/client-portal.html?code=PROJ2024-12345`
+- Each client receives a unique access code (e.g., `PROJ2025-12345`)
+- Codes can be sent via email with direct link: `https://yourdomain.com/client-portal.html?code=PROJ2025-12345`
 - Client enters code to access their specific project
 
 ### 2. File Viewing
@@ -176,9 +176,9 @@ Hi [Client Name],
 Your project is complete and ready for download! 
 
 Access your files here:
-https://yourdomain.com/client-portal.html?code=PROJ2024-12345
+https://yourdomain.com/client-portal.html?code=PROJ2025-12345
 
-Your Access Code: PROJ2024-12345
+Your Access Code: PROJ2025-12345
 
 What you'll find:
 • High-resolution photos (JPG)

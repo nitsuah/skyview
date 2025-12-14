@@ -152,12 +152,42 @@ This document tracks configuration tasks that need to be completed in external s
 
 ---
 
-### 6. Domain & SSL (If not already done)
+### 6. SEO Setup (After Deployment)
+**Status:** ✅ Code Ready  
+**Priority:** HIGH (for discoverability)  
+**Time Estimate:** 20 minutes
+
+**Steps:**
+1. **Update Business Information in `index.html`:**
+   - Replace phone number: `"+1-555-SKYVIEW"`
+   - Replace email: `"info@skyviewdynamics.com"`
+   - Add your actual address and coordinates
+   - Update social media links
+
+2. **Update Domain URLs:**
+   - Replace `https://skyviewdynamics.com` with your domain
+   - Update in: `index.html`, `sitemap.xml`, `robots.txt`
+
+3. **Submit to Search Engines:**
+   - Google Search Console: Add site and submit sitemap
+   - Bing Webmaster Tools: Add site and submit sitemap
+
+4. **Test Social Sharing:**
+   - Facebook Sharing Debugger
+   - Twitter Card Validator
+
+**Documentation:** `docs/SEO_GUIDE.md` for complete instructions
+
+---
+
+### 7. Domain & SSL (If not already done)
+
 **Status:** ⏳ Pending  
 **Priority:** HIGH (for production)  
 **Time Estimate:** 20 minutes
 
 **Steps:**
+
 1. Purchase domain (e.g., skyviewaerial.com)
 2. In Netlify Dashboard → Domain settings
 3. Add custom domain
@@ -177,20 +207,26 @@ This document tracks configuration tasks that need to be completed in external s
 - [x] Video support in gallery (MP4/MOV)
 - [x] Performance monitoring (Core Web Vitals)
 - [x] Automatic image format detection and fallbacks
+- [x] SEO optimization (Schema.org, Open Graph, Twitter Cards)
+- [x] XML sitemap and robots.txt
+- [x] Structured data for LocalBusiness and Services
 
 ---
 
 ## 📋 Quick Start Order
 
 **Before Launch:**
+
 1. ✅ Deploy to Netlify
-2. 🔧 Update `config.js` feature flags
-3. 🔧 Update Calendly URL in `config.js`
-4. 🔧 Add your images/videos to gallery (see section 5)
-5. 🔧 Set up Netlify Identity + Decap CMS
-6. 🔧 Configure email notifications
+2. 🔧 Update business info in `index.html` (phone, address, social links)
+6. 🔧 Replace skyviewdynamics.com with your domain in all files
 
 **After Launch:**
+7. 🔧 Set up Netlify Identity + Decap CMS
+8. 🔧 Configure email notifications
+9. 🔧 Submit sitemap to Google Search Console
+10. 🔧 Set up analytics (optional)
+11. 🔧 Test all forms, booking, and social sharing
 7. 🔧 Set up analytics
 8. 🔧 Configure custom domain
 9. 🔧 Test all forms and booking flows
@@ -213,7 +249,8 @@ This document tracks configuration tasks that need to be completed in external s
 - Calendly Docs: https://help.calendly.com
 - Project Docs: `/docs/` folder
   - `DEPLOYMENT_GUIDE.md` - How to deploy to Netlify
-  - `WEBP_OPTIMIZATION.md` - Image optimization details
+  - `WEBP_OPTIMIZATION.md` - Image optimization d
+  - `SEO_GUIDE.md` - SEO setup and search engine submissionetails
   - `PERFORMANCE_CHECKLIST.md` - Performance best practices
   - `CONFIG.md` - All config.js options explained
 

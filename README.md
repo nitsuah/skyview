@@ -94,6 +94,7 @@ npm run optimize:images  # Convert images to WebP
 - ⚙️ [Configuration Reference](docs/CONFIG.md) - All config.js options
 - 📧 [Email Notifications](docs/EMAIL_NOTIFICATIONS.md) - Form notification setup
 - 📊 [Analytics Setup](docs/ANALYTICS_SETUP.md) - Analytics options
+- 🔍 [SEO Guide](docs/SEO_GUIDE.md) - Search engine optimization and submission
 
 ### Content Management
 - 🖼️ [WebP Optimization](docs/WEBP_OPTIMIZATION.md) - Image optimization guide
@@ -144,11 +145,14 @@ See [MANUAL_SETUP.md](docs/MANUAL_SETUP.md) for detailed steps.
 
 See [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for complete instructions.
 
-### Performance
+### Performance & SEO
 - ✅ WebP images (30-40% smaller)
 - ✅ Lazy loading
 - ✅ Optimized assets
 - ✅ CDN delivery
+- ✅ Schema.org structured data
+- ✅ Open Graph & Twitter Cards
+- ✅ XML sitemap
 - 🎯 Lighthouse Score: 90+
 
 ---

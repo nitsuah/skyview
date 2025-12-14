@@ -79,12 +79,12 @@ export function initGalleryLightbox() {
     }
 
     function showPrevImage() {
-        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        currentIndex = (currentIndex - 1 + mediaItems.length) % mediaItems.length;
         updateLightboxImage();
     }
 
     function showNextImage() {
-        currentIndex = (currentIndex + 1) % images.length;
+        currentIndex = (currentIndex + 1) % mediaItems.length;
         updateLightboxImage();
     }
 
