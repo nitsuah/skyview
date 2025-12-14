@@ -76,7 +76,7 @@ export function trackImageLoading() {
             
             img.addEventListener('error', () => {
                 imageMetrics.failed++;
-                // Don't warn about video files
+                // Only warn about actual image failures (skip if somehow a video extension slipped through)
                 if (!img.src || !/\.(mp4|mov|webm|ogg)$/i.test(img.src)) {
                     console.warn('❌ Failed to load image:', img.src || img.srcset);
                 }

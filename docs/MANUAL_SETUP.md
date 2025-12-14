@@ -219,17 +219,15 @@ This document tracks configuration tasks that need to be completed in external s
 
 1. ✅ Deploy to Netlify
 2. 🔧 Update business info in `index.html` (phone, address, social links)
-6. 🔧 Replace skyviewdynamics.com with your domain in all files
+3. 🔧 Replace skyviewdynamics.com with your domain in all files
 
 **After Launch:**
-7. 🔧 Set up Netlify Identity + Decap CMS
-8. 🔧 Configure email notifications
-9. 🔧 Submit sitemap to Google Search Console
-10. 🔧 Set up analytics (optional)
-11. 🔧 Test all forms, booking, and social sharing
-7. 🔧 Set up analytics
-8. 🔧 Configure custom domain
-9. 🔧 Test all forms and booking flows
+4. 🔧 Set up Netlify Identity + Decap CMS
+5. 🔧 Configure email notifications
+6. 🔧 Submit sitemap to Google Search Console
+7. 🔧 Set up analytics (Plausible or Netlify Analytics)
+8. 🔧 Configure custom domain (if not done during deployment)
+9. 🔧 Test all forms, booking, and social sharing
 
 ---
 
@@ -249,8 +247,8 @@ This document tracks configuration tasks that need to be completed in external s
 - Calendly Docs: https://help.calendly.com
 - Project Docs: `/docs/` folder
   - `DEPLOYMENT_GUIDE.md` - How to deploy to Netlify
-  - `WEBP_OPTIMIZATION.md` - Image optimization d
-  - `SEO_GUIDE.md` - SEO setup and search engine submissionetails
+  - `WEBP_OPTIMIZATION.md` - Image optimization details
+  - `SEO_GUIDE.md` - SEO setup and search engine submission
   - `PERFORMANCE_CHECKLIST.md` - Performance best practices
   - `CONFIG.md` - All config.js options explained
 
