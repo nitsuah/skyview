@@ -8,20 +8,8 @@ All core features are complete and tested. The website is ready to launch!
 
 ## 📋 Remaining Work
 
-### Phase 2: Client Deliverables (Optional)
-*Status: Prototype exists, needs production deployment*
-
-- [ ] **Advanced Client Portal Features**
-    - [ ] Email notifications when files are ready
-    - [ ] Expiring access codes
-    - [ ] Custom branding per client
-    - [ ] Usage analytics for clients
-
-*Note: Basic client portal is complete and functional. These are enhancements.*
-
----
-
 ## Phase 7: SEO & Discoverability (Recommended)
+
 *Focus: Getting found by potential clients.*
 
 - [ ] **Structured Data**
@@ -37,7 +25,21 @@ All core features are complete and tested. The website is ready to launch!
     - [ ] Configure robots.txt
     - [ ] Submit to Google Search Console
 
+### Phase 8: Client Deliverables
+
+
+- [ ] **Advanced Client Portal Features**
+    - [ ] Email notifications when files are ready
+    - [ ] Expiring access codes
+    - [ ] Custom branding per client
+    - [ ] Usage analytics for clients
+
+*Note: Basic client portal is complete and functional. These are enhancements.*
+
+---
+
 ## Notes & Ideas
+
 - **Assets**: Currently using local assets with WebP optimization. Cloud hosting (Cloudinary/Imgix) optional for scaling.
 - **Drone Footage**: Videos (MP4/MOV) fully supported in gallery with automatic playback.
 - **Performance**: Core Web Vitals monitoring active in development mode.

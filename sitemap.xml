@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+    
+    <!-- Homepage -->
+    <url>
+        <loc>https://skyviewdynamics.com/</loc>
+        <lastmod>2025-12-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+        
+        <!-- Featured Images -->
+        <image:image>
+            <image:loc>https://skyviewdynamics.com/assets/gallery/sunset-marina.jpg</image:loc>
+            <image:title>Sunset over marina with boats</image:title>
+        </image:image>
+        <image:image>
+            <image:loc>https://skyviewdynamics.com/assets/gallery/aerial-waterfront.jpg</image:loc>
+            <image:title>Aerial view of waterfront properties</image:title>
+        </image:image>
+        
+        <!-- Featured Videos -->
+        <video:video>
+            <video:thumbnail_loc>https://skyviewdynamics.com/assets/gallery/sunset-marina.jpg</video:thumbnail_loc>
+            <video:title>Sunset Marina Aerial Video</video:title>
+            <video:description>Cinematic aerial footage of sunset over marina</video:description>
+            <video:content_loc>https://skyviewdynamics.com/assets/gallery/sunset-marina.mp4</video:content_loc>
+            <video:duration>60</video:duration>
+            <video:publication_date>2025-12-13</video:publication_date>
+        </video:video>
+    </url>
+    
+    <!-- Privacy Policy -->
+    <url>
+        <loc>https://skyviewdynamics.com/privacy-policy.html</loc>
+        <lastmod>2025-12-13</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    
+    <!-- Client Portal -->
+    <url>
+        <loc>https://skyviewdynamics.com/client-portal.html</loc>
+        <lastmod>2025-12-13</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <!-- Thank You Page -->
+    <url>
+        <loc>https://skyviewdynamics.com/thank-you.html</loc>
+        <lastmod>2025-12-13</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.3</priority>
+    </url>
+
+</urlset>
