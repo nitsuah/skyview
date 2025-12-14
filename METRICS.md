@@ -10,7 +10,7 @@ All core features are complete and optimized for production deployment.
 
 | Metric                      | Current      | Target | Status |
 |-----------------------------|--------------|--------|--------|
-| **Code Coverage**           | 35.02% overall<br>(Core: 86-100%) | > 80% core | 🟢     |
+| **Code Coverage**           | 35.02%       | > 80% core | 🟢     |
 | **Page Load Complete**      | ~1.8s        | < 3s   | 🟢     |
 | **Time to First Byte**      | ~5ms         | < 200ms| 🟢     |
 | **DOM Ready**               | ~79ms        | < 1s   | 🟢     |
