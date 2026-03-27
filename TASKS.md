@@ -1,37 +1,35 @@
 # Tasks
 
+Last Updated: 2026-03-27
+
 ## Done
 
-- [x] Built and shipped core static site experience with responsive layouts and media gallery.
-- [x] Added client portal and admin CMS foundations.
-- [x] Added Netlify deployment setup and SEO baseline files.
-- [x] Added unit and E2E test frameworks.
+- [x] Build and ship the core static site experience with responsive layouts and media gallery.
+- [x] Add client portal and admin CMS foundations.
+- [x] Add Netlify deployment setup and SEO baseline files.
+- [x] Add unit and E2E test frameworks.
 
 ## In Progress
 
-- [ ] P1 | Docs | Confidence: High | Reconcile coverage and metric reporting sections.
-  - Problem: [METRICS.md](METRICS.md) includes conflicting coverage values between top-level summary and detailed breakdown.
-  - Impact: Planning and quality signals are ambiguous.
-  - Acceptance Criteria: Publish one authoritative coverage value with date and command used.
-  - Dependencies: Fresh test run evidence.
+- [ ] Reconcile coverage and metric reporting sections.
+  - Priority: P1
+  - Problem: METRICS.md still contains conflicting coverage values.
+  - Acceptance Criteria: one authoritative coverage value is published with the date and command used.
 
-- [ ] P1 | Ops | Confidence: High | Complete launch checklist with verified production identity data.
-  - Problem: Roadmap/tasks still reference post-launch substitutions (domain/contact/schema values).
-  - Impact: Production credibility and local SEO quality are reduced.
-  - Acceptance Criteria: Domain, business profile fields, and search console submission tasks are complete and documented.
-  - Dependencies: Final production domain and business details.
+- [ ] Complete the launch checklist with verified production identity data.
+  - Priority: P1
+  - Problem: launch tasks still reference placeholder domain, contact, and schema values.
+  - Acceptance Criteria: production identity fields and search-console tasks are complete and documented.
 
 ## Todo
 
-- [ ] P2 | Feature | Confidence: Medium | Implement advanced client portal controls.
-  - Problem: Basic portal exists, but access lifecycle controls are limited.
-  - Impact: Manual handling overhead for client delivery workflows.
-  - Acceptance Criteria: Time-bound access links and notification flow are available and documented.
-  - Dependencies: Launch checklist completion.
+- [ ] Implement advanced client portal controls.
+  - Priority: P2
+  - Problem: the portal foundation exists, but access lifecycle controls are still limited.
+  - Acceptance Criteria: time-bound access links and notification flow are available and documented.
 
-- [ ] P2 | Analytics | Confidence: Medium | Add measurable conversion funnel instrumentation.
-  - Problem: Site analytics strategy is optional and not yet operationalized.
-  - Impact: Optimization work lacks evidence of business impact.
-  - Acceptance Criteria: Track visitor-to-contact and visitor-to-booking conversion events with dashboard visibility.
-  - Dependencies: Final analytics provider decision.
+- [ ] Add measurable conversion-funnel instrumentation.
+  - Priority: P2
+  - Problem: optimization work still lacks business-impact evidence.
+  - Acceptance Criteria: visitor-to-contact and visitor-to-booking events are tracked with dashboard visibility.
 
