@@ -1,6 +1,6 @@
 # Tasks
 
-Last Updated: 2026-03-27
+**Last Updated:** 2026-03-27
 
 ## Done
 
@@ -13,7 +13,7 @@ Last Updated: 2026-03-27
 
 - [ ] Reconcile coverage and metric reporting sections.
   - Priority: P1
-  - Problem: METRICS.md still contains conflicting coverage values.
+  - Problem: [METRICS.md](METRICS.md) still contains conflicting coverage values.
   - Acceptance Criteria: one authoritative coverage value is published with the date and command used.
 
 - [ ] Complete the launch checklist with verified production identity data.
