@@ -1,76 +1,26 @@
 # Skyview Roadmap
 
-## ✅ Project Status: Production Ready
+## 2026 Q1 (Completed)
 
-All core features are complete and tested. The website is ready to launch!
+- [x] Delivered production-ready static site architecture and deployment configuration
+- [x] Implemented responsive gallery, contact flow, and booking integration
+- [x] Added test harnesses for Playwright and Vitest
+- [x] Added SEO baseline artifacts (sitemap, robots, metadata)
 
----
+## 2026 Q2 (In Progress)
 
-## 📋 Remaining Work (Optional Enhancements)
+- [ ] Execute production launch checklist with verified business metadata and domain alignment
+- [ ] Resolve documentation drift between metric summary sections and detailed coverage values
+- [ ] Add evidence-backed monitoring baseline (Lighthouse + Core Web Vitals snapshots)
 
-### Phase 8: Advanced Client Portal Features (Optional)
+## 2026 Q3 (Planned)
 
+- [ ] Implement optional advanced client portal features (expiring links, notifications, usage analytics)
+- [ ] Add conversion funnel instrumentation for lead capture performance
+- [ ] Improve gallery asset governance for faster seasonal content updates
 
-- [ ] **Advanced Client Portal Features**
-    - [ ] Email notifications when files are ready
-    - [ ] Expiring access codes
-    - [ ] Custom branding per client
-    - [ ] Usage analytics for clients
+## 2026 Q4 (Exploratory)
 
-*Note: Basic client portal is complete and functional. These are enhancements.*
+- [ ] Evaluate lightweight personalization by campaign or service segment
+- [ ] Evaluate A/B testing framework for hero messaging and CTA improvements
 
----
-
-## ✅ Recently Completed
-
-### Phase 7: SEO & Discoverability (Completed ✅)
-- ✅ Schema.org markup (LocalBusiness, Service, VideoGallery)
-- ✅ Open Graph tags for social sharing
-- ✅ Twitter Card metadata
-- ✅ Optimized meta tags (keywords, description, author)
-- ✅ XML sitemap with images and videos
-- ✅ robots.txt configuration
-- ✅ Canonical URLs
-
-**Next Step:** Deploy and submit sitemap to Google Search Console  
-**Documentation:** `docs/SEO_GUIDE.md`
-
----
-
-## 📝 Post-Launch Tasks
-
-After deploying to production:
-
-1. **Update Business Info** (5 min)
-   - Replace phone number in Schema.org
-   - Add actual address and coordinates
-   - Update social media links
-
-2. **Submit to Search Engines** (10 min)
-   - Google Search Console: Submit sitemap
-   - Bing Webmaster Tools: Submit sitemap
-   - Verify ownership of domain
-
-3. **Test Social Sharing** (5 min)
-   - Facebook Sharing Debugger
-   - Twitter Card Validator
-   - LinkedIn post preview
-
-**Guide:** `docs/SEO_GUIDE.md` - Complete instructions
-
----
-
-## 🎉 Project Summary
-
-**All development phases complete!** The website is production-ready with:
-- Professional design & animations
-- Dynamic gallery (photos + videos)
-- WebP optimization (30-40% smaller)
-- Contact form & booking system
-- Client portal
-- SEO optimization
-- Performance monitoring
-
-**Total Features:** 30+ complete features  
-**Documentation:** 15+ comprehensive guides  
-**Status:** Ready to launch 🚀

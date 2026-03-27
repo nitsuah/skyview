@@ -1,32 +1,37 @@
 # Tasks
 
-## 🎉 Project Status: Production Ready!
+## Done
 
-All core development is complete. The site is ready to deploy and use.
+- [x] Built and shipped core static site experience with responsive layouts and media gallery.
+- [x] Added client portal and admin CMS foundations.
+- [x] Added Netlify deployment setup and SEO baseline files.
+- [x] Added unit and E2E test frameworks.
 
----
+## In Progress
 
-## 📋 Post-Launch Tasks
+- [ ] P1 | Docs | Confidence: High | Reconcile coverage and metric reporting sections.
+  - Problem: [METRICS.md](METRICS.md) includes conflicting coverage values between top-level summary and detailed breakdown.
+  - Impact: Planning and quality signals are ambiguous.
+  - Acceptance Criteria: Publish one authoritative coverage value with date and command used.
+  - Dependencies: Fresh test run evidence.
 
-### After Deployment (Required)
-- [ ] **Update Business Info**: Replace placeholder phone/address in Schema.org (5 min)
-- [ ] **Submit Sitemap**: Google Search Console and Bing Webmaster Tools (10 min)
-- [ ] **Test Social Sharing**: Facebook/Twitter card validators (5 min)
-- [ ] **Update Domain**: Replace skyviewdynamics.com with actual domain in all files (10 min)
+- [ ] P1 | Ops | Confidence: High | Complete launch checklist with verified production identity data.
+  - Problem: Roadmap/tasks still reference post-launch substitutions (domain/contact/schema values).
+  - Impact: Production credibility and local SEO quality are reduced.
+  - Acceptance Criteria: Domain, business profile fields, and search console submission tasks are complete and documented.
+  - Dependencies: Final production domain and business details.
 
-**Guide:** `docs/SEO_GUIDE.md`
+## Todo
 
----
+- [ ] P2 | Feature | Confidence: Medium | Implement advanced client portal controls.
+  - Problem: Basic portal exists, but access lifecycle controls are limited.
+  - Impact: Manual handling overhead for client delivery workflows.
+  - Acceptance Criteria: Time-bound access links and notification flow are available and documented.
+  - Dependencies: Launch checklist completion.
 
-## 📋 Optional Enhancements
+- [ ] P2 | Analytics | Confidence: Medium | Add measurable conversion funnel instrumentation.
+  - Problem: Site analytics strategy is optional and not yet operationalized.
+  - Impact: Optimization work lacks evidence of business impact.
+  - Acceptance Criteria: Track visitor-to-contact and visitor-to-booking conversion events with dashboard visibility.
+  - Dependencies: Final analytics provider decision.
 
-### Client Portal Enhancements (Priority: Low)
-- [ ] **Email Notifications**: Notify clients when files are ready (P3)
-- [ ] **Expiring Links**: Time-limited access codes (P3)
-- [ ] **Analytics**: Track client download activity (P3)
-
----
-
-## 📊 Completed History
-
-For reference, view `agent/SESSION_COMPLETE.md` for full list of completed features.
