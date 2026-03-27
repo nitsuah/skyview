@@ -10,7 +10,7 @@
 ## In Progress
 
 - [ ] P1 | Docs | Confidence: High | Reconcile coverage and metric reporting sections.
-  - Problem: METRICS includes conflicting coverage values between top-level summary and detailed breakdown.
+  - Problem: [METRICS.md](METRICS.md) includes conflicting coverage values between top-level summary and detailed breakdown.
   - Impact: Planning and quality signals are ambiguous.
   - Acceptance Criteria: Publish one authoritative coverage value with date and command used.
   - Dependencies: Fresh test run evidence.
