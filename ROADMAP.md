@@ -11,7 +11,7 @@
 ## 2026 Q2 (In Progress)
 
 - [ ] Execute the production launch checklist with verified business metadata and domain alignment.
-- [ ] Resolve coverage and metric-documentation drift.
+- [x] Resolve coverage and metric-documentation drift.
 - [ ] Add an evidence-backed monitoring baseline with Lighthouse and Core Web Vitals snapshots.
 
 ## 2026 Q3 (Planned)

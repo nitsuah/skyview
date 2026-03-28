@@ -19,6 +19,18 @@ Your website includes:
 
 ## 🚀 Quick Launch (30 Minutes)
 
+## 🐳 Docker Workflow
+
+If Node.js is not installed locally, use Docker for the main validation path:
+
+```bash
+# Serve the production container locally
+docker compose up --build web
+
+# Run the unit suite with coverage in Docker
+docker compose run --rm unit
+```
+
 ### Step 1: Deploy to Netlify (10 min)
 ```bash
 # If not already deployed

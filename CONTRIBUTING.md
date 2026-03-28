@@ -58,6 +58,9 @@ npx vitest run
 
 # Run with coverage
 npx vitest run --coverage
+
+# Run coverage in Docker
+docker compose run --rm unit
 ```
 
 ## 📝 Coding Standards
