@@ -34,6 +34,16 @@ python -m http.server 3000
 
 Then open: [localhost:3000](http://localhost:3000)
 
+### Run With Docker
+
+```bash
+# Serve the production image locally
+docker compose up --build web
+
+# Run unit coverage in a container
+docker compose run --rm unit
+```
+
 ### Deploy to Production
 
 See **[🚀 Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** for Netlify deployment steps.
@@ -79,6 +89,7 @@ npm run serve          # Start dev server on port 8080
 # Testing
 npm test              # Run Playwright E2E tests
 npx vitest run        # Run unit tests
+docker compose run --rm unit  # Run unit tests with coverage in Docker
 
 # Optimization
 npm run optimize:images  # Convert images to WebP

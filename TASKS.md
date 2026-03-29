@@ -8,13 +8,14 @@
 - [x] Add client portal and admin CMS foundations.
 - [x] Add Netlify deployment setup and SEO baseline files.
 - [x] Add unit and E2E test frameworks.
+- [x] Reconcile coverage and metric reporting sections.
+  - Completed: 2026-03-27
+  - Evidence: `docker compose run --rm unit` now publishes the authoritative 86.56% coverage result in [METRICS.md](METRICS.md).
+- [x] Add Docker smoke validation workflow.
+  - Completed: 2026-03-27
+  - Evidence: `.github/workflows/docker-smoke.yml` now builds the container and verifies HTTP readiness.
 
 ## In Progress
-
-- [ ] Reconcile coverage and metric reporting sections.
-  - Priority: P1
-  - Problem: [METRICS.md](METRICS.md) still contains conflicting coverage values.
-  - Acceptance Criteria: one authoritative coverage value is published with the date and command used.
 
 - [ ] Complete the launch checklist with verified production identity data.
   - Priority: P1

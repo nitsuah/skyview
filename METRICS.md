@@ -8,6 +8,8 @@ All core features are complete and optimized for production deployment.
 
 ## Performance Metrics
 
+Authoritative coverage source: `docker compose run --rm unit` on 2026-03-27.
+
 | Metric                      | Current      | Target | Status |
 |-----------------------------|--------------|--------|--------|
 | **Code Coverage**           | 86.56%       | > 80%  | 🟢     |
@@ -103,26 +105,34 @@ Performance monitoring is built-in (development mode):
 
 ## Test Coverage Details
 
-**Overall Coverage**: 38.7% (36/36 tests passing)
+**Overall Coverage**: 86.56% statements, 87.60% lines, 91.01% functions, 62.20% branches.
+
+**Verification Date**: 2026-03-27
+
+**Verification Command**: `docker compose run --rm unit`
+
+**Test Result**: 65/65 tests passing
 
 **Core Functionality** (Interactive features - User-facing code):
 - `form.js`: 86.84% (contact form validation)
-- `gallery.js`: 86.36% (lightbox and navigation)
+- `gallery-loader-v2.js`: 91.25% (runtime gallery hydration)
+- `gallery-loader.js`: 98.24% (gallery data fetch and rendering)
+- `gallery.js`: 87.87% (lightbox and navigation)
+- `main.js`: 96.77% (application bootstrap)
 - `mobile-menu.js`: 100% (hamburger menu)
 - `smooth-scroll.js`: 100% (anchor navigation)
 - `utils.js`: 100% (helper functions)
 - `scroll-effects.js`: 100% (animations)
 - `parallax.js`: 100% (visual effects)
-- `webp-loader.js`: 50% (image optimization)
+- `webp-loader.js`: 91.66% (image optimization)
+- `performance-monitor.js`: 59.61% (development telemetry)
 
-**Untested Files** (Not critical for unit tests):
-- `convert-to-webp.js`: Node.js build script
-- `gallery-loader-v2.js`: Covered by integration tests
-- `main.js`: Orchestration file
-- `performance-monitor.js`: Development-only monitoring
-- `webp-loader.js`: Browser detection utility
+**Excluded From Coverage**:
+- `convert-to-webp.js`: Node.js build script not loaded in the browser bundle
 
-**Test Command**: `npx vitest run --coverage`
+**Notes**:
+- The published coverage value is the aggregate Vitest/V8 statement percentage.
+- Docker is the preferred validation path on this repo because it does not require a local Node toolchain.
 
 ---
 
@@ -135,4 +145,4 @@ Performance monitoring is built-in (development mode):
 
 ---
 
-**Last Updated:** December 13, 2025
+**Last Updated:** March 27, 2026
