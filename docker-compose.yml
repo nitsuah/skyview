@@ -8,6 +8,7 @@ services:
   unit:
     image: node:20-alpine
     working_dir: /workspace
+    user: node
     volumes:
       - .:/workspace
     command: sh -lc "npm ci && npx vitest run --coverage"
