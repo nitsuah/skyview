@@ -19,7 +19,7 @@ Your website includes:
 
 ## 🚀 Quick Launch (30 Minutes)
 
-## 🐳 Docker Workflow
+### 🐳 Docker Workflow
 
 If Node.js is not installed locally, use Docker for the main validation path:
 
