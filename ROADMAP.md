@@ -19,6 +19,7 @@
 
 - [ ] Implement optional advanced client portal features.
 - [ ] Add conversion-funnel instrumentation for lead capture.
+  - Builds on Q2 baseline: adds dashboard visibility, funnel-drop-off analysis, and experiment hooks for lead-capture optimization.
 - [ ] Improve gallery asset governance for seasonal content updates.
 
 ## 2026 Q4 (Exploratory)

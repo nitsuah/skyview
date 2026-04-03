@@ -26,6 +26,7 @@
   - Priority: P1
   - Problem: launch optimization lacks a measurable baseline for visitor-to-contact and visitor-to-booking transitions.
   - Acceptance Criteria: privacy-first event metrics are captured for landing, contact submit, and booking CTA actions; baseline numbers are documented in METRICS.md.
+  - Note: scoped to event capture and baseline documentation only; dashboard visibility and deeper analysis follow in the P2 todo item below.
 
 ## Todo
 
@@ -37,5 +38,5 @@
 - [ ] Add measurable conversion-funnel instrumentation.
   - Priority: P2
   - Problem: optimization work still lacks business-impact evidence.
-  - Acceptance Criteria: visitor-to-contact and visitor-to-booking events are tracked with dashboard visibility.
+  - Acceptance Criteria: visitor-to-contact and visitor-to-booking events are tracked with dashboard visibility and reporting on top of the P1 baseline established above.
 
