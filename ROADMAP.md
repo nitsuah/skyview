@@ -1,6 +1,6 @@
 # Skyview Roadmap
 
-**Last Updated:** 2026-03-27
+**Last Updated:** 2026-04-03 (pmo/q2-2026-planning)
 
 ## 2026 Q1 (Completed)
 
@@ -13,11 +13,13 @@
 - [ ] Execute the production launch checklist with verified business metadata and domain alignment.
 - [x] Resolve coverage and metric-documentation drift.
 - [ ] Add an evidence-backed monitoring baseline with Lighthouse and Core Web Vitals snapshots.
+- [ ] Add booking-funnel baseline tracking (landing -> contact -> booking click) with privacy-first event capture.
 
 ## 2026 Q3 (Planned)
 
 - [ ] Implement optional advanced client portal features.
 - [ ] Add conversion-funnel instrumentation for lead capture.
+  - Builds on Q2 baseline: adds dashboard visibility, funnel-drop-off analysis, and experiment hooks for lead-capture optimization.
 - [ ] Improve gallery asset governance for seasonal content updates.
 
 ## 2026 Q4 (Exploratory)

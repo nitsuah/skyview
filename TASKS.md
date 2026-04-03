@@ -1,6 +1,6 @@
 # Tasks
 
-**Last Updated:** 2026-03-27
+**Last Updated:** 2026-04-03 (pmo/q2-2026-planning)
 
 ## Done
 
@@ -22,6 +22,12 @@
   - Problem: launch tasks still reference placeholder domain, contact, and schema values.
   - Acceptance Criteria: production identity fields and search-console tasks are complete and documented.
 
+- [ ] Add launch conversion baseline instrumentation.
+  - Priority: P1
+  - Problem: launch optimization lacks a measurable baseline for visitor-to-contact and visitor-to-booking transitions.
+  - Acceptance Criteria: privacy-first event metrics are captured for landing, contact submit, and booking CTA actions; baseline numbers are documented in METRICS.md.
+  - Note: scoped to event capture and baseline documentation only; dashboard visibility and deeper analysis follow in the P2 todo item below.
+
 ## Todo
 
 - [ ] Implement advanced client portal controls.
@@ -32,5 +38,5 @@
 - [ ] Add measurable conversion-funnel instrumentation.
   - Priority: P2
   - Problem: optimization work still lacks business-impact evidence.
-  - Acceptance Criteria: visitor-to-contact and visitor-to-booking events are tracked with dashboard visibility.
+  - Acceptance Criteria: visitor-to-contact and visitor-to-booking events are tracked with dashboard visibility and reporting on top of the P1 baseline established above.
 
