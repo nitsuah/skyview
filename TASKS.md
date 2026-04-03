@@ -1,6 +1,6 @@
 # Tasks
 
-**Last Updated:** 2026-03-27
+**Last Updated:** 2026-04-03 (pmo/q2-2026-planning)
 
 ## Done
 
@@ -21,6 +21,11 @@
   - Priority: P1
   - Problem: launch tasks still reference placeholder domain, contact, and schema values.
   - Acceptance Criteria: production identity fields and search-console tasks are complete and documented.
+
+- [ ] Add launch conversion baseline instrumentation.
+  - Priority: P1
+  - Problem: launch optimization lacks a measurable baseline for visitor-to-contact and visitor-to-booking transitions.
+  - Acceptance Criteria: privacy-first event metrics are captured for landing, contact submit, and booking CTA actions; baseline numbers are documented in METRICS.md.
 
 ## Todo
 
