@@ -6,13 +6,17 @@
  */
 
 window.SKYVIEW_CONFIG = {
+    brand: {
+        // Change this single line to rename the business across the site UI + metadata
+        name: 'SkyView Dynamics'
+    },
+
     features: {
         // Testimonials section - Enable when you have real client reviews
         testimonials: false,
         
-        // Contact form - Enable when ready to receive inquiries
-        // (Requires Netlify Forms configuration)
-        contactForm: false,
+        // Contact form - enabled for launch inquiries and conversion baseline tracking
+        contactForm: true,
         
         // Calendly booking widget - Enable when Calendly account is configured
         calendly: true,
@@ -44,8 +48,7 @@ window.SKYVIEW_CONFIG = {
     
     // Calendly configuration
     calendly: {
-        // TODO: Replace with your actual Calendly URL (e.g., https://calendly.com/YOUR_USERNAME/consultation)
-        url: 'https://calendly.com/YOUR_CALENDLY_USERNAME/consultation',
+        url: 'https://calendly.com/skyviewdynamics/consultation',
         // Customization
         primaryColor: '00d4ff',
         hideGdprBanner: true
@@ -55,16 +58,129 @@ window.SKYVIEW_CONFIG = {
     analytics: {
         // Choose provider: 'plausible', 'netlify', 'goatcounter', 'none'
         provider: 'plausible',
-        // TODO: Replace with your actual domain before enabling analytics
-        domain: 'REPLACE_WITH_YOUR_DOMAIN.com'
+        // Used when external analytics are enabled; local conversion baseline tracking runs regardless.
+        domain: 'skyviewdynamics.com'
     }
 };
+
+function setMetaContent(selector, value) {
+    const element = document.querySelector(selector);
+    if (element && value) {
+        element.setAttribute('content', value);
+    }
+}
+
+function replaceBrandText(value, companyName) {
+    if (typeof value !== 'string') {
+        return value;
+    }
+
+    return value
+        .replace(/SkyView Dynamics/gi, companyName)
+        .replace(/Skyview Dynamics/gi, companyName);
+}
+
+function updateStructuredData(companyName) {
+    const updateNames = (value) => {
+        if (Array.isArray(value)) {
+            value.forEach(updateNames);
+            return;
+        }
+
+        if (!value || typeof value !== 'object') {
+            return;
+        }
+
+        Object.entries(value).forEach(([key, nestedValue]) => {
+            if (key === 'name' && typeof nestedValue === 'string' && /skyview dynamics/i.test(nestedValue)) {
+                value[key] = nestedValue.replace(/SkyView Dynamics/gi, companyName).replace(/Skyview Dynamics/gi, companyName);
+                return;
+            }
+
+            updateNames(nestedValue);
+        });
+    };
+
+    document.querySelectorAll('script[type="application/ld+json"]').forEach((script) => {
+        try {
+            const parsed = JSON.parse(script.textContent);
+            updateNames(parsed);
+            script.textContent = JSON.stringify(parsed, null, 4);
+        } catch {
+            // Ignore malformed JSON-LD blocks.
+        }
+    });
+}
+
+function applySiteIdentity() {
+    const brand = window.SKYVIEW_CONFIG.brand || {};
+    const companyName = brand.name || 'SkyView Dynamics';
+    const defaultPageTitle = `${companyName} | Cinematic Drone Services for Events & Imaging`;
+    const defaultSocialTitle = `${companyName} | Professional Cinematic Drone Services`;
+
+    document.querySelectorAll('.logo-text, [data-company-name]').forEach((element) => {
+        element.textContent = companyName;
+    });
+
+    document.querySelectorAll('[data-company-legal="copyright"]').forEach((element) => {
+        element.innerHTML = `&copy; ${new Date().getFullYear()} ${companyName}. All rights reserved.`;
+    });
+
+    document.querySelectorAll('[data-company-legal="name"]').forEach((element) => {
+        element.textContent = companyName;
+    });
+
+    const currentTitle = document.title || defaultPageTitle;
+    document.title = /skyview dynamics/i.test(currentTitle)
+        ? replaceBrandText(currentTitle, companyName)
+        : defaultPageTitle;
+
+    const descriptionMeta = document.querySelector('meta[name="description"]');
+    if (descriptionMeta) {
+        setMetaContent('meta[name="description"]', replaceBrandText(descriptionMeta.getAttribute('content') || '', companyName));
+    }
+
+    setMetaContent('meta[name="author"]', companyName);
+
+    const ogTitleMeta = document.querySelector('meta[property="og:title"]');
+    const ogTitleValue = ogTitleMeta?.getAttribute('content') || '';
+    setMetaContent(
+        'meta[property="og:title"]',
+        /skyview dynamics/i.test(ogTitleValue) ? replaceBrandText(ogTitleValue, companyName) : defaultSocialTitle
+    );
+
+    setMetaContent('meta[property="og:site_name"]', companyName);
+
+    const twitterTitleMeta = document.querySelector('meta[name="twitter:title"]');
+    const twitterTitleValue = twitterTitleMeta?.getAttribute('content') || '';
+    setMetaContent(
+        'meta[name="twitter:title"]',
+        /skyview dynamics/i.test(twitterTitleValue) ? replaceBrandText(twitterTitleValue, companyName) : defaultSocialTitle
+    );
+
+    updateStructuredData(companyName);
+}
+
+function applyContactIdentity() {
+    const contact = window.SKYVIEW_CONFIG.contact || {};
+
+    document.querySelectorAll('[data-contact-email]').forEach((element) => {
+        element.textContent = contact.email || '';
+    });
+
+    document.querySelectorAll('[data-contact-phone]').forEach((element) => {
+        element.textContent = contact.phone || '';
+    });
+}
 
 /**
  * Apply feature flags on page load
  * This function hides sections based on the configuration above
  */
 document.addEventListener('DOMContentLoaded', function() {
+    applySiteIdentity();
+    applyContactIdentity();
+
     const config = window.SKYVIEW_CONFIG.features;
     
     // Hide testimonials section if disabled

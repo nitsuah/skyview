@@ -13,7 +13,7 @@
 - [ ] Execute the production launch checklist with verified business metadata and domain alignment.
 - [x] Resolve coverage and metric-documentation drift.
 - [ ] Add an evidence-backed monitoring baseline with Lighthouse and Core Web Vitals snapshots.
-- [ ] Add booking-funnel baseline tracking (landing -> contact -> booking click) with privacy-first event capture.
+- [x] Add booking-funnel baseline tracking (landing -> contact -> booking click) with privacy-first event capture.
 
 ## 2026 Q3 (Planned)
 

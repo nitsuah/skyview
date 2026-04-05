@@ -20,7 +20,8 @@ export function initGalleryLightbox() {
         if (video) {
             return {
                 src: video.src,
-                alt: video.alt || video.title,
+                alt: video.getAttribute('aria-label') || video.title,
+                poster: video.poster || '',
                 type: 'video'
             };
         } else if (img) {
@@ -95,6 +96,7 @@ export function initGalleryLightbox() {
             // Show video, hide image
             lightboxVideo.style.display = 'block';
             lightboxImage.style.display = 'none';
+            lightboxVideo.poster = media.poster || '';
             lightboxVideo.src = media.src;
             lightboxVideo.load();
             lightboxVideo.play().catch(() => {});

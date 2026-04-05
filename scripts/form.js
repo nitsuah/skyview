@@ -1,6 +1,8 @@
 // Form Handling Module
+import { trackConversionEvent } from './conversion-tracking.js';
+
 export function initFormHandling() {
-    const form = document.getElementById('contactForm');
+    const form = document.getElementById('contactForm') || document.querySelector('form[name="contact"]');
 
     if (!form) return;
 
@@ -20,6 +22,9 @@ export function initFormHandling() {
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             // Show success message
+            trackConversionEvent('contact_submit', {
+                source: 'contact_form'
+            });
             showFormMessage('success', 'Thank you! Your message has been sent successfully.');
             form.reset();
         } catch (error) {

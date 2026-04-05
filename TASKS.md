@@ -14,6 +14,9 @@
 - [x] Add Docker smoke validation workflow.
   - Completed: 2026-03-27
   - Evidence: `.github/workflows/docker-smoke.yml` now builds the container and verifies HTTP readiness.
+- [x] Add launch conversion baseline instrumentation.
+  - Completed: 2026-04-05
+  - Evidence: `scripts/conversion-tracking.js` now captures privacy-first `landing_view`, `booking_cta_click`, and `contact_submit` events, and `docker compose run --rm unit` validates the coverage path plus the new conversion-tracking tests.
 
 ## In Progress
 
@@ -21,12 +24,6 @@
   - Priority: P1
   - Problem: launch tasks still reference placeholder domain, contact, and schema values.
   - Acceptance Criteria: production identity fields and search-console tasks are complete and documented.
-
-- [ ] Add launch conversion baseline instrumentation.
-  - Priority: P1
-  - Problem: launch optimization lacks a measurable baseline for visitor-to-contact and visitor-to-booking transitions.
-  - Acceptance Criteria: privacy-first event metrics are captured for landing, contact submit, and booking CTA actions; baseline numbers are documented in METRICS.md.
-  - Note: scoped to event capture and baseline documentation only; dashboard visibility and deeper analysis follow in the P2 todo item below.
 
 ## Todo
 

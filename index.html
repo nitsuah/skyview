@@ -76,7 +76,7 @@
                     <path d="M19 18 L21 18 M20 17 L20 19" stroke="currentColor" stroke-width="1"
                         stroke-linecap="round" />
                 </svg>
-                <span class="logo-text">SkyView Dynamics</span>
+                <span class="logo-text" data-company-name>SkyView Dynamics</span>
             </div>
             <ul class="nav-links">
                 <li><a href="#services">SERVICES</a></li>
@@ -316,7 +316,7 @@
                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round" />
                             </svg>
-                            <span>contact@skyviewdynamics.com</span>
+                            <span data-contact-email>contact@skyviewdynamics.com</span>
                         </div>
                         <div class="contact-item">
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -325,11 +325,11 @@
                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round" />
                             </svg>
-                            <span>+1 (555) 123-4567</span>
+                            <span data-contact-phone>+1 (555) 123-4567</span>
                         </div>
                     </div>
                 </div>
-                <form class="contact-form" name="contact" method="POST" data-netlify="true"
+                <form id="contactForm" class="contact-form" name="contact" method="POST" data-netlify="true"
                     netlify-honeypot="bot-field" action="/thank-you.html">
                     <input type="hidden" name="form-name" value="contact" />
                     <p class="hidden" style="display:none">
@@ -397,11 +397,11 @@
                         <path d="M19 18 L21 18 M20 17 L20 19" stroke="currentColor" stroke-width="1"
                             stroke-linecap="round" />
                     </svg>
-                    <span class="logo-text">SkyView Dynamics</span>
+                    <span class="logo-text" data-company-name>SkyView Dynamics</span>
                 </div>
                 <div class="footer-info">
-                    <p>&copy; 2025 SkyView Dynamics - DEMO. All rights reserved. THIS SITE IS JUST A DEMO</p>
-                    <p>contact@skyviewdynamics.com | +1 (555) 123-4567</p>
+                    <p data-company-legal="copyright">&copy; 2026 SkyView Dynamics. All rights reserved.</p>
+                    <p><span data-contact-email>contact@skyviewdynamics.com</span> | <span data-contact-phone>+1 (555) 123-4567</span></p>
                     <p style="margin-top: 0.5rem;">
                         <a href="/privacy.html" style="color: rgba(255, 255, 255, 0.6); text-decoration: none; transition: color 0.3s ease;">Privacy Policy</a>
                     </p>

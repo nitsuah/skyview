@@ -27,20 +27,20 @@ function isVideo(item) {
 function createVideoElement(item) {
     const video = document.createElement('video');
     video.src = item.src;
-    video.alt = item.alt;
     video.title = item.alt;
-    video.controls = true;
+    video.setAttribute('aria-label', item.alt || 'Gallery video preview');
+    video.controls = false;
     video.muted = true;
     video.playsInline = true;
     video.preload = 'metadata';
     video.loading = 'lazy';
-    
-    // Add poster image if available (same name as video, but .jpg)
-    const posterPath = item.src.replace(/\.(mp4|mov|webm|ogg)$/i, '.jpg');
-    if (posterPath !== item.src) {
+
+    const derivedPosterPath = item.src.replace(/\.(mp4|mov|webm|ogg)$/i, '.jpg');
+    const posterPath = item.poster || (derivedPosterPath !== item.src ? derivedPosterPath : '');
+    if (posterPath) {
         video.poster = posterPath;
     }
-    
+
     return video;
 }
 

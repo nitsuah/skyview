@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/style.css">
+    <script src="config.js"></script>
     <style>
         .privacy-section {
             padding: 6rem 0 4rem;
@@ -157,7 +158,7 @@
                         <circle cx="4" cy="18" r="2" stroke="currentColor" stroke-width="1.5" />
                         <circle cx="20" cy="18" r="2" stroke="currentColor" stroke-width="1.5" />
                     </svg>
-                    <span class="logo-text">SKYVIEW</span>
+                    <span class="logo-text" data-company-name>SkyView Dynamics</span>
                 </a>
             </div>
             <a href="/" class="contact-button" style="font-size: 0.875rem; padding: 0.625rem 1.5rem;">← Back to Home</a>
@@ -174,7 +175,7 @@
 
             <div class="privacy-content">
                 <p>
-                    At Skyview Dynamics, LLC ("we," "our," or "us"), we respect your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our website and services.
+                    At <span data-company-legal="name">SkyView Dynamics</span> ("we," "our," or "us"), we respect your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our website and services.
                 </p>
 
                 <h2>1. Information We Collect</h2>
@@ -307,7 +308,7 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <p>&copy; 2025 Skyview Dynamics, LLC. - DEMO. All rights reserved. THIS SITE IS JUST A DEMO</p>
+                <p data-company-legal="copyright">&copy; 2026 SkyView Dynamics. All rights reserved.</p>
                 <p style="margin-top: 0.5rem;">
                     <a href="/privacy.html" style="color: rgba(255, 255, 255, 0.6); text-decoration: none;">Privacy Policy</a>
                 </p>

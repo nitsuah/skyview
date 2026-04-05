@@ -7,11 +7,13 @@ import { initScrollEffects, initAnimationStates } from './scroll-effects.js';
 import { initParallax } from './parallax.js';
 import { loadGallery } from './gallery-loader-v2.js?v=video-support';
 import { initPerformanceMonitoring } from './performance-monitor.js';
+import { initConversionTracking } from './conversion-tracking.js';
 
 // Initialize all modules when DOM is ready
 document.addEventListener('DOMContentLoaded', async () => {
     initMobileMenu();
     initSmoothScroll();
+    initConversionTracking();
 
     // Load dynamic content
     await loadGallery();
