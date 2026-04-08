@@ -116,7 +116,13 @@ export async function loadGallery() {
         if (!response.ok) throw new Error('Failed to load gallery manifest');
 
         const data = await response.json();
-        const items = data.items || [];
+        const rawItems = data.items || [];
+        const posterSources = new Set(
+            rawItems
+                .filter(item => isVideo(item) && item.poster)
+                .map(item => item.poster)
+        );
+        const items = rawItems.filter(item => isVideo(item) || !posterSources.has(item.src));
         console.log(`📸 Loaded ${items.length} gallery items:`, items.map(i => i.src));
 
         // Clear existing static items
@@ -136,10 +142,18 @@ export async function loadGallery() {
             const itemIsVideo = isVideo(item);
             console.log(`Processing item ${index}: ${item.src} - ${itemIsVideo ? '🎬 VIDEO' : '🖼️ IMAGE'}`);
             const mediaElement = itemIsVideo ? createVideoElement(item) : createPictureElement(item);
+            galleryItem.dataset.mediaType = itemIsVideo ? 'video' : 'image';
 
             const overlay = document.createElement('div');
             overlay.classList.add('gallery-overlay');
-            overlay.innerHTML = '<span class="gallery-icon">+</span>';
+            const badgeText = item.featured
+                ? (itemIsVideo ? 'FEATURED REEL' : 'FEATURED SHOT')
+                : (item.category || (itemIsVideo ? 'video' : 'image')).replace(/_/g, ' ').toUpperCase();
+            overlay.innerHTML = `
+                <span class="gallery-chip">${badgeText}</span>
+                <span class="gallery-icon">${itemIsVideo ? '▶' : '+'}</span>
+                <span class="gallery-overlay-text">${itemIsVideo ? 'PLAY REEL' : 'VIEW SHOT'}</span>
+            `;
 
             galleryItem.appendChild(mediaElement);
             galleryItem.appendChild(overlay);

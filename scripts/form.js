@@ -1,5 +1,5 @@
 // Form Handling Module
-import { trackConversionEvent } from './conversion-tracking.js';
+import { trackConversionEvent } from './conversion-tracking.js?v=20251213012';
 
 export function initFormHandling() {
     const form = document.getElementById('contactForm') || document.querySelector('form[name="contact"]');
@@ -22,8 +22,12 @@ export function initFormHandling() {
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             // Show success message
+            const projectTypeField = form.querySelector('select[name="project-type"], select[name="projectType"], select');
+            const selectedProjectType = projectTypeField?.value?.trim();
+
             trackConversionEvent('contact_submit', {
-                source: 'contact_form'
+                source: 'contact_form',
+                target: selectedProjectType || 'general_inquiry'
             });
             showFormMessage('success', 'Thank you! Your message has been sent successfully.');
             form.reset();

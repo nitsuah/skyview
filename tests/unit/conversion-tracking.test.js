@@ -46,6 +46,19 @@ describe('conversion-tracking', () => {
         });
     });
 
+    it('renders a lightweight local conversion dashboard for reporting visibility', async () => {
+        window.history.replaceState({}, '', '/?metrics=1');
+        const { initConversionTracking } = await import('../../scripts/conversion-tracking.js?test=' + Date.now());
+
+        initConversionTracking();
+        document.getElementById('hero-book').click();
+
+        const dashboard = document.querySelector('.conversion-dashboard');
+        expect(dashboard).toBeTruthy();
+        expect(dashboard.querySelector('[data-event-name="landing_view"]').textContent).toContain('1');
+        expect(dashboard.querySelector('[data-event-name="booking_cta_click"]').textContent).toContain('1');
+    });
+
     it('sanitizes contact-submit metadata so no PII is persisted', async () => {
         const { getConversionMetrics, trackConversionEvent } = await import('../../scripts/conversion-tracking.js?test=' + Date.now());
 

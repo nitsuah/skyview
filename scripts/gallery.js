@@ -1,4 +1,6 @@
 // Gallery Lightbox Module
+import { trackConversionEvent } from './conversion-tracking.js?v=20251213012';
+
 export function initGalleryLightbox() {
     const galleryItems = document.querySelectorAll('.gallery-item');
     const lightbox = document.getElementById('lightbox');
@@ -38,6 +40,14 @@ export function initGalleryLightbox() {
     galleryItems.forEach((item, index) => {
         item.addEventListener('click', () => {
             currentIndex = index;
+
+            const selectedMedia = mediaItems[index];
+            trackConversionEvent('gallery_engagement', {
+                source: 'gallery_lightbox',
+                target: selectedMedia?.type || item.dataset.mediaType || 'gallery',
+                location: `item_${index + 1}`
+            });
+
             openLightbox();
         });
     });

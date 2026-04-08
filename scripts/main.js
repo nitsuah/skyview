@@ -1,29 +1,33 @@
 // Main Entry Point - SkyView Dynamics
 import { initMobileMenu } from './mobile-menu.js';
 import { initSmoothScroll } from './smooth-scroll.js';
-import { initGalleryLightbox } from './gallery.js';
-import { initFormHandling } from './form.js';
+import { initGalleryLightbox } from './gallery.js?v=20251213013';
+import { initFormHandling } from './form.js?v=20251213013';
 import { initScrollEffects, initAnimationStates } from './scroll-effects.js';
 import { initParallax } from './parallax.js';
 import { loadGallery } from './gallery-loader-v2.js?v=video-support';
 import { initPerformanceMonitoring } from './performance-monitor.js';
-import { initConversionTracking } from './conversion-tracking.js';
+import { initConversionTracking } from './conversion-tracking.js?v=20251213013';
+import { initDroneCursor } from './drone-cursor.js?v=20251213013';
+import { initInteractivePolish } from './interactive-polish.js?v=20251213013';
 
 // Initialize all modules when DOM is ready
 document.addEventListener('DOMContentLoaded', async () => {
     initMobileMenu();
     initSmoothScroll();
     initConversionTracking();
+    initDroneCursor();
+    initFormHandling();
 
     // Load dynamic content
     await loadGallery();
 
     // Initialize interactive modules that depend on content
     initGalleryLightbox();
-    initFormHandling();
     initScrollEffects();
     initParallax();
     initAnimationStates();
+    initInteractivePolish();
 
     console.log('🚁 SkyView Dynamics - Website Initialized');
     

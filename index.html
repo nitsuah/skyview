@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/style.css?v=20251213001">
+    <link rel="stylesheet" href="styles/style.css?v=20251213004">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     
     <!-- Site Configuration & Feature Flags -->
@@ -106,12 +106,17 @@
             </video>
         </div>
         <div class="hero-content">
-            <h1 class="hero-title">ELEVATE YOUR VISION</h1>
-            <p class="hero-subtitle">Cinematic Drone Services for Events & Imaging</p>
-            <a href="#booking" class="cta-button">
-                <span class="cta-text">BOOK A CONSULTATION</span>
-                <span class="cta-glow"></span>
-            </a>
+            <h1 class="hero-title">ELEVATE YOUR VISION <span>FROM ABOVE</span></h1>
+            <p class="hero-subtitle">Cinematic aerials for real estate, events, and mapping.</p>
+            <div class="hero-actions">
+                <a href="#booking" class="cta-button">
+                    <span class="cta-text">BOOK A CONSULTATION</span>
+                    <span class="cta-glow"></span>
+                </a>
+                <a href="#gallery" class="cta-button cta-button-secondary">
+                    <span class="cta-text">VIEW SELECTED WORK</span>
+                </a>
+            </div>
         </div>
         <div class="scroll-indicator">
             <div class="scroll-arrow"></div>
@@ -122,9 +127,13 @@
     <section class="services" id="services">
         <div class="container">
             <h2 class="section-title">OUR SERVICES</h2>
+            <p class="section-subtitle">Real estate, event, and survey flights with a cinematic edge.</p>
             <div class="services-grid">
                 <!-- Service Card 1 -->
                 <div class="service-card">
+                    <div class="service-card-top">
+                        <span class="service-badge">Listing-ready visuals</span>
+                    </div>
                     <div class="service-icon">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" />
@@ -134,6 +143,7 @@
                         </svg>
                     </div>
                     <h3 class="service-title">REAL ESTATE</h3>
+                    <p class="service-description">Premium listing stills + motion.</p>
                     <ul class="service-list">
                         <li>Luxury Residential</li>
                         <li>Commercial Property</li>
@@ -144,7 +154,10 @@
                 </div>
 
                 <!-- Service Card 2 -->
-                <div class="service-card">
+                <div class="service-card featured">
+                    <div class="service-card-top">
+                        <span class="service-badge">Story-driven coverage</span>
+                    </div>
                     <div class="service-icon">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"
@@ -156,6 +169,7 @@
                         </svg>
                     </div>
                     <h3 class="service-title">CINEMATOGRAPHY</h3>
+                    <p class="service-description">Reels, reveals, and FPV coverage.</p>
                     <ul class="service-list">
                         <li>Live Events & Festivals</li>
                         <li>Music Videos</li>
@@ -167,6 +181,9 @@
 
                 <!-- Service Card 3 -->
                 <div class="service-card">
+                    <div class="service-card-top">
+                        <span class="service-badge">Precision capture</span>
+                    </div>
                     <div class="service-icon">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -177,6 +194,7 @@
                         </svg>
                     </div>
                     <h3 class="service-title">MAPPING & SURVEY</h3>
+                    <p class="service-description">Clean data capture for planning and inspections.</p>
                     <ul class="service-list">
                         <li>2D/3D Orthomosaics</li>
                         <li>Topographic Surveys</li>
@@ -223,7 +241,7 @@
             <h2 class="section-title">SCHEDULE A CONSULTATION</h2>
             <p class="booking-subtitle">Book a free 15-minute consultation to discuss your project and how we can help bring your vision to life.</p>
             <!-- Calendly inline widget begin -->
-            <div class="calendly-inline-widget" data-url="https://calendly.com/skyviewdynamics?hide_gdpr_banner=1&primary_color=00d4ff"></div>
+            <div class="calendly-inline-widget" data-url="https://calendly.com/skyviewdynamics?hide_gdpr_banner=1&primary_color=00d4ff&background_color=0b1120&text_color=f5fbff"></div>
             <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
             <!-- Calendly inline widget end -->
         </div>
@@ -303,11 +321,16 @@
     <section class="contact-section" id="contact">
         <div class="container">
             <h2 class="section-title">CONTACT</h2>
+            <p class="section-subtitle">Tell us what you're filming, surveying, or launching—we'll help map the right aerial approach.</p>
             <div class="contact-content">
                 <div class="contact-info">
                     <h3>Get In Touch</h3>
                     <p>Ready to elevate your project? Let's discuss how our drone services can bring your vision to
                         life.</p>
+                    <div class="contact-pills">
+                        <span class="contact-pill">Response within 1 business day</span>
+                        <span class="contact-pill">Real estate • events • inspections</span>
+                    </div>
                     <div class="contact-details">
                         <div class="contact-item">
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -407,20 +430,20 @@
                     </p>
                 </div>
                 <div class="social-links">
-                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                    <a href="https://twitter.com" data-social-link="twitter" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
                         <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" />
                         </svg>
                     </a>
-                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                    <a href="https://instagram.com" data-social-link="instagram" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2" />
                             <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" />
                             <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" />
                         </svg>
                     </a>
-                    <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                    <a href="https://youtube.com" data-social-link="youtube" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
                         <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.25 29 29 0 00-.46-5.33z" />
@@ -444,7 +467,7 @@
         <div class="lightbox-counter"></div>
     </div>
 
-    <script type="module" src="scripts/main.js?v=20251213007"></script>
+    <script type="module" src="scripts/main.js?v=20251213014"></script>
 
     <!-- Schema.org Structured Data -->
     <script type="application/ld+json">

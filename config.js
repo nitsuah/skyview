@@ -7,8 +7,9 @@
 
 window.SKYVIEW_CONFIG = {
     brand: {
-        // Change this single line to rename the business across the site UI + metadata
-        name: 'SkyView Dynamics'
+        // Change this single place to rename or relink the business across the site UI + metadata
+        name: 'SkyView Dynamics',
+        website: 'https://skyviewdynamics.com/'
     },
 
     features: {
@@ -31,13 +32,17 @@ window.SKYVIEW_CONFIG = {
         preview3D: false,
         
         // Analytics - Enable when analytics provider is set up
-        analytics: false
+        analytics: false,
+
+        // Local conversion dashboard - enable for a persistent preview metrics panel outside localhost if desired
+        analyticsDebugPanel: false
     },
     
     // Contact information
     contact: {
         email: 'contact@skyviewdynamics.com',
         phone: '+1 (555) 123-4567',
+        phoneE164: '+15551234567',
         // Social media - Update with real URLs when ready
         social: {
             twitter: 'https://twitter.com',
@@ -51,6 +56,8 @@ window.SKYVIEW_CONFIG = {
         url: 'https://calendly.com/skyviewdynamics/consultation',
         // Customization
         primaryColor: '00d4ff',
+        backgroundColor: '0b1120',
+        textColor: 'f5fbff',
         hideGdprBanner: true
     },
     
@@ -70,6 +77,13 @@ function setMetaContent(selector, value) {
     }
 }
 
+function setLinkHref(selector, value) {
+    const element = document.querySelector(selector);
+    if (element && value) {
+        element.setAttribute('href', value);
+    }
+}
+
 function replaceBrandText(value, companyName) {
     if (typeof value !== 'string') {
         return value;
@@ -81,6 +95,10 @@ function replaceBrandText(value, companyName) {
 }
 
 function updateStructuredData(companyName) {
+    const brand = window.SKYVIEW_CONFIG.brand || {};
+    const contact = window.SKYVIEW_CONFIG.contact || {};
+    const socialLinks = Object.values(contact.social || {}).filter(Boolean);
+
     const updateNames = (value) => {
         if (Array.isArray(value)) {
             value.forEach(updateNames);
@@ -105,6 +123,25 @@ function updateStructuredData(companyName) {
         try {
             const parsed = JSON.parse(script.textContent);
             updateNames(parsed);
+
+            if (parsed && typeof parsed === 'object') {
+                if (brand.website && parsed.url) {
+                    parsed.url = brand.website;
+                }
+                if (contact.email && parsed.email) {
+                    parsed.email = contact.email;
+                }
+                if ((contact.phoneE164 || contact.phone) && parsed.telephone) {
+                    parsed.telephone = contact.phoneE164 || contact.phone;
+                }
+                if (socialLinks.length && Array.isArray(parsed.sameAs)) {
+                    parsed.sameAs = socialLinks;
+                }
+                if (parsed.publisher && typeof parsed.publisher === 'object' && socialLinks.length) {
+                    parsed.publisher.sameAs = socialLinks;
+                }
+            }
+
             script.textContent = JSON.stringify(parsed, null, 4);
         } catch {
             // Ignore malformed JSON-LD blocks.
@@ -115,6 +152,7 @@ function updateStructuredData(companyName) {
 function applySiteIdentity() {
     const brand = window.SKYVIEW_CONFIG.brand || {};
     const companyName = brand.name || 'SkyView Dynamics';
+    const website = brand.website || window.location.href;
     const defaultPageTitle = `${companyName} | Cinematic Drone Services for Events & Imaging`;
     const defaultSocialTitle = `${companyName} | Professional Cinematic Drone Services`;
 
@@ -150,6 +188,9 @@ function applySiteIdentity() {
     );
 
     setMetaContent('meta[property="og:site_name"]', companyName);
+    setMetaContent('meta[property="og:url"]', website);
+    setMetaContent('meta[name="twitter:url"]', website);
+    setLinkHref('link[rel="canonical"]', website);
 
     const twitterTitleMeta = document.querySelector('meta[name="twitter:title"]');
     const twitterTitleValue = twitterTitleMeta?.getAttribute('content') || '';
@@ -170,6 +211,14 @@ function applyContactIdentity() {
 
     document.querySelectorAll('[data-contact-phone]').forEach((element) => {
         element.textContent = contact.phone || '';
+    });
+
+    Object.entries(contact.social || {}).forEach(([network, url]) => {
+        document.querySelectorAll(`[data-social-link="${network}"]`).forEach((element) => {
+            if (url) {
+                element.setAttribute('href', url);
+            }
+        });
     });
 }
 
@@ -237,7 +286,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (config.calendly) {
         const calendlyWidget = document.querySelector('.calendly-inline-widget');
         if (calendlyWidget) {
-            const url = `${window.SKYVIEW_CONFIG.calendly.url}?hide_gdpr_banner=${window.SKYVIEW_CONFIG.calendly.hideGdprBanner ? '1' : '0'}&primary_color=${window.SKYVIEW_CONFIG.calendly.primaryColor}`;
+            const calendlyConfig = window.SKYVIEW_CONFIG.calendly;
+            const url = `${calendlyConfig.url}?hide_gdpr_banner=${calendlyConfig.hideGdprBanner ? '1' : '0'}&primary_color=${calendlyConfig.primaryColor}&background_color=${calendlyConfig.backgroundColor}&text_color=${calendlyConfig.textColor}`;
             calendlyWidget.setAttribute('data-url', url);
         }
     }
