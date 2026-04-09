@@ -21,21 +21,15 @@ export function initScrollEffects() {
 
         // Add/remove header background on scroll
         if (currentScroll > 100) {
-            header.style.background = 'rgba(26, 26, 26, 0.95)';
-            header.style.boxShadow = '0 5px 20px rgba(0, 255, 255, 0.1)';
             header.classList.add('scrolled');
         } else {
-            header.style.background = 'rgba(26, 26, 26, 0.4)';
-            header.style.boxShadow = 'none';
             header.classList.remove('scrolled');
         }
 
         // Hide/show header on scroll
         if (currentScroll > lastScroll && currentScroll > 500) {
-            header.style.transform = 'translateY(-100%)';
             header.classList.add('header-hidden');
         } else {
-            header.style.transform = 'translateY(0)';
             header.classList.remove('header-hidden');
         }
 

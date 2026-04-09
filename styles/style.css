@@ -180,15 +180,21 @@ button {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: transparent !important;
+    background: transparent;
     backdrop-filter: none;
     border-bottom: none;
-    box-shadow: none !important;
+    box-shadow: none;
     transition: var(--transition-normal);
 }
 
 .header.scrolled {
+    background: rgba(26, 26, 26, 0.95);
     border-bottom-color: transparent;
+    box-shadow: 0 5px 20px rgba(0, 255, 255, 0.1);
+}
+
+.header-hidden {
+    transform: translateY(-100%);
 }
 
 .nav-container {

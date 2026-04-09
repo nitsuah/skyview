@@ -1,5 +1,5 @@
 // Form Handling Module
-import { trackConversionEvent } from './conversion-tracking.js?v=20251213012';
+import { trackConversionEvent } from './conversion-tracking.js';
 
 export function initFormHandling() {
     const form = document.getElementById('contactForm') || document.querySelector('form[name="contact"]');

@@ -102,10 +102,11 @@ This document outlines options for adding privacy-friendly analytics to track vi
 ## Implementation Status
 
 A **built-in privacy-first conversion baseline** is now shipped in `scripts/conversion-tracking.js`.
-It records three launch events without storing PII:
+It records four launch events without storing PII:
 - `landing_view`
 - `booking_cta_click`
 - `contact_submit`
+- `gallery_engagement`
 
 Metrics are persisted locally in `localStorage` under `skyview:conversion-metrics:v1` so launch readiness can be verified before choosing an external analytics provider.
 

@@ -1,5 +1,5 @@
 // Gallery Lightbox Module
-import { trackConversionEvent } from './conversion-tracking.js?v=20251213012';
+import { trackConversionEvent } from './conversion-tracking.js';
 
 export function initGalleryLightbox() {
     const galleryItems = document.querySelectorAll('.gallery-item');

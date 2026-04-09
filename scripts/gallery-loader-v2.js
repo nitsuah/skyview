@@ -149,11 +149,22 @@ export async function loadGallery() {
             const badgeText = item.featured
                 ? (itemIsVideo ? 'FEATURED REEL' : 'FEATURED SHOT')
                 : (item.category || (itemIsVideo ? 'video' : 'image')).replace(/_/g, ' ').toUpperCase();
-            overlay.innerHTML = `
-                <span class="gallery-chip">${badgeText}</span>
-                <span class="gallery-icon">${itemIsVideo ? '▶' : '+'}</span>
-                <span class="gallery-overlay-text">${itemIsVideo ? 'PLAY REEL' : 'VIEW SHOT'}</span>
-            `;
+
+            const chip = document.createElement('span');
+            chip.classList.add('gallery-chip');
+            chip.textContent = badgeText;
+
+            const icon = document.createElement('span');
+            icon.classList.add('gallery-icon');
+            icon.textContent = itemIsVideo ? '▶' : '+';
+
+            const overlayText = document.createElement('span');
+            overlayText.classList.add('gallery-overlay-text');
+            overlayText.textContent = itemIsVideo ? 'PLAY REEL' : 'VIEW SHOT';
+
+            overlay.appendChild(chip);
+            overlay.appendChild(icon);
+            overlay.appendChild(overlayText);
 
             galleryItem.appendChild(mediaElement);
             galleryItem.appendChild(overlay);

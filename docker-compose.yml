@@ -8,7 +8,7 @@ services:
   unit:
     image: node:20-alpine
     working_dir: /workspace
-    user: root
+    user: node
     environment:
       - npm_config_cache=/tmp/.npm
     volumes:

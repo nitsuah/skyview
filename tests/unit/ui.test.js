@@ -59,7 +59,7 @@ describe('UI Effects', () => {
             window.pageYOffset = 200;
             window.dispatchEvent(new Event('scroll'));
 
-            expect(header.style.background).toContain('rgba(26, 26, 26, 0.95)');
+            expect(header.classList.contains('scrolled')).toBe(true);
         });
 
         it('should hide header on scroll down', () => {
@@ -73,7 +73,7 @@ describe('UI Effects', () => {
             window.pageYOffset = 700;
             window.dispatchEvent(new Event('scroll'));
 
-            expect(header.style.transform).toBe('translateY(-100%)');
+            expect(header.classList.contains('header-hidden')).toBe(true);
         });
 
         it('should show elements on scroll', () => {
