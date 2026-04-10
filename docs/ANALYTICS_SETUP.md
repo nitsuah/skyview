@@ -101,10 +101,19 @@ This document outlines options for adding privacy-friendly analytics to track vi
 
 ## Implementation Status
 
-Currently configured for **Plausible Analytics** (commented out in HTML):
-- Script is ready but needs domain configuration
-- Uncomment the script in `index.html` after setting up Plausible account
-- Location: Line ~15-17 in `index.html`
+A **built-in privacy-first conversion baseline** is now shipped in `scripts/conversion-tracking.js`.
+It records four launch events without storing PII:
+- `landing_view`
+- `booking_cta_click`
+- `contact_submit`
+- `gallery_engagement`
+
+Metrics are persisted locally in `localStorage` under `skyview:conversion-metrics:v1` so launch readiness can be verified before choosing an external analytics provider.
+
+Currently configured for **Plausible Analytics** (optional external forwarding):
+- Script is ready and the domain is set to `skyviewdynamics.com`
+- Keep `features.analytics` disabled until the Plausible property is confirmed
+- Local baseline tracking continues to work even while the external script remains off
 
 ### To Activate:
 1. Choose your analytics provider (Plausible recommended)

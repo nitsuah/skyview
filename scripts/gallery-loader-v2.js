@@ -27,20 +27,20 @@ function isVideo(item) {
 function createVideoElement(item) {
     const video = document.createElement('video');
     video.src = item.src;
-    video.alt = item.alt;
     video.title = item.alt;
-    video.controls = true;
+    video.setAttribute('aria-label', item.alt || 'Gallery video preview');
+    video.controls = false;
     video.muted = true;
     video.playsInline = true;
     video.preload = 'metadata';
     video.loading = 'lazy';
-    
-    // Add poster image if available (same name as video, but .jpg)
-    const posterPath = item.src.replace(/\.(mp4|mov|webm|ogg)$/i, '.jpg');
-    if (posterPath !== item.src) {
+
+    const derivedPosterPath = item.src.replace(/\.(mp4|mov|webm|ogg)$/i, '.jpg');
+    const posterPath = item.poster || (derivedPosterPath !== item.src ? derivedPosterPath : '');
+    if (posterPath) {
         video.poster = posterPath;
     }
-    
+
     return video;
 }
 
@@ -116,7 +116,13 @@ export async function loadGallery() {
         if (!response.ok) throw new Error('Failed to load gallery manifest');
 
         const data = await response.json();
-        const items = data.items || [];
+        const rawItems = data.items || [];
+        const posterSources = new Set(
+            rawItems
+                .filter(item => isVideo(item) && item.poster)
+                .map(item => item.poster)
+        );
+        const items = rawItems.filter(item => isVideo(item) || !posterSources.has(item.src));
         console.log(`📸 Loaded ${items.length} gallery items:`, items.map(i => i.src));
 
         // Clear existing static items
@@ -136,10 +142,29 @@ export async function loadGallery() {
             const itemIsVideo = isVideo(item);
             console.log(`Processing item ${index}: ${item.src} - ${itemIsVideo ? '🎬 VIDEO' : '🖼️ IMAGE'}`);
             const mediaElement = itemIsVideo ? createVideoElement(item) : createPictureElement(item);
+            galleryItem.dataset.mediaType = itemIsVideo ? 'video' : 'image';
 
             const overlay = document.createElement('div');
             overlay.classList.add('gallery-overlay');
-            overlay.innerHTML = '<span class="gallery-icon">+</span>';
+            const badgeText = item.featured
+                ? (itemIsVideo ? 'FEATURED REEL' : 'FEATURED SHOT')
+                : (item.category || (itemIsVideo ? 'video' : 'image')).replace(/_/g, ' ').toUpperCase();
+
+            const chip = document.createElement('span');
+            chip.classList.add('gallery-chip');
+            chip.textContent = badgeText;
+
+            const icon = document.createElement('span');
+            icon.classList.add('gallery-icon');
+            icon.textContent = itemIsVideo ? '▶' : '+';
+
+            const overlayText = document.createElement('span');
+            overlayText.classList.add('gallery-overlay-text');
+            overlayText.textContent = itemIsVideo ? 'PLAY REEL' : 'VIEW SHOT';
+
+            overlay.appendChild(chip);
+            overlay.appendChild(icon);
+            overlay.appendChild(overlayText);
 
             galleryItem.appendChild(mediaElement);
             galleryItem.appendChild(overlay);

@@ -1,4 +1,6 @@
 // Gallery Lightbox Module
+import { trackConversionEvent } from './conversion-tracking.js';
+
 export function initGalleryLightbox() {
     const galleryItems = document.querySelectorAll('.gallery-item');
     const lightbox = document.getElementById('lightbox');
@@ -20,7 +22,8 @@ export function initGalleryLightbox() {
         if (video) {
             return {
                 src: video.src,
-                alt: video.alt || video.title,
+                alt: video.getAttribute('aria-label') || video.title,
+                poster: video.poster || '',
                 type: 'video'
             };
         } else if (img) {
@@ -37,6 +40,14 @@ export function initGalleryLightbox() {
     galleryItems.forEach((item, index) => {
         item.addEventListener('click', () => {
             currentIndex = index;
+
+            const selectedMedia = mediaItems[index];
+            trackConversionEvent('gallery_engagement', {
+                source: 'gallery_lightbox',
+                target: selectedMedia?.type || item.dataset.mediaType || 'gallery',
+                location: `item_${index + 1}`
+            });
+
             openLightbox();
         });
     });
@@ -95,6 +106,7 @@ export function initGalleryLightbox() {
             // Show video, hide image
             lightboxVideo.style.display = 'block';
             lightboxImage.style.display = 'none';
+            lightboxVideo.poster = media.poster || '';
             lightboxVideo.src = media.src;
             lightboxVideo.load();
             lightboxVideo.play().catch(() => {});

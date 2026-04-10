@@ -1,10 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { initGalleryLightbox } from '../../scripts/gallery.js';
+import { getConversionMetrics } from '../../scripts/conversion-tracking.js';
 
 describe('gallery lightbox', () => {
     let lightbox, closeBtn, prevBtn, nextBtn, counter, img;
 
     beforeEach(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.SKYVIEW_CONFIG = {
+            features: { analytics: true },
+            analytics: { provider: 'plausible' }
+        };
+        window.plausible = vi.fn();
+
         document.body.innerHTML = `
             <div class="gallery-item">
                 <img src="img1.jpg" alt="Img 1" />
@@ -40,6 +49,17 @@ describe('gallery lightbox', () => {
         expect(img.alt).toBe('Img 2');
         expect(counter.textContent).toBe('2 / 2');
         expect(document.body.style.overflow).toBe('hidden');
+    });
+
+    it('should track gallery engagement when a visitor opens the lightbox', () => {
+        initGalleryLightbox();
+        document.querySelectorAll('.gallery-item')[0].click();
+
+        const metrics = getConversionMetrics();
+        expect(metrics.totals.gallery_engagement).toBe(1);
+        expect(window.plausible).toHaveBeenCalledWith('gallery_engagement', {
+            props: expect.objectContaining({ source: 'gallery_lightbox' })
+        });
     });
 
     it('should close lightbox on close button click', () => {

@@ -32,13 +32,15 @@
             "alt": "Aerial video of sunset over marina with boats",
             "category": "landscape",
             "featured": true,
-            "type": "video"
+            "type": "video",
+            "poster": "assets/gallery/sunset-marina.jpg"
         },
         {
             "src": "assets/gallery/dji-example-4.mov",
             "alt": "Professional aerial videography sample",
             "category": "landscape",
-            "type": "video"
+            "type": "video",
+            "poster": "assets/gallery/dji-example-3.jpg"
         }
     ]
 }

@@ -9,6 +9,8 @@ services:
     image: node:20-alpine
     working_dir: /workspace
     user: node
+    environment:
+      - npm_config_cache=/tmp/.npm
     volumes:
       - .:/workspace
     command: sh -lc "npm ci && npx vitest run --coverage"

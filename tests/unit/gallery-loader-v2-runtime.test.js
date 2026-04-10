@@ -68,6 +68,25 @@ describe('gallery-loader-v2 runtime', () => {
         expect(global.fetch).toHaveBeenCalled();
     });
 
+    it('should use explicit poster fallbacks and hide inline controls for gallery video previews', async () => {
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({
+                items: [
+                    { src: 'video.mov', alt: 'Preview video', type: 'video', poster: 'fallback-preview.jpg' }
+                ]
+            })
+        });
+
+        const module = await import('../../scripts/gallery-loader-v2.js');
+        await module.loadGallery();
+
+        const video = document.querySelector('.gallery-grid video');
+        expect(video).toBeTruthy();
+        expect(video.poster).toContain('fallback-preview.jpg');
+        expect(video.controls).toBe(false);
+    });
+
     it('should process image items', async () => {
         global.fetch.mockResolvedValueOnce({
             ok: true,

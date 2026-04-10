@@ -8,22 +8,30 @@ All core features are complete and optimized for production deployment.
 
 ## Performance Metrics
 
-Authoritative coverage source: `docker compose run --rm unit` on 2026-03-27.
+Authoritative validation sources: `docker compose run --rm unit`, Docker Playwright, local browser snapshots, and `docs/lighthouse-desktop.report.{html,json}` on 2026-04-06.
 
-| Metric                      | Current      | Target | Status |
-|-----------------------------|--------------|--------|--------|
-| **Code Coverage**           | 86.56%       | > 80%  | 🟢     |
-| **Page Load Complete**      | ~1.8s        | < 3s   | 🟢     |
-| **Time to First Byte**      | ~5ms         | < 200ms| 🟢     |
-| **DOM Ready**               | ~79ms        | < 1s   | 🟢     |
-| **Image Optimization**      | 30-40% smaller (WebP) | Optimized | 🟢     |
-| **Mobile Responsiveness**   | ✅ Responsive | Pass   | 🟢     |
-| **Core Web Vitals (LCP)**   | Monitored    | < 2.5s | 🟡     |
-| **Core Web Vitals (FID)**   | ~1ms         | < 100ms| 🟢     |
-| **Core Web Vitals (CLS)**   | 0.000        | < 0.1  | 🟢     |
-| **Contact Form**            | ✅ Working    | Functional | 🟢     |
-| **Gallery Load Time**       | Optimized    | < 2s   | 🟢     |
-| **SEO Score**               | Basic setup  | > 90   | 🟡     |
+| Metric                          | Current | Target | Status |
+|---------------------------------|---------|--------|--------|
+| **Code Coverage**               | 84.12%  | > 80%  | 🟢 |
+| **Lighthouse Performance**      | 92/100  | > 90   | 🟢 |
+| **Lighthouse Accessibility**    | 96/100  | > 90   | 🟢 |
+| **Lighthouse Best Practices**   | 57/100 on local HTTP preview* | Informational | 🟡 |
+| **Lighthouse SEO**              | 100/100 | > 90   | 🟢 |
+| **First Contentful Paint**      | 0.7s desktop Lighthouse (~276ms browser snapshot) | < 1s | 🟢 |
+| **Largest Contentful Paint**    | 1.4s    | < 2.5s | 🟢 |
+| **Speed Index**                 | 2.1s    | < 3s   | 🟢 |
+| **Total Blocking Time**         | 0ms     | < 200ms | 🟢 |
+| **DOM Ready**                   | ~280ms  | < 1s   | 🟢 |
+| **Page Load Complete**          | ~1.3s   | < 3s   | 🟢 |
+| **Transfer Size**               | ~31.2 KB HTML/doc request | Lean | 🟢 |
+| **Core Web Vitals (CLS)**       | 0.002   | < 0.1  | 🟢 |
+| **Image Optimization**          | 30-40% smaller (WebP) | Optimized | 🟢 |
+| **Mobile Responsiveness**       | ✅ Responsive | Pass | 🟢 |
+| **Contact Form**                | ✅ Working | Functional | 🟢 |
+| **Conversion Reporting**        | Local preview dashboard for landing, work-sample, booking, and contact signals on `localhost` / `?metrics=1` | Visible | 🟢 |
+| **Gallery Load Time**           | 5 curated items hydrate cleanly | < 2s | 🟢 |
+
+> *The local Lighthouse Best Practices score is suppressed by the non-HTTPS localhost preview and third-party booking/auth integrations; it is still the correct baseline artifact for launch tracking.
 
 **Status Indicators:**
 
@@ -60,19 +68,25 @@ Authoritative coverage source: `docker compose run --rm unit` on 2026-03-27.
 ### Performance Testing
 
 ```bash
-# Run Lighthouse audit
-1. Open Chrome DevTools (F12)
-2. Go to Lighthouse tab
-3. Run audit for Mobile and Desktop
+# Generate the authoritative desktop Lighthouse baseline (Docker-first)
+docker compose up -d web
+
+docker run --rm -v ${PWD}:/work -w /work mcr.microsoft.com/playwright:v1.58.2-noble \
+  bash -lc "export CHROME_PATH=/ms-playwright/chromium-1208/chrome-linux64/chrome; \
+  npx -y lighthouse@12 http://host.docker.internal:8080 \
+  --preset=desktop \
+  --chrome-flags='--headless=new --no-sandbox --disable-dev-shm-usage' \
+  --only-categories=performance,accessibility,best-practices,seo \
+  --output=json --output=html --output-path=./docs/lighthouse-desktop --quiet"
 ```
 
 ### Core Web Vitals
 
 Performance monitoring is built-in (development mode):
 
-* Open browser console
-* See real-time metrics logged
-* Check `📊 Performance Metrics` output
+* Open the browser console
+* Review the `📊 Performance Metrics` output
+* Compare local measurements against `docs/lighthouse-desktop.report.json`
 
 ### Load Time Analysis
 
@@ -85,10 +99,9 @@ Performance monitoring is built-in (development mode):
 
 ### SEO Check
 
-* Verify meta tags in `<head>` section
+* Verify meta tags in the `<head>` section
 * Check semantic HTML structure
-* Run Lighthouse SEO audit
-* **Next step**: Add Schema.org structured data
+* Review the captured Lighthouse SEO result (`100/100`) in `docs/lighthouse-desktop.report.html`
 
 ---
 
@@ -97,35 +110,40 @@ Performance monitoring is built-in (development mode):
 ✅ **WebP Images**: 30-40% file size reduction  
 ✅ **Lazy Loading**: Images and videos load on demand  
 ✅ **Video Support**: MP4/MOV with poster images  
-✅ **Core Web Vitals**: Real-time monitoring  
+✅ **Core Web Vitals**: Real-time monitoring plus captured Lighthouse desktop artifact  
 ✅ **Resource Optimization**: Minimized and compressed  
 ✅ **CDN Ready**: Netlify automatic CDN delivery  
+✅ **Interactive polish**: cursor drone + hover motion accents now verified in the live preview  
+✅ **Conversion visibility**: preview dashboard now surfaces landing, gallery proof, booking, and contact counts without exposing PII  
 
 ---
 
 ## Test Coverage Details
 
-**Overall Coverage**: 86.56% statements, 87.60% lines, 91.01% functions, 62.20% branches.
+**Overall Coverage**: 84.12% statements, 85.18% lines, 84.96% functions, 63.73% branches.
 
-**Verification Date**: 2026-03-27
+**Verification Date**: 2026-04-06
 
-**Verification Command**: `docker compose run --rm unit`
+**Verification Commands**:
+- `docker compose run --rm unit`
+- `docker run --rm -v ${PWD}:/work -w /work mcr.microsoft.com/playwright:v1.58.2-noble sh -lc "npm ci && npx playwright test"`
 
-**Test Result**: 65/65 tests passing
+**Test Result**: 75/75 tests passing across 17/17 test files, plus 5/5 Playwright E2E tests passing.
 
-**Core Functionality** (Interactive features - User-facing code):
-- `form.js`: 86.84% (contact form validation)
-- `gallery-loader-v2.js`: 91.25% (runtime gallery hydration)
+**Core Functionality** (Interactive features - user-facing code):
+- `conversion-tracking.js`: 81.89% (privacy-first landing/gallery/booking/contact events + local reporting dashboard)
+- `drone-cursor.js`: 82.25% (cursor-follow drone accent)
+- `interactive-polish.js`: 82.35% (card and CTA hover motion)
+- `form.js`: 87.17% (contact form validation)
+- `gallery-loader-v2.js`: 92.04% (runtime gallery hydration)
 - `gallery-loader.js`: 98.24% (gallery data fetch and rendering)
-- `gallery.js`: 87.87% (lightbox and navigation)
-- `main.js`: 96.77% (application bootstrap)
+- `gallery.js`: 86.56% (lightbox and navigation)
+- `main.js`: 97.05% (application bootstrap)
 - `mobile-menu.js`: 100% (hamburger menu)
 - `smooth-scroll.js`: 100% (anchor navigation)
 - `utils.js`: 100% (helper functions)
-- `scroll-effects.js`: 100% (animations)
 - `parallax.js`: 100% (visual effects)
 - `webp-loader.js`: 91.66% (image optimization)
-- `performance-monitor.js`: 59.61% (development telemetry)
 
 **Excluded From Coverage**:
 - `convert-to-webp.js`: Node.js build script not loaded in the browser bundle
@@ -145,4 +163,4 @@ Performance monitoring is built-in (development mode):
 
 ---
 
-**Last Updated:** March 27, 2026
+**Last Updated:** April 6, 2026
