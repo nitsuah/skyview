@@ -1,6 +1,8 @@
-# Skyview Roadmap
 
-**Last Updated:** 2026-04-06 (motion-polish + monitoring evidence)
+# 🗺️ Skyview Roadmap
+
+**Last Updated:** 2026-04-13 (Overseer/PM compliance review)
+Next Review: 2026-05-01
 
 > **Planning split:** public FE = landing, gallery, booking, contact, and privacy-safe funnel tracking. `/admin` = separate CMS surface. Client delivery / signed-download auth = separate backend workstream, not part of the marketing page bundle.
 

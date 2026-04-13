@@ -1,6 +1,9 @@
+
 # Tasks
 
-**Last Updated:** 2026-04-06 (monitoring evidence + motion polish)
+**Last Updated:** 2026-04-13 (Overseer/PM compliance review)
+
+Compliance: Overseer/PM task tracking validated for Q2 2026
 
 > **Delivery split:** the public FE covers the marketing site and funnel. `/admin` is a separate CMS surface, and any secure client portal/download auth is a separate backend task.
 
