@@ -1,4 +1,23 @@
 # 🚁 SkyView Dynamics - Cinematic Drone Services
+**Last Updated:** 2026-04-13 (Overseer/PM compliance review)
+
+##  What’s New
+- Motion polish, browser monitoring, and conversion reporting baseline (2026-04-06)
+- Launch visual identity refresh and dark-mode booking embed (2026-04-06)
+- Docker smoke validation and coverage reporting (2026-03-27)
+
+## 🤝 Contributing
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, code of conduct, and how to get involved.
+
+## 🔗 Quick Links
+- [Live Site](https://skyview.nitsuah.io)
+- [Deployment Guide](docs/DEPLOYMENT_GUIDE.md)
+- [Owner Guide](OWNER_GUIDE.md)
+- [Getting Started](docs/GETTING_STARTED.md)
+- [Metrics](METRICS.md)
+- [Features](FEATURES.md)
+- [Roadmap](ROADMAP.md)
+- [Tasks](TASKS.md)
 
 [![Deploy Status](https://github.com/nitsuah/skyview/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/nitsuah/skyview/actions)
 
