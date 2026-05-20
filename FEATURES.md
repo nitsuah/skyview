@@ -40,4 +40,4 @@
 
 ## 📅 Last Validated
 
-April 2026 - Overseer/PM compliance review
+Date: April 2026
