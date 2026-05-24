@@ -2,12 +2,13 @@ const STORAGE_KEY = 'skyview:conversion-metrics:v1';
 const SESSION_KEY = 'skyview:landing-view-recorded:v1';
 const DASHBOARD_ID = 'skyview-conversion-dashboard';
 const MAX_EVENTS = 25;
-const TRACKED_EVENTS = ['landing_view', 'gallery_engagement', 'booking_cta_click', 'contact_submit'];
+const TRACKED_EVENTS = ['landing_view', 'gallery_engagement', 'booking_cta_click', 'contact_submit', 'service_interest'];
 const TRACKED_EVENT_LABELS = {
     landing_view: 'Landing views',
     gallery_engagement: 'Work sample opens',
     booking_cta_click: 'Booking clicks',
-    contact_submit: 'Contact sends'
+    contact_submit: 'Contact sends',
+    service_interest: 'Service interest'
 };
 const ALLOWED_METADATA_KEYS = new Set(['source', 'location', 'target']);
 

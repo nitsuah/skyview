@@ -6,6 +6,37 @@ export function initFormHandling() {
 
     if (!form) return;
 
+    const projectTypeField = form.querySelector('select[name="project-type"], select[name="projectType"], select');
+    const detailsField = form.querySelector('textarea[name="details"], textarea[name="project-details"], textarea');
+
+    const servicePromptByType = {
+        real_estate: 'Tell us about your real estate project, property type, and timeline.',
+        events: 'Tell us about your event, venue, and key moments you want captured.',
+        mapping: 'Tell us about your mapping goals, property size, and required deliverables.'
+    };
+
+    const serviceCtas = document.querySelectorAll('[data-service-interest]');
+    serviceCtas.forEach((cta) => {
+        cta.addEventListener('click', () => {
+            const interest = cta.getAttribute('data-service-interest')?.trim();
+            const serviceLabel = cta.getAttribute('data-service-label')?.trim();
+
+            if (interest && projectTypeField) {
+                projectTypeField.value = interest;
+            }
+
+            if (detailsField && interest) {
+                detailsField.placeholder = servicePromptByType[interest] || 'Tell us about your project';
+            }
+
+            trackConversionEvent('service_interest', {
+                source: 'service_card',
+                target: interest || 'unknown_service',
+                label: serviceLabel || undefined
+            });
+        });
+    });
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -22,7 +53,6 @@ export function initFormHandling() {
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             // Show success message
-            const projectTypeField = form.querySelector('select[name="project-type"], select[name="projectType"], select');
             const selectedProjectType = projectTypeField?.value?.trim();
 
             trackConversionEvent('contact_submit', {
