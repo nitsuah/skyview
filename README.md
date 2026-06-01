@@ -75,7 +75,7 @@ See **[🚀 Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** for Netlify deployment
 - **CMS**: Decap CMS (git-based content management).
 - **Testing**:
   - **E2E**: Playwright (`npx playwright test`)
-  - **Unit**: Vitest (`npx vitest run`)
+  - **Unit**: Vitest (`npx vitest run --config config/vitest.config.ts`)
 - **Netlify**: Hosting, Forms, and Identity.
 
 ## 🎯 Features
@@ -107,7 +107,7 @@ npm run serve          # Start dev server on port 8080
 
 # Testing
 npm test              # Run Playwright E2E tests
-npx vitest run        # Run unit tests
+npx vitest run --config config/vitest.config.ts  # Run unit tests
 docker compose run --rm unit  # Run unit tests with coverage in Docker
 
 # Optimization

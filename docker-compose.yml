@@ -12,4 +12,4 @@ services:
       - npm_config_cache=/tmp/.npm
     volumes:
       - .:/workspace
-    command: sh -lc "npm ci && npx vitest run --coverage"
+    command: sh -lc "npm ci && npx vitest run --config config/vitest.config.ts --coverage"
