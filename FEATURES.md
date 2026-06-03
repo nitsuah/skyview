@@ -1,43 +1,46 @@
 # Skyview Features
 
+**Last Validated:** June 2026
+
 ## Core Experiences
-- **Immersive Hero Section**: Full-screen drone video background to immediately showcase quality.
-- **Dynamic Gallery**: Grid/Masonry layout for photos and videos, capable of handling high-res drone shots.
-- **Service Packages**: Clear, card-based display of offerings (Real Estate, Events, etc.).
-- **Responsive Design**: Mobile-first approach ensuring the site looks great on phones (where most clients might look).
 
-## Technical Features
-- **Modern CSS**: Using Variables and Flexbox/Grid for layout.
-- **Modular JavaScript**: ES6 Modules for clean, maintainable, and lightweight code.
-- **Performance**: Lazy loading for gallery images to ensure fast initial paint.
-- **Netlify Integration**:
-    - **Forms**: Built-in form handling for zero-config contact forms.
-    - **Identity**: Authentication for the admin content management system.
+- **Immersive Hero Section** — full-screen drone video background with cinematic motion polish and cursor-follow drone accent
+- **Dynamic Gallery** — grid/masonry layout with lazy loading; seasonal filtering, display-order sorting, and active/inactive governance via `assets/gallery.json`
+- **Service Packages** — card-based display of offerings (Real Estate, Events, Cinematography, Mapping)
+- **Responsive Design** — mobile-first layout using CSS variables, Flexbox, and Grid
 
+## Marketing & Personalization
 
-- **Asset Upload**: Decap CMS integration allows adding new photos without code changes.
-- **Booking Management (Planned)**: Integration with external scheduling tools.
+- **Campaign Personalization** — UTM param + referrer detection applies per-source hero subline variants on page load; data session-persisted (`scripts/campaign.js`)
+- **A/B Testing Framework** — deterministic per-visitor bucket assignment for hero headline and CTA experiments; feature-gated in `config.js` (`experiments.enabled`) — ready to enable (`scripts/ab-testing.js`)
+- **Conversion Funnel Tracking** — privacy-first event capture across landing → gallery → booking/contact; referrer and campaign metadata captured on landing view
 
-## 🆕 Planned & Upcoming Features
+## Funnel Reporting
 
-- **Secure Client Delivery**: Build a backend for time-bound access links and signed downloads (Q3 2026)
-- **Invite-Only Admin Auth**: Harden `/admin` publishing access with Netlify Identity/Git Gateway (Q3 2026)
-- **Conversion Funnel Analytics**: Expand reporting beyond local dashboard to hosted analytics (Q3 2026)
-- **Personalization & A/B Testing**: Evaluate lightweight personalization and hero/CTA experiments (Q4 2026)
+- **Local Dashboard** — in-browser conversion dashboard with step-by-step drop-off percentages
+- **CSV / JSON Export** — `exportMetricsCSV()` and `exportMetricsJSON()` for offline analysis
 
-## 🤖 AI/ML & Market Trends
+## Admin & CMS
 
-- **AI-Driven Gallery Curation**: Use AI to suggest best gallery assets based on engagement (Planned)
-- **AI-Powered SEO**: Automated meta/alt text and content suggestions (Planned)
-- **Privacy-First Analytics**: Market trend: privacy-focused event capture and reporting
-- **Mobile-First Optimization**: Continuous improvements for mobile experience
+- **Decap CMS** — git-gateway backend; gallery assets managed without code changes; season, display order, and active status editable in the CMS editor
+- **Admin Hardening** — CSP, `X-Robots-Tag: noindex,nofollow`, and `Cache-Control: no-store` enforced on all `/admin/*` routes via `netlify.toml`
 
-## 📈 Market-Relevant Improvements
+## Client Portal
 
-- **Quarterly Review**: Features and roadmap reviewed quarterly for alignment with market trends and user feedback
-- **Community Feedback Loop**: Feature requests and roadmap items prioritized based on user and contributor input
-- **Compliance & Best Practices**: Continuous updates to match evolving open-source and enterprise standards
+- **Rate Limiting** — 5-attempt / 15-minute lockout enforced client-side via localStorage
+- **Time-Bound Token Expiry** — portal detects and rejects expired access codes; clear expiry messaging shown to clients
+- **Token Generator** — `scripts/portal-token.js` Node.js CLI produces signed `clientId.expiry_unix.checksum` codes with configurable TTL
 
-## 📅 Last Validated
+## Security & Infrastructure
 
-Date: April 2026
+- **Content Security Policy** — CSP + Permissions-Policy headers on all pages via `netlify.toml`
+- **No-Store Routes** — client-portal and gallery pages excluded from CDN caching
+- **Modular JavaScript** — ES modules throughout; zero build step required
+- **Docker Validation** — `docker compose run --rm unit` runs 90 unit tests; web smoke build confirms zero import errors
+- **Netlify Forms** — zero-config contact form handling
+
+## Planned
+
+- **Secure Client Delivery Backend** — Netlify Function or edge middleware for server-side portal token validation; signed time-bound download links (`PORTAL_SALT` secret required)
+- **Multi-Segment Personalization** — expand campaign variants to cover service spotlight targeting (Q4 2026)
+- **Live A/B Experiments** — enable framework already shipped; wire to analytics and analyse results (Q4 2026)

@@ -1,47 +1,30 @@
 
-# 🗺️ Skyview Roadmap
+# Skyview Roadmap
 
-**Last Updated:** 2026-06-02 (Q3 dev sprint — dev-q3 branch)
+**Last Updated:** 2026-06-03
 Next Review: 2026-07-01
 
-> **Planning split:** public FE = landing, gallery, booking, contact, and privacy-safe funnel tracking. `/admin` = separate CMS surface. Client delivery / signed-download auth = separate backend workstream, not part of the marketing page bundle.
+> **Planning split:** public FE = landing, gallery, booking, contact, and privacy-safe funnel tracking. `/admin` = separate CMS surface. Client delivery / signed-download auth = separate backend workstream.
 
-## 2026 Q1 (Completed)
+## Completed (Q1–Q3 2026)
 
-- [x] Deliver the production-ready static site architecture and deployment configuration.
-- [x] Implement the responsive gallery, contact flow, and booking integration.
-- [x] Add Playwright and Vitest harnesses plus SEO baseline artifacts.
+- Production-ready static site, responsive gallery, booking integration, contact flow
+- Playwright + Vitest test harnesses, SEO baseline, Docker smoke validation
+- Funnel baseline tracking (landing → gallery → booking/contact intent), privacy-first event capture
+- Lighthouse + Core Web Vitals monitoring baseline
+- CSP + Permissions-Policy headers; `no-store` + `noindex` on `/admin/*` and client-portal routes
+- Gallery governance: `season`, `displayOrder`, `active` fields in `assets/gallery.json`; CMS editor updated; `gallery-loader-v2.js` filters and sorts accordingly
+- Conversion funnel reporting: `getFunnelDropOff()`, `exportMetricsCSV()`, `exportMetricsJSON()`; dashboard shows drop-off % and export buttons; referrer + campaign captured on `landing_view`
+- A/B testing framework (`scripts/ab-testing.js`): deterministic per-visitor bucketing, feature-gated in `config.js`
+- Campaign personalization (`scripts/campaign.js`): UTM + referrer → hero subline variants, session-persisted
+- Client portal hardening: 5-attempt / 15-min lockout, time-bound token expiry, `scripts/portal-token.js` for signed code generation
 
-## 2026 Q2 (Completed)
+## Open (Q3 2026)
 
-- [x] Execute the production launch checklist with verified business metadata and access boundaries.
-  - Remaining blocker: final client-approved phone, email, location, and social values still need to be plugged into the centralized `config.js` identity fields.
-- [x] Resolve coverage and metric-documentation drift.
-- [x] Add an evidence-backed monitoring baseline with Lighthouse and Core Web Vitals snapshots.
-- [x] Add booking-funnel baseline tracking (landing -> gallery proof -> booking/contact intent) with privacy-first event capture.
-- [x] Clarify FE vs admin/backend scope in the launch plan.
-
-## 2026 Q3 (In Progress — dev-q3)
-
-- [x] Harden `/admin` publishing access with an invite-only workflow.
-  - CSP + `no-store` + `noindex` headers on all `/admin/*` and client-portal routes via `netlify.toml`.
-- [x] Expand conversion-funnel reporting beyond the shipped local dashboard.
-  - `getFunnelDropOff()`, `exportMetricsCSV()`, `exportMetricsJSON()` now available; dashboard shows step drop-off percentages and export buttons; referrer and campaign captured on landing.
-- [x] Improve gallery asset governance for seasonal content updates.
-  - `assets/gallery.json` items carry `season`, `displayOrder`, `active` fields; `gallery-loader-v2.js` filters and sorts accordingly; CMS editor updated.
-- [x] Add A/B testing framework for hero messaging and CTA experiments.
-  - `scripts/ab-testing.js` — deterministic per-visitor bucketing, feature-gated in `config.js`.
-- [x] Add UTM + referrer-based campaign personalization.
-  - `scripts/campaign.js` — hero subline variant per traffic source, session-persisted.
-- [x] Harden client portal with rate limiting and time-bound token expiry.
-  - 5-attempt / 15-min lockout, token expiry detection, `scripts/portal-token.js` for signed code generation.
 - [ ] Build secure client delivery / portal backend separately from the public marketing FE.
-  - Goal: signed links, expiry, and delivery controls live outside the landing-page bundle.
   - Next: wire `scripts/portal-token.js` to a Netlify Function or edge middleware with `PORTAL_SALT` secret.
 
-## 2026 Q4 (Planned)
+## Q4 2026 (Planned)
 
-- [ ] Evaluate lightweight personalization by campaign or service segment.
-  - Foundation shipped in Q3 (`scripts/campaign.js`); Q4 work = multi-segment hero copy, service spotlight targeting.
-- [ ] Evaluate A/B testing for hero messaging and CTA improvements.
-  - Framework shipped in Q3 (`scripts/ab-testing.js`); Q4 work = enable experiments, wire to analytics, analyse results.
+- [ ] Multi-segment campaign personalization — expand `scripts/campaign.js` to support service spotlight targeting and additional hero copy variants.
+- [ ] Enable A/B experiments — flip `experiments.enabled: true` in `config.js`, wire variants to analytics, analyse results.
