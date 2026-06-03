@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
+    "test:unit": "vitest run --config config/vitest.config.ts",
     "optimize:images": "node scripts/convert-to-webp.js",
     "serve": "npx http-server . -p 8080"
   },
