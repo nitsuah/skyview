@@ -67,6 +67,31 @@ window.SKYVIEW_CONFIG = {
         provider: 'plausible',
         // Used when external analytics are enabled; local conversion baseline tracking runs regardless.
         domain: 'skyviewdynamics.com'
+    },
+
+    // A/B experiment configuration — set enabled: true to activate
+    experiments: {
+        enabled: false,
+        heroHeadline: {
+            id: 'hero-headline-q3-v1',
+            variants: {
+                control: 'CINEMATIC DRONE SERVICES',
+                treatment: 'CAPTURE THE EXTRAORDINARY'
+            }
+        },
+        heroCta: {
+            id: 'hero-cta-q3-v1',
+            variants: {
+                control: 'BOOK A CONSULTATION',
+                treatment: 'SEE WHAT WE CAN DO'
+            }
+        }
+    },
+
+    // Campaign personalization — UTM + referrer-based hero messaging
+    campaign: {
+        // Set to false to disable referrer-based hero subline personalization
+        personalize: true
     }
 };
 

@@ -88,18 +88,34 @@ function createPictureElement(item) {
     return picture;
 }
 
+function getCurrentSeason() {
+    const month = new Date().getMonth() + 1;
+    if (month >= 3 && month <= 5) return 'spring';
+    if (month >= 6 && month <= 8) return 'summer';
+    if (month >= 9 && month <= 11) return 'fall';
+    return 'winter';
+}
+
+function isActiveForSeason(item, currentSeason) {
+    if (item.active === false) return false;
+    const season = item.season || 'all';
+    return season === 'all' || season === currentSeason;
+}
+
 /**
  * Fetches gallery data and renders it to the DOM.
+ * @param {Object} [options]
+ * @param {boolean} [options.respectSeason=false] - Filter items by current season
  * @returns {Promise<void>}
  */
-export async function loadGallery() {
+export async function loadGallery({ respectSeason = false } = {}) {
     const galleryGrid = document.querySelector('.gallery-grid');
     if (!galleryGrid) return;
 
     // Read animation constants from CSS custom properties
     const computedStyles = getComputedStyle(galleryGrid);
     const ANIMATION_DURATION = computedStyles.getPropertyValue('--gallery-animation-duration').trim() || '0.5s';
-    // Parse the delay to a number if used in a calculation, or handle string manipulation. 
+    // Parse the delay to a number if used in a calculation, or handle string manipulation.
     // The previous logic used `index * 0.1`. If the CSS val is '0.1s', parseFloat works.
     const staggerDelayVal = parseFloat(computedStyles.getPropertyValue('--gallery-animation-stagger-delay')) || 0.1;
 
@@ -109,20 +125,26 @@ export async function loadGallery() {
 
     try {
         // Cache busting with static version - update on deployment when gallery.json changes
-        const GALLERY_VERSION = '1.0.0';
+        const GALLERY_VERSION = '1.1.0';
         const url = `assets/gallery.json?v=${GALLERY_VERSION}`;
         console.log(`📥 Fetching gallery from: ${url}`);
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to load gallery manifest');
 
         const data = await response.json();
+        const currentSeason = getCurrentSeason();
         const rawItems = data.items || [];
         const posterSources = new Set(
             rawItems
                 .filter(item => isVideo(item) && item.poster)
                 .map(item => item.poster)
         );
-        const items = rawItems.filter(item => isVideo(item) || !posterSources.has(item.src));
+
+        const activeItems = rawItems
+            .filter(item => respectSeason ? isActiveForSeason(item, currentSeason) : item.active !== false)
+            .sort((a, b) => (a.displayOrder ?? 50) - (b.displayOrder ?? 50));
+
+        const items = activeItems.filter(item => isVideo(item) || !posterSources.has(item.src));
         console.log(`📸 Loaded ${items.length} gallery items:`, items.map(i => i.src));
 
         // Clear existing static items

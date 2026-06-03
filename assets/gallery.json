@@ -4,28 +4,43 @@
             "src": "assets/gallery/sunset-marina.jpg",
             "alt": "Stunning sunset over marina with boats and waterfront homes at golden hour",
             "category": "landscape",
-            "featured": true
+            "featured": true,
+            "season": "all",
+            "displayOrder": 1,
+            "active": true
         },
         {
             "src": "assets/gallery/aerial-waterfront.jpg",
             "alt": "Aerial view of waterfront residential community with pristine landscaping",
             "category": "real_estate",
-            "featured": true
+            "featured": true,
+            "season": "all",
+            "displayOrder": 2,
+            "active": true
         },
         {
             "src": "assets/gallery/dji-example-1.jpg",
             "alt": "Professional aerial photography sample - coastal landscape",
-            "category": "landscape"
+            "category": "landscape",
+            "season": "summer",
+            "displayOrder": 3,
+            "active": true
         },
         {
             "src": "assets/gallery/dji-example-2.jpg",
             "alt": "Professional aerial photography sample - urban development",
-            "category": "real_estate"
+            "category": "real_estate",
+            "season": "all",
+            "displayOrder": 4,
+            "active": true
         },
         {
             "src": "assets/gallery/dji-example-3.jpg",
             "alt": "Professional aerial photography sample - scenic vista",
-            "category": "landscape"
+            "category": "landscape",
+            "season": "all",
+            "displayOrder": 5,
+            "active": true
         },
         {
             "src": "assets/gallery/sunset-marina.mp4",
@@ -33,14 +48,20 @@
             "category": "landscape",
             "featured": true,
             "type": "video",
-            "poster": "assets/gallery/sunset-marina.jpg"
+            "poster": "assets/gallery/sunset-marina.jpg",
+            "season": "all",
+            "displayOrder": 6,
+            "active": true
         },
         {
             "src": "assets/gallery/dji-example-4.mov",
             "alt": "Professional aerial videography sample",
             "category": "landscape",
             "type": "video",
-            "poster": "assets/gallery/dji-example-3.jpg"
+            "poster": "assets/gallery/dji-example-3.jpg",
+            "season": "all",
+            "displayOrder": 7,
+            "active": true
         }
     ]
 }

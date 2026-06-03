@@ -1,7 +1,7 @@
 
 # Tasks
 
-**Last Updated:** 2026-04-13 (Overseer/PM compliance review)
+**Last Updated:** 2026-06-02 (Q3 dev sprint — dev-q3 branch)
 
 Compliance: Overseer/PM task tracking validated for Q2 2026
 
@@ -15,25 +15,36 @@ Compliance: Overseer/PM task tracking validated for Q2 2026
 - [x] Add unit and E2E test frameworks.
 - [x] Reconcile coverage and metric reporting sections.
   - Completed: 2026-03-27
-  - Evidence: `docker compose run --rm unit` remains the authoritative coverage source reflected in [METRICS.md](METRICS.md).
 - [x] Add Docker smoke validation workflow.
   - Completed: 2026-03-27
-  - Evidence: `.github/workflows/docker-smoke.yml` now builds the container and verifies HTTP readiness.
 - [x] Add launch conversion baseline instrumentation.
   - Completed: 2026-04-05
-  - Evidence: `scripts/conversion-tracking.js` now captures privacy-first `landing_view`, `gallery_engagement`, `booking_cta_click`, and `contact_submit` events, and `docker compose run --rm unit` validates the coverage path plus the conversion-tracking tests.
 - [x] Refresh the launch visual identity and dark-mode booking embed.
   - Completed: 2026-04-06
-  - Evidence: the browser preview at `http://127.0.0.1:8080` confirms the updated hero, services, gallery, dark Calendly embed, and curated reel presentation, while `docker compose run --rm unit` stays green.
 - [x] Add cinematic motion polish and cursor-follow drone accent.
   - Completed: 2026-04-06
-  - Evidence: `scripts/drone-cursor.js` and `scripts/interactive-polish.js` are live in the Docker preview, and the current Docker-backed validation suite remains green.
 - [x] Capture an evidence-backed browser monitoring baseline.
   - Completed: 2026-04-06
-  - Evidence: `docs/lighthouse-desktop.report.html` / `.json` now capture a Lighthouse desktop baseline (92 Performance / 96 Accessibility / 57 Best Practices / 100 SEO), and the local browser snapshot records ~280ms DOM ready, ~1.3s load complete, and 0.002 CLS.
 - [x] Add local conversion reporting visibility.
   - Completed: 2026-04-06
-  - Evidence: `scripts/conversion-tracking.js` now renders a preview-only dashboard on `localhost` or `?metrics=1` for landing, gallery proof, booking, and contact totals, and `docker compose run --rm unit` now passes 17/17 files and 75/75 tests.
+- [x] Harden `/admin` publishing auth.
+  - Completed: 2026-06-02 (dev-q3)
+  - Evidence: `netlify.toml` now enforces CSP, `X-Robots-Tag: noindex,nofollow`, and `Cache-Control: no-store` on all `/admin/*` and client-portal routes. Invite-only workflow is documented in `docs/admin-auth.md`.
+- [x] Expand conversion-funnel reporting beyond the local preview dashboard.
+  - Completed: 2026-06-02 (dev-q3)
+  - Evidence: `scripts/conversion-tracking.js` now exports `getFunnelDropOff()`, `exportMetricsCSV()`, and `exportMetricsJSON()`; dashboard shows drop-off percentages and CSV/JSON export buttons; referrer + campaign metadata captured on `landing_view`; 90/90 tests green via `docker compose run --rm unit`.
+- [x] Add A/B testing framework.
+  - Completed: 2026-06-02 (dev-q3)
+  - Evidence: `scripts/ab-testing.js` provides deterministic per-visitor bucket assignment; hero headline and CTA variants configured in `config.js`; feature-gated behind `experiments.enabled: false` by default; 4 unit tests pass.
+- [x] Add campaign/UTM personalization.
+  - Completed: 2026-06-02 (dev-q3)
+  - Evidence: `scripts/campaign.js` parses UTM params and referrer source, applies hero subline variants per traffic source, persists to sessionStorage; 5 unit tests pass.
+- [x] Improve gallery asset governance for seasonal content.
+  - Completed: 2026-06-02 (dev-q3)
+  - Evidence: `assets/gallery.json` items now carry `season`, `displayOrder`, and `active` fields; `gallery-loader-v2.js` respects active status and sorts by `displayOrder`; `admin/config.yml` exposes all new fields in the CMS editor.
+- [x] Harden client portal with rate limiting and token expiry.
+  - Completed: 2026-06-02 (dev-q3)
+  - Evidence: `client-portal.html` now enforces 5-attempt / 15-min lockout via localStorage, detects expired time-bound tokens, and shows clear expiry messaging; `scripts/portal-token.js` generates signed access codes with configurable TTL.
 
 ## In Progress
 
@@ -44,18 +55,7 @@ Compliance: Overseer/PM task tracking validated for Q2 2026
 
 ## Todo
 
-- [ ] Harden `/admin` publishing auth.
-  - Priority: P1
-  - Problem: the CMS exists, but launch should keep it owner/invite-only and clearly separate from customer-facing flows.
-  - Acceptance Criteria: Netlify Identity / Git Gateway settings are documented as invite-only with no public signup.
-
 - [ ] Build secure client delivery backend / advanced portal controls.
   - Priority: P2
-  - Problem: the portal foundation exists, but authenticated delivery should be built as a separate backend/service layer rather than mixed into the public landing page.
-  - Acceptance Criteria: time-bound access links or signed downloads plus notification flow are available and documented.
-
-- [ ] Expand conversion-funnel reporting beyond the local preview dashboard.
-  - Priority: P2
-  - Problem: privacy-first event capture and local dashboard visibility are now live, but a shared external reporting surface is still optional.
-  - Acceptance Criteria: a hosted analytics dashboard or reporting export is documented if the client wants broader marketing visibility.
-
+  - Problem: portal now has client-side rate limiting and token expiry. Backend signed-link delivery should be a separate service layer.
+  - Acceptance Criteria: time-bound access links or signed downloads plus notification flow, backed by a server-side secret (see `scripts/portal-token.js`).

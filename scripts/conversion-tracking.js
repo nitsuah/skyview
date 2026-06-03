@@ -1,8 +1,10 @@
 const STORAGE_KEY = 'skyview:conversion-metrics:v1';
 const SESSION_KEY = 'skyview:landing-view-recorded:v1';
+const SESSION_START_KEY = 'skyview:session-start:v1';
 const DASHBOARD_ID = 'skyview-conversion-dashboard';
-const MAX_EVENTS = 25;
+const MAX_EVENTS = 50;
 const TRACKED_EVENTS = ['landing_view', 'gallery_engagement', 'booking_cta_click', 'contact_submit', 'service_interest'];
+const FUNNEL_STEPS = ['landing_view', 'gallery_engagement', 'booking_cta_click', 'contact_submit'];
 const TRACKED_EVENT_LABELS = {
     landing_view: 'Landing views',
     gallery_engagement: 'Work sample opens',
@@ -10,7 +12,7 @@ const TRACKED_EVENT_LABELS = {
     contact_submit: 'Contact sends',
     service_interest: 'Service interest'
 };
-const ALLOWED_METADATA_KEYS = new Set(['source', 'location', 'target']);
+const ALLOWED_METADATA_KEYS = new Set(['source', 'location', 'target', 'referrer', 'campaign', 'variant']);
 
 function createDefaultMetrics() {
     return {
@@ -79,6 +81,98 @@ function shouldShowDashboard() {
     return isLocalPreview || featureEnabled || params.get('metrics') === '1';
 }
 
+export function getFunnelDropOff(metrics = getConversionMetrics()) {
+    const totals = metrics.totals;
+    const topOfFunnel = totals[FUNNEL_STEPS[0]] || 0;
+
+    return FUNNEL_STEPS.map((step, index) => {
+        const count = totals[step] || 0;
+        const prevCount = index === 0 ? topOfFunnel : (totals[FUNNEL_STEPS[index - 1]] || 0);
+        const conversionRate = topOfFunnel > 0 ? Math.round((count / topOfFunnel) * 100) : 0;
+        const stepRate = prevCount > 0 ? Math.round((count / prevCount) * 100) : 0;
+        return {
+            step,
+            label: TRACKED_EVENT_LABELS[step] || step,
+            count,
+            conversionRate,
+            stepRate,
+            dropOff: 100 - stepRate
+        };
+    });
+}
+
+export function exportMetricsCSV(metrics = getConversionMetrics()) {
+    const rows = [
+        ['event', 'timestamp', 'page', 'source', 'location', 'target', 'referrer', 'campaign', 'variant'],
+        ...metrics.events.map(evt => [
+            evt.name,
+            evt.timestamp,
+            evt.page || '',
+            evt.source || '',
+            evt.location || '',
+            evt.target || '',
+            evt.referrer || '',
+            evt.campaign || '',
+            evt.variant || ''
+        ])
+    ];
+
+    const csv = rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+
+    if (typeof document !== 'undefined') {
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `skyview-funnel-${new Date().toISOString().slice(0, 10)}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+
+    return csv;
+}
+
+export function exportMetricsJSON(metrics = getConversionMetrics()) {
+    const payload = {
+        exportedAt: new Date().toISOString(),
+        totals: metrics.totals,
+        funnelDropOff: getFunnelDropOff(metrics),
+        events: metrics.events
+    };
+
+    const json = JSON.stringify(payload, null, 2);
+
+    if (typeof document !== 'undefined') {
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `skyview-funnel-${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+
+    return json;
+}
+
+function renderFunnelDropOff(metrics) {
+    const steps = getFunnelDropOff(metrics);
+    if (steps[0].count === 0) return '';
+
+    return `
+        <div class="conversion-dashboard__funnel">
+            <div class="conversion-dashboard__funnel-label">Funnel drop-off</div>
+            ${steps.map((s, i) => `
+                <div class="conversion-dashboard__funnel-step">
+                    <span class="conversion-dashboard__funnel-name">${s.label}</span>
+                    <span class="conversion-dashboard__funnel-bar" style="width:${s.conversionRate}%" title="${s.conversionRate}% of sessions"></span>
+                    <span class="conversion-dashboard__funnel-pct">${i === 0 ? '100%' : s.stepRate + '%'}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
 function renderConversionDashboard(metrics = getConversionMetrics()) {
     if (!shouldShowDashboard() || typeof document === 'undefined' || !document.body) {
         return null;
@@ -100,7 +194,11 @@ function renderConversionDashboard(metrics = getConversionMetrics()) {
                 <h3>Conversion signals</h3>
                 <p>Private preview snapshot</p>
             </div>
-            <button type="button" class="conversion-dashboard__reset" data-reset-conversions>Reset</button>
+            <div class="conversion-dashboard__actions">
+                <button type="button" class="conversion-dashboard__export" data-export-csv title="Export CSV">CSV</button>
+                <button type="button" class="conversion-dashboard__export" data-export-json title="Export JSON">JSON</button>
+                <button type="button" class="conversion-dashboard__reset" data-reset-conversions>Reset</button>
+            </div>
         </div>
         <div class="conversion-dashboard__grid">
             ${TRACKED_EVENTS.map((eventName) => `
@@ -110,6 +208,7 @@ function renderConversionDashboard(metrics = getConversionMetrics()) {
                 </div>
             `).join('')}
         </div>
+        ${renderFunnelDropOff(metrics)}
         <div class="conversion-dashboard__footer">
             <span class="conversion-dashboard__status ${metrics.updatedAt ? 'is-live' : ''}">Updated</span>
             <span class="conversion-dashboard__timestamp">${formatUpdatedAt(metrics.updatedAt)}</span>
@@ -118,9 +217,12 @@ function renderConversionDashboard(metrics = getConversionMetrics()) {
 
     if (dashboard.dataset.bound !== 'true') {
         dashboard.addEventListener('click', (event) => {
-            const resetButton = event.target.closest('[data-reset-conversions]');
-            if (resetButton) {
+            if (event.target.closest('[data-reset-conversions]')) {
                 resetConversionMetrics();
+            } else if (event.target.closest('[data-export-csv]')) {
+                exportMetricsCSV();
+            } else if (event.target.closest('[data-export-json]')) {
+                exportMetricsJSON();
             }
         });
         dashboard.dataset.bound = 'true';
@@ -180,6 +282,7 @@ export function resetConversionMetrics() {
 
     localStorageRef?.removeItem(STORAGE_KEY);
     sessionStorageRef?.removeItem(SESSION_KEY);
+    sessionStorageRef?.removeItem(SESSION_START_KEY);
     delete window.__SKYVIEW_CONVERSION_METRICS__;
 
     const emptyMetrics = persistMetrics(createDefaultMetrics());
@@ -223,6 +326,17 @@ export function trackConversionEvent(eventName, metadata = {}) {
     return metrics;
 }
 
+function captureReferrer() {
+    try {
+        const ref = document.referrer;
+        if (!ref) return '';
+        const host = new URL(ref).hostname.replace(/^www\./, '');
+        return host.slice(0, 80);
+    } catch {
+        return '';
+    }
+}
+
 function bindBookingLinks(root = document) {
     root.querySelectorAll('a[href="#booking"], a[href*="calendly.com"]').forEach((link) => {
         if (link.dataset.conversionTracked === 'true') {
@@ -246,8 +360,21 @@ export function initConversionTracking(root = document) {
     const alreadyTracked = sessionStorageRef?.getItem(SESSION_KEY) === '1';
 
     if (!alreadyTracked) {
+        sessionStorageRef?.setItem(SESSION_START_KEY, new Date().toISOString());
+
+        const referrer = captureReferrer();
+        const campaign = (() => {
+            try {
+                return new URLSearchParams(window.location?.search || '').get('utm_campaign') || '';
+            } catch {
+                return '';
+            }
+        })();
+
         trackConversionEvent('landing_view', {
-            source: 'page_load'
+            source: 'page_load',
+            ...(referrer ? { referrer } : {}),
+            ...(campaign ? { campaign } : {})
         });
         sessionStorageRef?.setItem(SESSION_KEY, '1');
     }

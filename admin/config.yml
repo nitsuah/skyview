@@ -21,3 +21,7 @@ collections:
               - {label: "Image", name: "src", widget: "image"}
               - {label: "Alt Text", name: "alt", widget: "string"}
               - {label: "Category", name: "category", widget: "select", options: ["events", "real_estate", "landscape", "commercial"]}
+              - {label: "Season", name: "season", widget: "select", options: ["all", "spring", "summer", "fall", "winter"], default: "all", required: false}
+              - {label: "Display Order", name: "displayOrder", widget: "number", default: 50, value_type: "int", min: 1, max: 999, required: false}
+              - {label: "Active", name: "active", widget: "boolean", default: true, required: false}
+              - {label: "Featured", name: "featured", widget: "boolean", default: false, required: false}

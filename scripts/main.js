@@ -10,11 +10,15 @@ import { initPerformanceMonitoring } from './performance-monitor.js';
 import { initConversionTracking } from './conversion-tracking.js';
 import { initDroneCursor } from './drone-cursor.js';
 import { initInteractivePolish } from './interactive-polish.js';
+import { initAbTesting } from './ab-testing.js';
+import { initCampaignTracking } from './campaign.js';
 
 // Initialize all modules when DOM is ready
 document.addEventListener('DOMContentLoaded', async () => {
     initMobileMenu();
     initSmoothScroll();
+    initCampaignTracking();
+    initAbTesting();
     initConversionTracking();
     initDroneCursor();
     initFormHandling();
