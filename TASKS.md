@@ -15,16 +15,16 @@ Compliance: Overseer/PM task tracking validated for Q2 2026
 - [x] Add unit and E2E test frameworks.
 - [x] Reconcile coverage and metric reporting sections.
   - Completed: 2026-03-27
-  - Evidence: `docker compose run --rm unit` remains the authoritative coverage source reflected in [METRICS.md](METRICS.md).
+  - Evidence: `docker compose -f config/docker-compose.yml run --rm unit` remains the authoritative coverage source reflected in [METRICS.md](METRICS.md).
 - [x] Add Docker smoke validation workflow.
   - Completed: 2026-03-27
   - Evidence: `.github/workflows/docker-smoke.yml` now builds the container and verifies HTTP readiness.
 - [x] Add launch conversion baseline instrumentation.
   - Completed: 2026-04-05
-  - Evidence: `scripts/conversion-tracking.js` now captures privacy-first `landing_view`, `gallery_engagement`, `booking_cta_click`, and `contact_submit` events, and `docker compose run --rm unit` validates the coverage path plus the conversion-tracking tests.
+  - Evidence: `scripts/conversion-tracking.js` now captures privacy-first `landing_view`, `gallery_engagement`, `booking_cta_click`, and `contact_submit` events, and `docker compose -f config/docker-compose.yml run --rm unit` validates the coverage path plus the conversion-tracking tests.
 - [x] Refresh the launch visual identity and dark-mode booking embed.
   - Completed: 2026-04-06
-  - Evidence: the browser preview at `http://127.0.0.1:8080` confirms the updated hero, services, gallery, dark Calendly embed, and curated reel presentation, while `docker compose run --rm unit` stays green.
+  - Evidence: the browser preview at `http://127.0.0.1:8080` confirms the updated hero, services, gallery, dark Calendly embed, and curated reel presentation, while `docker compose -f config/docker-compose.yml run --rm unit` stays green.
 - [x] Add cinematic motion polish and cursor-follow drone accent.
   - Completed: 2026-04-06
   - Evidence: `scripts/drone-cursor.js` and `scripts/interactive-polish.js` are live in the Docker preview, and the current Docker-backed validation suite remains green.
@@ -33,7 +33,7 @@ Compliance: Overseer/PM task tracking validated for Q2 2026
   - Evidence: `docs/lighthouse-desktop.report.html` / `.json` now capture a Lighthouse desktop baseline (92 Performance / 96 Accessibility / 57 Best Practices / 100 SEO), and the local browser snapshot records ~280ms DOM ready, ~1.3s load complete, and 0.002 CLS.
 - [x] Add local conversion reporting visibility.
   - Completed: 2026-04-06
-  - Evidence: `scripts/conversion-tracking.js` now renders a preview-only dashboard on `localhost` or `?metrics=1` for landing, gallery proof, booking, and contact totals, and `docker compose run --rm unit` now passes 17/17 files and 75/75 tests.
+  - Evidence: `scripts/conversion-tracking.js` now renders a preview-only dashboard on `localhost` or `?metrics=1` for landing, gallery proof, booking, and contact totals, and `docker compose -f config/docker-compose.yml run --rm unit` now passes 17/17 files and 75/75 tests.
 
 ## In Progress
 

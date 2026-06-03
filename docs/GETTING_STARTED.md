@@ -25,10 +25,10 @@ If Node.js is not installed locally, use Docker for the main validation path:
 
 ```bash
 # Serve the production container locally
-docker compose up --build web
+docker compose -f config/docker-compose.yml up --build web
 
 # Run the unit suite with coverage in Docker
-docker compose run --rm unit
+docker compose -f config/docker-compose.yml run --rm unit
 ```
 
 ### Step 1: Deploy to Netlify (10 min)
