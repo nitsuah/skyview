@@ -1,41 +1,30 @@
 
-# 🗺️ Skyview Roadmap
+# Skyview Roadmap
 
-**Last Updated:** 2026-04-13 (Overseer/PM compliance review)
-Next Review: 2026-05-01
+**Last Updated:** 2026-06-03
+Next Review: 2026-07-01
 
-> **Planning split:** public FE = landing, gallery, booking, contact, and privacy-safe funnel tracking. `/admin` = separate CMS surface. Client delivery / signed-download auth = separate backend workstream, not part of the marketing page bundle.
+> **Planning split:** public FE = landing, gallery, booking, contact, and privacy-safe funnel tracking. `/admin` = separate CMS surface. Client delivery / signed-download auth = separate backend workstream.
 
-## 2026 Q1 (Completed)
+## Completed (Q1–Q3 2026)
 
-- [x] Deliver the production-ready static site architecture and deployment configuration.
-- [x] Implement the responsive gallery, contact flow, and booking integration.
-- [x] Add Playwright and Vitest harnesses plus SEO baseline artifacts.
+- Production-ready static site, responsive gallery, booking integration, contact flow
+- Playwright + Vitest test harnesses, SEO baseline, Docker smoke validation
+- Funnel baseline tracking (landing → gallery → booking/contact intent), privacy-first event capture
+- Lighthouse + Core Web Vitals monitoring baseline
+- CSP + Permissions-Policy headers; `no-store` + `noindex` on `/admin/*` and client-portal routes
+- Gallery governance: `season`, `displayOrder`, `active` fields in `assets/gallery.json`; CMS editor updated; `gallery-loader-v2.js` filters and sorts accordingly
+- Conversion funnel reporting: `getFunnelDropOff()`, `exportMetricsCSV()`, `exportMetricsJSON()`; dashboard shows drop-off % and export buttons; referrer + campaign captured on `landing_view`
+- A/B testing framework (`scripts/ab-testing.js`): deterministic per-visitor bucketing, feature-gated in `config.js`
+- Campaign personalization (`scripts/campaign.js`): UTM + referrer → hero subline variants, session-persisted
+- Client portal hardening: 5-attempt / 15-min lockout, time-bound token expiry, `scripts/portal-token.js` for signed code generation
 
-## 2026 Q2 (In Progress)
+## Open (Q3 2026)
 
-- [ ] Execute the production launch checklist with verified business metadata and access boundaries.
-  - Remaining blocker: final client-approved phone, email, location, and social values still need to be plugged into the centralized `config.js` identity fields, and `/admin` should stay invite-only / owner-managed for launch.
-- [x] Resolve coverage and metric-documentation drift.
-- [x] Add an evidence-backed monitoring baseline with Lighthouse and Core Web Vitals snapshots.
-  - Evidence: `docs/lighthouse-desktop.report.html` / `docs/lighthouse-desktop.report.json` now capture a verified desktop Lighthouse baseline (92 Performance / 96 Accessibility / 57 Best Practices on local HTTP preview / 100 SEO) alongside the local browser snapshot (~280ms DOM ready, ~1.3s load, 0.002 CLS).
-- [x] Add booking-funnel baseline tracking (landing -> gallery proof -> booking/contact intent) with privacy-first event capture.
-- [x] Clarify FE vs admin/backend scope in the launch plan.
-  - Public FE progress includes the landing experience, gallery, booking/contact flow, and lightweight conversion instrumentation. Admin auth and secure client delivery remain separate workstreams.
-
-## 2026 Q3 (Planned)
-
-- [ ] Harden `/admin` publishing access with an invite-only workflow.
-  - Goal: keep CMS auth minimal and separated from any future customer/backend identity system.
 - [ ] Build secure client delivery / portal backend separately from the public marketing FE.
-  - Goal: signed links, expiry, and delivery controls live outside the landing-page bundle.
-- [ ] Expand conversion-funnel reporting beyond the shipped local dashboard.
-  - Local milestone complete: `scripts/conversion-tracking.js` now exposes landing / booking / contact totals in a preview dashboard on `localhost` or `?metrics=1`.
-  - Remaining stretch: optional shared reporting, funnel-drop-off analysis, and experiment hooks for lead-capture optimization.
-- [ ] Improve gallery asset governance for seasonal content updates.
+  - Next: wire `scripts/portal-token.js` to a Netlify Function or edge middleware with `PORTAL_SALT` secret.
 
-## 2026 Q4 (Exploratory)
+## Q4 2026 (Planned)
 
-- [ ] Evaluate lightweight personalization by campaign or service segment.
-- [ ] Evaluate A/B testing for hero messaging and CTA improvements.
-
+- [ ] Multi-segment campaign personalization — expand `scripts/campaign.js` to support service spotlight targeting and additional hero copy variants.
+- [ ] Enable A/B experiments — flip `experiments.enabled: true` in `config.js`, wire variants to analytics, analyse results.

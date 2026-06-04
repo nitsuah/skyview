@@ -102,6 +102,11 @@
             color: rgba(255, 255, 255, 0.4);
         }
 
+        .form-group input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .login-button {
             width: 100%;
             padding: 1rem;
@@ -119,9 +124,15 @@
             overflow: hidden;
         }
 
-        .login-button:hover {
+        .login-button:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .login-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .login-button::before {
@@ -135,7 +146,7 @@
             transition: left 0.5s ease;
         }
 
-        .login-button:hover::before {
+        .login-button:hover:not(:disabled)::before {
             left: 100%;
         }
 
@@ -153,6 +164,29 @@
         .error-message.show {
             display: block;
             animation: shake 0.5s ease;
+        }
+
+        .warning-message {
+            background: rgba(255, 180, 0, 0.1);
+            border: 1px solid rgba(255, 180, 0, 0.3);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: #ffd166;
+            font-size: 0.8125rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .warning-message.show {
+            display: block;
+        }
+
+        .attempt-counter {
+            text-align: right;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: -1rem;
+            margin-bottom: 1rem;
         }
 
         @keyframes shake {
@@ -246,22 +280,26 @@
         </div>
 
         <div id="loginView" class="login-form">
+            <div id="warningMessage" class="warning-message"></div>
             <div id="errorMessage" class="error-message"></div>
-            
-            <form id="loginForm">
+
+            <form id="loginForm" autocomplete="off">
                 <div class="form-group">
                     <label for="accessCode">Access Code</label>
-                    <input 
-                        type="password" 
-                        id="accessCode" 
-                        name="accessCode" 
+                    <input
+                        type="password"
+                        id="accessCode"
+                        name="accessCode"
                         placeholder="Enter your access code"
                         required
                         autocomplete="off"
+                        spellcheck="false"
                     >
                 </div>
 
-                <button type="submit" class="login-button">
+                <div id="attemptCounter" class="attempt-counter" aria-live="polite"></div>
+
+                <button type="submit" id="submitBtn" class="login-button">
                     Access Your Files
                 </button>
             </form>
@@ -281,57 +319,194 @@
     </div>
 
     <script>
-        // Client Portal Authentication
-        // This is a simple prototype. In production, use Netlify Identity or a proper auth system.
-        
-        const form = document.getElementById('loginForm');
-        const errorMessage = document.getElementById('errorMessage');
-        const loginView = document.getElementById('loginView');
-        const loadingView = document.getElementById('loadingView');
+        (function () {
+            'use strict';
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const accessCode = document.getElementById('accessCode').value;
-            
-            // Show loading
-            loginView.style.display = 'none';
-            loadingView.classList.add('show');
-            
-            // Simulate authentication
-            setTimeout(() => {
-                // In production, this would verify against Netlify Identity or a database
-                // For now, this is a placeholder that shows how it would work
-                
-                // Check if access code matches pattern (demo purposes)
-                if (accessCode.length >= 8) {
-                    // Success - redirect to client-specific gallery
-                    window.location.href = `/pages/client-gallery.html?code=${encodeURIComponent(accessCode)}`;
-                } else {
-                    // Error
-                    loadingView.classList.remove('show');
-                    loginView.style.display = 'block';
-                    showError('Invalid access code. Please check your email or contact us for help.');
+            var RATE_LIMIT_KEY = 'skyview:portal-attempts:v1';
+            var MAX_ATTEMPTS = 5;
+            var LOCKOUT_MS = 15 * 60 * 1000;
+
+            var form = document.getElementById('loginForm');
+            var errorMessage = document.getElementById('errorMessage');
+            var warningMessage = document.getElementById('warningMessage');
+            var loginView = document.getElementById('loginView');
+            var loadingView = document.getElementById('loadingView');
+            var submitBtn = document.getElementById('submitBtn');
+            var attemptCounter = document.getElementById('attemptCounter');
+
+            function getAttemptState() {
+                try {
+                    var raw = localStorage.getItem(RATE_LIMIT_KEY);
+                    if (!raw) return { count: 0, lockedUntil: null };
+                    return JSON.parse(raw);
+                } catch (e) {
+                    return { count: 0, lockedUntil: null };
                 }
-            }, 1500);
-        });
+            }
 
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.add('show');
-            
-            setTimeout(() => {
-                errorMessage.classList.remove('show');
-            }, 5000);
-        }
+            function saveAttemptState(state) {
+                try {
+                    localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(state));
+                } catch (e) { }
+            }
 
-        // Auto-fill if access code is in URL (from email link)
-        const urlParams = new URLSearchParams(window.location.search);
-        const codeFromUrl = urlParams.get('code');
-        if (codeFromUrl) {
-            document.getElementById('accessCode').value = codeFromUrl;
-            form.dispatchEvent(new Event('submit'));
-        }
+            function recordFailedAttempt() {
+                var state = getAttemptState();
+                state.count = (state.count || 0) + 1;
+                if (state.count >= MAX_ATTEMPTS) {
+                    state.lockedUntil = Date.now() + LOCKOUT_MS;
+                }
+                saveAttemptState(state);
+                return state;
+            }
+
+            function clearAttempts() {
+                try { localStorage.removeItem(RATE_LIMIT_KEY); } catch (e) { }
+            }
+
+            function isLockedOut() {
+                var state = getAttemptState();
+                if (!state.lockedUntil) return false;
+                if (Date.now() < state.lockedUntil) return true;
+                clearAttempts();
+                return false;
+            }
+
+            function getLockoutMinutesRemaining() {
+                var state = getAttemptState();
+                if (!state.lockedUntil) return 0;
+                return Math.ceil((state.lockedUntil - Date.now()) / 60000);
+            }
+
+            function updateAttemptUI() {
+                var state = getAttemptState();
+                var remaining = MAX_ATTEMPTS - (state.count || 0);
+                if (state.count > 0 && remaining > 0 && remaining < MAX_ATTEMPTS) {
+                    attemptCounter.textContent = remaining + ' attempt' + (remaining === 1 ? '' : 's') + ' remaining';
+                } else {
+                    attemptCounter.textContent = '';
+                }
+            }
+
+            // Token expiry: format clientId.expiry_unix_seconds.signature
+            function parseTokenExpiry(code) {
+                var parts = code.split('.');
+                if (parts.length < 2) return null;
+                var expiry = parseInt(parts[1], 10);
+                return isFinite(expiry) ? expiry : null;
+            }
+
+            function isTokenExpired(code) {
+                var expiry = parseTokenExpiry(code);
+                if (!expiry) return false;
+                return Math.floor(Date.now() / 1000) > expiry;
+            }
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.add('show');
+                setTimeout(function () { errorMessage.classList.remove('show'); }, 7000);
+            }
+
+            function showWarning(message) {
+                warningMessage.textContent = message;
+                warningMessage.classList.add('show');
+            }
+
+            function setLocked(locked) {
+                submitBtn.disabled = locked;
+                document.getElementById('accessCode').disabled = locked;
+                submitBtn.textContent = locked ? 'Too many attempts' : 'Access Your Files';
+            }
+
+            function checkInitialLockout() {
+                if (isLockedOut()) {
+                    var mins = getLockoutMinutesRemaining();
+                    showWarning('Too many failed attempts. Please wait ' + mins + ' minute' + (mins === 1 ? '' : 's') + ' before trying again.');
+                    setLocked(true);
+
+                    var timer = setInterval(function () {
+                        if (!isLockedOut()) {
+                            clearInterval(timer);
+                            setLocked(false);
+                            warningMessage.classList.remove('show');
+                            clearAttempts();
+                            updateAttemptUI();
+                        } else {
+                            var m = getLockoutMinutesRemaining();
+                            showWarning('Too many failed attempts. Please wait ' + m + ' minute' + (m === 1 ? '' : 's') + ' before trying again.');
+                        }
+                    }, 30000);
+                }
+                updateAttemptUI();
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                if (isLockedOut()) {
+                    var mins = getLockoutMinutesRemaining();
+                    showError('Account locked. Please wait ' + mins + ' minute' + (mins === 1 ? '' : 's') + '.');
+                    return;
+                }
+
+                var accessCode = document.getElementById('accessCode').value.trim();
+
+                if (!accessCode) {
+                    showError('Please enter your access code.');
+                    return;
+                }
+
+                loginView.style.display = 'none';
+                loadingView.classList.add('show');
+
+                setTimeout(function () {
+                    if (isTokenExpired(accessCode)) {
+                        loadingView.classList.remove('show');
+                        loginView.style.display = 'block';
+                        showError('This access link has expired. Please contact us to request a new one.');
+                        recordFailedAttempt();
+                        updateAttemptUI();
+                        return;
+                    }
+
+                    if (accessCode.length >= 8) {
+                        clearAttempts();
+                        window.location.href = '/pages/client-gallery.html?code=' + encodeURIComponent(accessCode);
+                    } else {
+                        var state = recordFailedAttempt();
+                        loadingView.classList.remove('show');
+                        loginView.style.display = 'block';
+                        updateAttemptUI();
+
+                        if (isLockedOut()) {
+                            setLocked(true);
+                            var lockMins = getLockoutMinutesRemaining();
+                            showError('Too many failed attempts. Please wait ' + lockMins + ' minute' + (lockMins === 1 ? '' : 's') + ' before trying again.');
+                            showWarning('Account temporarily locked after ' + MAX_ATTEMPTS + ' failed attempts.');
+                        } else {
+                            var remaining = MAX_ATTEMPTS - state.count;
+                            showError('Invalid access code. Please check your email or contact us for help.' +
+                                (remaining > 0 ? ' (' + remaining + ' attempt' + (remaining === 1 ? '' : 's') + ' remaining)' : ''));
+                        }
+                    }
+                }, 800 + Math.floor(Math.random() * 400));
+            });
+
+            // Auto-fill from URL param (email link flow)
+            var urlParams = new URLSearchParams(window.location.search);
+            var codeFromUrl = urlParams.get('code');
+            if (codeFromUrl) {
+                document.getElementById('accessCode').value = codeFromUrl;
+                if (isTokenExpired(codeFromUrl)) {
+                    showError('This access link has expired. Please contact us to request a new one.');
+                } else {
+                    form.dispatchEvent(new Event('submit'));
+                }
+            }
+
+            checkInitialLockout();
+        })();
     </script>
 </body>
 
