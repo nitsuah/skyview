@@ -41,7 +41,7 @@
     
     <!-- Client Portal -->
     <url>
-        <loc>https://skyviewdynamics.com/client-portal.html</loc>
+        <loc>https://skyviewdynamics.com/pages/client-portal.html</loc>
         <lastmod>2025-12-13</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
@@ -49,7 +49,7 @@
     
     <!-- Thank You Page -->
     <url>
-        <loc>https://skyviewdynamics.com/thank-you.html</loc>
+        <loc>https://skyviewdynamics.com/pages/thank-you.html</loc>
         <lastmod>2025-12-13</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.3</priority>

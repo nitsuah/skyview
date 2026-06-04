@@ -5,10 +5,7 @@ WORKDIR /usr/share/nginx/html
 
 # Copy only the assets required to serve the site.
 COPY index.html ./
-COPY client-gallery.html ./
-COPY client-portal.html ./
-COPY privacy.html ./
-COPY thank-you.html ./
+COPY pages ./pages
 COPY robots.txt ./
 COPY sitemap.xml ./
 COPY config.js ./

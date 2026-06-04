@@ -57,10 +57,10 @@ Then open: [localhost:3000](http://localhost:3000)
 
 ```bash
 # Serve the production image locally
-docker compose up --build web
+docker compose -f config/docker-compose.yml up --build web
 
 # Run unit coverage in a container
-docker compose run --rm unit
+docker compose -f config/docker-compose.yml run --rm unit
 ```
 
 ### Deploy to Production
@@ -108,7 +108,7 @@ npm run serve          # Start dev server on port 8080
 # Testing
 npm test              # Run Playwright E2E tests
 npx vitest run --config config/vitest.config.ts  # Run unit tests
-docker compose run --rm unit  # Run unit tests with coverage in Docker
+docker compose -f config/docker-compose.yml run --rm unit  # Run unit tests with coverage in Docker
 
 # Optimization
 npm run optimize:images  # Convert images to WebP

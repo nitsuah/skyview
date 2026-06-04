@@ -472,7 +472,7 @@
 
                     if (accessCode.length >= 8) {
                         clearAttempts();
-                        window.location.href = '/client-gallery.html?code=' + encodeURIComponent(accessCode);
+                        window.location.href = '/pages/client-gallery.html?code=' + encodeURIComponent(accessCode);
                     } else {
                         var state = recordFailedAttempt();
                         loadingView.classList.remove('show');

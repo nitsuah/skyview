@@ -14,7 +14,28 @@
 [functions]
   # No functions needed for now
 
-# Redirect rules (optional)
+# Backward-compat redirects for pages moved to /pages/
+[[redirects]]
+  from = "/client-gallery.html"
+  to = "/pages/client-gallery.html"
+  status = 301
+
+[[redirects]]
+  from = "/client-portal.html"
+  to = "/pages/client-portal.html"
+  status = 301
+
+[[redirects]]
+  from = "/privacy.html"
+  to = "/pages/privacy.html"
+  status = 301
+
+[[redirects]]
+  from = "/thank-you.html"
+  to = "/pages/thank-you.html"
+  status = 301
+
+# Catch-all for SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"

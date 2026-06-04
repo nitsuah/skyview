@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="/styles/style.css">
     <style>
         .client-header {
             background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
@@ -236,7 +236,7 @@
                 <h1 id="projectName">Your Project Gallery</h1>
                 <p id="projectDate">Delivered: December 2025</p>
             </div>
-            <a href="/client-portal.html" class="logout-button">← Back to Portal</a>
+            <a href="/pages/client-portal.html" class="logout-button">← Back to Portal</a>
         </div>
     </header>
 
@@ -268,7 +268,7 @@
                 <div class="client-gallery-item" data-type="video">
                     <div style="position: relative;">
                         <video poster="assets/gallery/event-1.jpg">
-                            <source src="assets/gallery/event-1.mp4" type="video/mp4">
+                            <source src="/assets/gallery/event-1.mp4" type="video/mp4">
                         </video>
                         <div class="play-icon"></div>
                     </div>
@@ -284,7 +284,7 @@
 
                 <!-- Photo Item -->
                 <div class="client-gallery-item" data-type="photo">
-                    <img src="assets/gallery/real-estate-1.jpg" alt="Property Shot" loading="lazy">
+                    <img src="/assets/gallery/real-estate-1.jpg" alt="Property Shot" loading="lazy">
                     <div class="client-gallery-item-info">
                         <div class="client-gallery-item-title">Property Exterior</div>
                         <div class="client-gallery-item-meta">Photo • 6000x4000 • JPG</div>
@@ -297,7 +297,7 @@
 
                 <!-- Photo Item -->
                 <div class="client-gallery-item" data-type="photo">
-                    <img src="assets/gallery/real-estate-2.jpg" alt="Sunset Shot" loading="lazy">
+                    <img src="/assets/gallery/real-estate-2.jpg" alt="Sunset Shot" loading="lazy">
                     <div class="client-gallery-item-info">
                         <div class="client-gallery-item-title">Golden Hour Shot</div>
                         <div class="client-gallery-item-meta">Photo • 6000x4000 • JPG</div>
@@ -310,7 +310,7 @@
 
                 <!-- RAW Item -->
                 <div class="client-gallery-item" data-type="raw">
-                    <img src="assets/gallery/real-estate-3.jpg" alt="RAW File" loading="lazy">
+                    <img src="/assets/gallery/real-estate-3.jpg" alt="RAW File" loading="lazy">
                     <div class="client-gallery-item-info">
                         <div class="client-gallery-item-title">Wide Angle RAW</div>
                         <div class="client-gallery-item-meta">RAW • 6000x4000 • DNG</div>
@@ -375,7 +375,7 @@
 
         if (!accessCode) {
             // Redirect to portal login if no access code
-            window.location.href = '/client-portal.html';
+            window.location.href = '/pages/client-portal.html';
         }
 
         // In production, fetch project details from API/database

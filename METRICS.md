@@ -74,7 +74,7 @@ Authoritative validation sources: `docker compose run --rm unit`, Docker Playwri
 
 ```bash
 # Generate the authoritative desktop Lighthouse baseline (Docker-first)
-docker compose up -d web
+docker compose -f config/docker-compose.yml up -d web
 
 docker run --rm -v ${PWD}:/work -w /work mcr.microsoft.com/playwright:v1.58.2-noble \
   bash -lc "export CHROME_PATH=/ms-playwright/chromium-1208/chrome-linux64/chrome; \
@@ -130,8 +130,8 @@ Performance monitoring is built-in (development mode):
 **Verification Date**: 2026-05-24
 
 **Verification Commands**:
-- `docker compose run --rm unit`
-- `docker compose build --no-cache web`
+- `docker compose -f config/docker-compose.yml run --rm unit`
+- `docker compose -f config/docker-compose.yml build --no-cache web`
 - `docker run --rm -v ${PWD}:/workspace -w /workspace node:20-alpine sh -lc "npm ci && npm run optimize:images"`
 - `docker run --rm -v ${PWD}:/work -w /work mcr.microsoft.com/playwright:v1.58.2-noble sh -lc "npm ci && npx playwright test"`
 

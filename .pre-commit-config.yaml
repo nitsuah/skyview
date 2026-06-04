@@ -20,5 +20,5 @@ repos:
     rev: 15.10.1
     hooks:
       - id: stylelint
-        args: [--fix]
+        args: [--fix, --config, config/stylelint.config.mjs]
         files: \.(css)$

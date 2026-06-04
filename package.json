@@ -6,6 +6,8 @@
   "scripts": {
     "test": "playwright test",
     "test:unit": "vitest run --config config/vitest.config.ts",
+    "lint:js": "eslint . --config config/eslint.config.mjs",
+    "lint:css": "stylelint \"**/*.css\" --config config/stylelint.config.mjs",
     "optimize:images": "node scripts/convert-to-webp.js",
     "serve": "npx http-server . -p 8080"
   },
