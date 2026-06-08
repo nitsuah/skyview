@@ -1,4 +1,7 @@
 # 🚁 SkyView Dynamics - Cinematic Drone Services
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/bea254e2-2234-434c-82d1-ffb8a8c2dd26/deploy-status)](https://app.netlify.com/projects/skyviewd/deploys) [![Playwright Tests](https://github.com/nitsuah/skyview/actions/workflows/playwright.yml/badge.svg)](https://github.com/nitsuah/skyview/actions/workflows/playwright.yml) [![Docker Smoke](https://github.com/nitsuah/skyview/actions/workflows/docker-smoke.yml/badge.svg)](https://github.com/nitsuah/skyview/actions/workflows/docker-smoke.yml)
+
 **Last Updated:** 2026-04-13 (Overseer/PM compliance review)
 
 ##  What’s New
@@ -18,10 +21,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, code of conduct, and how 
 - [Features](FEATURES.md)
 - [Roadmap](ROADMAP.md)
 - [Tasks](TASKS.md)
-
-[![Deploy Status](https://github.com/nitsuah/skyview/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/nitsuah/skyview/actions)
-
-[![Playwright Tests](https://github.com/nitsuah/skyview/actions/workflows/playwright.yml/badge.svg)](https://github.com/nitsuah/skyview/actions)
 
 A stunning, high-tech website for professional drone services featuring a minimalist design with full-bleed photography, dark high-contrast aesthetics, and glassmorphic UI elements.
 
