@@ -19,3 +19,5 @@ Next Review: 2026-07-01
 
 - [ ] Multi-segment campaign personalization — expand `scripts/campaign.js` to support service spotlight targeting and additional hero copy variants.
 - [ ] Enable A/B experiments — flip `experiments.enabled: true` in `config.js`, wire variants to analytics, analyse results.
+- [ ] **Testimonial carousel** — rotating client quote block on the homepage; content managed through a `testimonials` array in `config.js` so it can be updated without touching markup; supports campaign-segment targeting for social proof alignment.
+- [ ] **Booking calendar embed** — replace or complement the contact form with an embedded availability widget (Cal.com or similar self-hostable option); reduces booking friction to a single click while keeping conversion events within the existing funnel tracking pipeline.
