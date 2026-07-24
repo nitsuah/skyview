@@ -27,7 +27,7 @@
     "@playwright/test": "^1.61.1",
     "@vitest/coverage-v8": "^4.1.9",
     "happy-dom": "^20.11.0",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.10"
   },
   "dependencies": {
     "sharp": "^0.35.2"
