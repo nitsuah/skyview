@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/nitsuah/skyview#readme",
   "devDependencies": {
-    "@playwright/test": "^1.61.1",
+    "@playwright/test": "^1.62.0",
     "@vitest/coverage-v8": "^4.1.10",
     "happy-dom": "^20.11.1",
     "vitest": "^4.1.10"
