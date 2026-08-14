@@ -8,6 +8,8 @@ import ClientDashboard from './pages/ClientDashboard'
 import PostJob from './pages/PostJob'
 import OperatorOnboarding from './pages/OperatorOnboarding'
 import OperatorDashboard from './pages/OperatorDashboard'
+import OperatorsDirectory from './pages/OperatorsDirectory'
+import OperatorProfile from './pages/OperatorProfile'
 import AdminDashboard from './pages/AdminDashboard'
 import './styles/app.css'
 
@@ -39,6 +41,12 @@ export default function App() {
           } />
           <Route path="/app/jobs/new" element={
             <AuthGuard role="client"><Layout><PostJob /></Layout></AuthGuard>
+          } />
+          <Route path="/app/operators" element={
+            <AuthGuard role="client"><Layout><OperatorsDirectory /></Layout></AuthGuard>
+          } />
+          <Route path="/app/operators/:id" element={
+            <AuthGuard role="client"><Layout><OperatorProfile /></Layout></AuthGuard>
           } />
 
           {/* Operator routes */}

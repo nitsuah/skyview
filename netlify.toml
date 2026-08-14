@@ -70,7 +70,7 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "no-store"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; img-src 'self' data: blob: https:; media-src 'self';"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.stripe.com https://nominatim.openstreetmap.org; frame-src https://js.stripe.com https://hooks.stripe.com; img-src 'self' data: blob: https:; media-src 'self';"
 
 [[headers]]
   for = "/admin/*"

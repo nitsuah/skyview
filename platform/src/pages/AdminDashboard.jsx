@@ -11,12 +11,12 @@ export default function AdminDashboard() {
 
   const load = async () => {
     setLoading(true)
-    const [s, p, j] = await Promise.all([
+    const [s, p, jr] = await Promise.all([
       api.admin.dashboard().catch(() => null),
       api.admin.pendingOperators().catch(() => []),
-      api.admin.allJobs().catch(() => [])
+      api.admin.allJobs().catch(() => ({ data: [] }))
     ])
-    setStats(s); setPending(p); setJobs(j)
+    setStats(s); setPending(p); setJobs(jr?.data ?? jr ?? [])
     setLoading(false)
   }
 

@@ -109,7 +109,7 @@ export default function PostJob() {
             <div className="form-group">
               <label>Preferred date</label>
               <input type="date" value={form.preferred_date}
-                min={new Date().toISOString().split('T')[0]}
+                min={new Date().toLocaleDateString('en-CA')}
                 onChange={e => set('preferred_date', e.target.value)} />
             </div>
             <div className="form-group">

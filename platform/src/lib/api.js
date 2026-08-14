@@ -35,7 +35,9 @@ export const api = {
   },
   bookings: {
     list:     ()      => request('/bookings'),
-    create:   (data)  => request('/bookings',             { method: 'POST', body: JSON.stringify(data) }),
+    create:   (data)  => request('/bookings',                { method: 'POST', body: JSON.stringify(data) }),
+    confirm:  (id)    => request(`/bookings/${id}/confirm`,  { method: 'POST' }),
+    decline:  (id)    => request(`/bookings/${id}/decline`,  { method: 'POST' }),
     complete: (id)    => request(`/bookings/${id}/complete`, { method: 'POST' })
   },
   admin: {
@@ -43,6 +45,10 @@ export const api = {
     pendingOperators: () => request('/admin/pending-operators'),
     allJobs:          () => request('/admin/jobs'),
     allUsers:         () => request('/admin/users')
+  },
+  reviews: {
+    list:   (operatorId) => request(`/reviews?operator_id=${operatorId}`),
+    submit: (data)       => request('/reviews', { method: 'POST', body: JSON.stringify(data) })
   },
   uploads: {
     cert: (file) => {

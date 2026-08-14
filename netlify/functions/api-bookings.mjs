@@ -17,6 +17,10 @@ export default async (req, context) => {
   if (!id) {
     if (req.method === 'GET')  return listBookings(req)
     if (req.method === 'POST') return createBooking(req)
+  } else if (action === 'confirm') {
+    if (req.method === 'POST') return confirmBooking(req, id)
+  } else if (action === 'decline') {
+    if (req.method === 'POST') return declineBooking(req, id)
   } else if (action === 'complete') {
     if (req.method === 'POST') return completeBooking(req, id)
   } else {
@@ -126,6 +130,48 @@ async function getBooking(req, id) {
   if (!isParty && user.role !== 'admin') return forbidden()
 
   return json(booking)
+}
+
+async function confirmBooking(req, id) {
+  const user = await requireAuth(req, sql)
+  if (!user) return unauthorized()
+  if (user.role !== 'operator') return forbidden()
+
+  const [booking] = await sql`SELECT * FROM bookings WHERE id = ${id}`
+  if (!booking) return notFound()
+  if (booking.operator_id !== user.id) return forbidden()
+
+  const [updated] = await sql`
+    UPDATE bookings SET status = 'confirmed', confirmed_at = NOW()
+    WHERE id = ${id} AND status = 'pending'
+    RETURNING *
+  `
+  if (!updated) return error('Booking is not in a confirmable state', 409)
+  return json(updated)
+}
+
+async function declineBooking(req, id) {
+  const user = await requireAuth(req, sql)
+  if (!user) return unauthorized()
+  if (user.role !== 'operator') return forbidden()
+
+  const [booking] = await sql`SELECT * FROM bookings WHERE id = ${id}`
+  if (!booking) return notFound()
+  if (booking.operator_id !== user.id) return forbidden()
+
+  const [updated] = await sql`
+    UPDATE bookings SET status = 'cancelled', cancelled_at = NOW()
+    WHERE id = ${id} AND status = 'pending'
+    RETURNING *
+  `
+  if (!updated) return error('Booking is not in a declinable state', 409)
+
+  // Return job to open so client can book another operator
+  await sql`
+    UPDATE jobs SET status = 'open', assigned_operator_id = NULL
+    WHERE id = ${booking.job_id} AND status = 'booked'
+  `
+  return json(updated)
 }
 
 async function completeBooking(req, id) {

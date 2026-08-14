@@ -15,6 +15,7 @@ export default function OperatorDashboard() {
   const [jobs, setJobs]         = useState([])
   const [bookings, setBookings] = useState([])
   const [loading, setLoading]   = useState(true)
+  const [actionBusy, setActionBusy] = useState({})
 
   const profile = user?.profile || {}
   const vstatus = profile.verification_status || 'pending'
@@ -32,6 +33,18 @@ export default function OperatorDashboard() {
   const earnings = bookings
     .filter(b => b.status === 'completed')
     .reduce((sum, b) => sum + (b.operator_payout_cents || 0), 0)
+
+  const handleBookingAction = async (id, action) => {
+    setActionBusy(b => ({ ...b, [id]: action }))
+    try {
+      const updated = await api.bookings[action](id)
+      setBookings(prev => prev.map(b => b.id === id ? { ...b, ...updated } : b))
+    } catch (e) {
+      alert(e.message)
+    } finally {
+      setActionBusy(b => ({ ...b, [id]: null }))
+    }
+  }
 
   return (
     <>
@@ -131,7 +144,7 @@ export default function OperatorDashboard() {
             <div className="table-wrap">
               <table>
                 <thead>
-                  <tr><th>Job</th><th>Client</th><th>Date</th><th>Payout</th><th>Status</th></tr>
+                  <tr><th>Job</th><th>Client</th><th>Date</th><th>Payout</th><th>Status</th><th></th></tr>
                 </thead>
                 <tbody>
                   {bookings.slice(0, 10).map(b => (
@@ -143,6 +156,22 @@ export default function OperatorDashboard() {
                         {b.operator_payout_cents ? `$${(b.operator_payout_cents/100).toFixed(0)}` : '—'}
                       </td>
                       <td><span className={`badge badge-${b.status}`}>{b.status.replace('_',' ')}</span></td>
+                      <td>
+                        {b.status === 'pending' && (
+                          <div className="flex gap-1">
+                            <button className="btn btn-green btn-sm"
+                              disabled={!!actionBusy[b.id]}
+                              onClick={() => handleBookingAction(b.id, 'confirm')}>
+                              {actionBusy[b.id] === 'confirm' ? '…' : 'Accept'}
+                            </button>
+                            <button className="btn btn-ghost btn-sm"
+                              disabled={!!actionBusy[b.id]}
+                              onClick={() => handleBookingAction(b.id, 'decline')}>
+                              {actionBusy[b.id] === 'decline' ? '…' : 'Decline'}
+                            </button>
+                          </div>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

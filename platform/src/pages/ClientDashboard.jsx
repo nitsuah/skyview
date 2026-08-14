@@ -31,7 +31,10 @@ export default function ClientDashboard() {
           <h1 className="page-title">Dashboard</h1>
           <p className="page-sub" style={{ marginBottom: 0 }}>Welcome back, {user?.name}</p>
         </div>
-        <Link to="/app/jobs/new" className="btn btn-primary">+ Post a Job</Link>
+        <div className="flex gap-2">
+          <Link to="/app/operators" className="btn btn-ghost">Browse Operators</Link>
+          <Link to="/app/jobs/new" className="btn btn-primary">+ Post a Job</Link>
+        </div>
       </div>
 
       <div className="stats-grid">
