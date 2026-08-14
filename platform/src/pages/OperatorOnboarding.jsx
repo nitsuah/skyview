@@ -69,8 +69,15 @@ export default function OperatorOnboarding() {
 
   const uploadCert = async () => {
     if (!certFile) { setError('Please select your FAA certificate file'); return }
+    if (!profile.faa_cert_number) { setError('FAA certificate number is required'); return }
+    if (!profile.faa_cert_expires_at) { setError('FAA certificate expiry date is required'); return }
     setUploading(true); setError('')
     try {
+      // Save cert number + expiry first so the DB row is consistent before the blob is stored
+      await api.operators.updateProfile(user.id, {
+        faa_cert_number: profile.faa_cert_number,
+        faa_cert_expires_at: profile.faa_cert_expires_at
+      })
       await api.uploads.cert(certFile)
       setDone(true)
     } catch (err) {

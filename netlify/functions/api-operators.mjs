@@ -35,7 +35,7 @@ async function listOperators(url) {
   const operators = await sql`
     SELECT u.id, u.name,
            op.bio, op.equipment, op.service_types,
-           op.coverage_lat, op.coverage_lng, op.coverage_radius_mi,
+           op.coverage_radius_mi,
            op.base_rate_cents, op.hourly_rate_cents, op.booking_url,
            COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS avg_rating,
            COUNT(r.id) AS review_count
@@ -45,7 +45,7 @@ async function listOperators(url) {
     WHERE op.verification_status = 'verified'
       ${serviceFilter}
     GROUP BY u.id, u.name, op.bio, op.equipment, op.service_types,
-             op.coverage_lat, op.coverage_lng, op.coverage_radius_mi,
+             op.coverage_radius_mi,
              op.base_rate_cents, op.hourly_rate_cents, op.booking_url
     ORDER BY avg_rating DESC, review_count DESC
   `
@@ -56,7 +56,7 @@ async function getOperator(id) {
   const [op] = await sql`
     SELECT u.id, u.name,
            op.bio, op.equipment, op.service_types,
-           op.coverage_lat, op.coverage_lng, op.coverage_radius_mi,
+           op.coverage_radius_mi,
            op.base_rate_cents, op.hourly_rate_cents, op.booking_url,
            COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS avg_rating,
            COUNT(r.id) AS review_count
@@ -65,7 +65,7 @@ async function getOperator(id) {
     LEFT JOIN reviews r ON r.operator_id = u.id
     WHERE u.id = ${id} AND op.verification_status = 'verified'
     GROUP BY u.id, u.name, op.bio, op.equipment, op.service_types,
-             op.coverage_lat, op.coverage_lng, op.coverage_radius_mi,
+             op.coverage_radius_mi,
              op.base_rate_cents, op.hourly_rate_cents, op.booking_url
   `
   if (!op) return notFound()
@@ -92,6 +92,17 @@ async function updateProfile(req, id) {
     faa_cert_number, faa_cert_expires_at
   } = body
 
+  if (booking_url != null) {
+    try {
+      const u = new URL(booking_url)
+      if (u.protocol !== 'https:') return error('booking_url must use HTTPS')
+    } catch {
+      return error('booking_url is not a valid URL')
+    }
+  }
+
+  const certChanging = faa_cert_number != null || faa_cert_expires_at != null
+
   const [updated] = await sql`
     UPDATE operator_profiles SET
       bio                = COALESCE(${bio ?? null}, bio),
@@ -104,7 +115,8 @@ async function updateProfile(req, id) {
       hourly_rate_cents  = COALESCE(${hourly_rate_cents ?? null}, hourly_rate_cents),
       booking_url        = COALESCE(${booking_url ?? null}, booking_url),
       faa_cert_number    = COALESCE(${faa_cert_number ?? null}, faa_cert_number),
-      faa_cert_expires_at = COALESCE(${faa_cert_expires_at ?? null}, faa_cert_expires_at)
+      faa_cert_expires_at = COALESCE(${faa_cert_expires_at ?? null}, faa_cert_expires_at),
+      verification_status = CASE WHEN ${certChanging} THEN 'pending' ELSE verification_status END
     WHERE user_id = ${targetId}
     RETURNING *
   `

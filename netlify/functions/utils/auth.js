@@ -2,8 +2,10 @@ import { SignJWT, jwtVerify } from 'jose'
 import bcrypt from 'bcryptjs'
 
 const getSecret = () => {
-  if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET is not set')
-  return new TextEncoder().encode(process.env.JWT_SECRET)
+  const s = process.env.JWT_SECRET
+  if (!s) throw new Error('JWT_SECRET is not set')
+  if (s.length < 32) throw new Error('JWT_SECRET must be at least 32 characters')
+  return new TextEncoder().encode(s)
 }
 
 export async function signToken(payload) {

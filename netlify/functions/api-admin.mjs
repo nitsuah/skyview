@@ -25,14 +25,14 @@ export default async (req, context) => {
 async function dashboard() {
   const [stats] = await sql`
     SELECT
-      (SELECT COUNT(*) FROM users WHERE role = 'client')   AS client_count,
-      (SELECT COUNT(*) FROM users WHERE role = 'operator') AS operator_count,
-      (SELECT COUNT(*) FROM operator_profiles WHERE verification_status = 'verified')      AS verified_operators,
-      (SELECT COUNT(*) FROM operator_profiles WHERE verification_status = 'under_review')  AS pending_verifications,
-      (SELECT COUNT(*) FROM jobs WHERE status = 'open')      AS open_jobs,
-      (SELECT COUNT(*) FROM jobs WHERE status = 'completed') AS completed_jobs,
-      (SELECT COUNT(*) FROM bookings WHERE status = 'completed') AS completed_bookings,
-      (SELECT COALESCE(SUM(platform_fee_cents), 0) FROM bookings WHERE status = 'completed') AS total_revenue_cents
+      (SELECT COUNT(*)::int FROM users WHERE role = 'client')   AS client_count,
+      (SELECT COUNT(*)::int FROM users WHERE role = 'operator') AS operator_count,
+      (SELECT COUNT(*)::int FROM operator_profiles WHERE verification_status = 'verified')      AS verified_operators,
+      (SELECT COUNT(*)::int FROM operator_profiles WHERE verification_status = 'under_review')  AS pending_verifications,
+      (SELECT COUNT(*)::int FROM jobs WHERE status = 'open')      AS open_jobs,
+      (SELECT COUNT(*)::int FROM jobs WHERE status = 'completed') AS completed_jobs,
+      (SELECT COUNT(*)::int FROM bookings WHERE status = 'completed') AS completed_bookings,
+      (SELECT COALESCE(SUM(platform_fee_cents), 0)::bigint FROM bookings WHERE status = 'completed') AS total_revenue_cents
   `
   return json(stats)
 }

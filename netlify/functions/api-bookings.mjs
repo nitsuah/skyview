@@ -81,26 +81,33 @@ async function createBooking(req) {
   const { job_id, operator_id, scheduled_at, duration_hours, total_cents } = body
   if (!job_id || !operator_id || !total_cents)
     return error('job_id, operator_id, and total_cents are required')
+  if (!Number.isInteger(total_cents) || total_cents <= 0)
+    return error('total_cents must be a positive integer')
 
-  const [job] = await sql`SELECT * FROM jobs WHERE id = ${job_id} AND client_id = ${user.id}`
-  if (!job) return notFound()
-  if (job.status !== 'open') return error('This job is no longer available', 409)
+  // Validate operator is verified before creating booking
+  const [opProfile] = await sql`
+    SELECT id FROM operator_profiles WHERE user_id = ${operator_id} AND verification_status = 'verified'
+  `
+  if (!opProfile) return error('Operator is not available', 409)
 
   const fee    = Math.round(total_cents * PLATFORM_FEE)
   const payout = total_cents - fee
+
+  // Atomic gate: UPDATE jobs WHERE status='open' prevents double-booking race
+  const [jobUpdate] = await sql`
+    UPDATE jobs SET status = 'booked', assigned_operator_id = ${operator_id}
+    WHERE id = ${job_id} AND client_id = ${user.id} AND status = 'open'
+    RETURNING *
+  `
+  if (!jobUpdate) return error('This job is no longer available', 409)
 
   const [booking] = await sql`
     INSERT INTO bookings
       (job_id, client_id, operator_id, scheduled_at, duration_hours, total_cents, platform_fee_cents, operator_payout_cents)
     VALUES
-      (${job_id}, ${user.id}, ${operator_id}, ${scheduled_at || null}, ${duration_hours || null},
+      (${job_id}, ${user.id}, ${operator_id}, ${scheduled_at ?? null}, ${duration_hours ?? null},
        ${total_cents}, ${fee}, ${payout})
     RETURNING *
-  `
-
-  await sql`
-    UPDATE jobs SET status = 'booked', assigned_operator_id = ${operator_id}
-    WHERE id = ${job_id}
   `
 
   // TODO Phase 2: create Stripe PaymentIntent here and return client_secret

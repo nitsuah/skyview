@@ -49,7 +49,8 @@ async function listJobs(req) {
     }
 
     // Haversine distance filter (SQL-level, no PostGIS required)
-    const jobs = await sql`
+    // Two separate queries avoid nested sql template literals (unsupported by Neon HTTP driver)
+    const haversineBase = `
       SELECT j.*, u.name AS client_name,
         (3958.8 * acos(LEAST(1.0,
           cos(radians(${profile.coverage_lat})) * cos(radians(j.location_lat)) *
@@ -58,13 +59,31 @@ async function listJobs(req) {
         ))) AS distance_miles
       FROM jobs j JOIN users u ON j.client_id = u.id
       WHERE j.status = 'open' AND j.location_lat IS NOT NULL
-        AND (
-          ${profile.service_types && profile.service_types.length > 0
-            ? sql`j.service_type = ANY(${profile.service_types}::text[])`
-            : sql`true`}
-        )
-      ORDER BY j.preferred_date ASC NULLS LAST, j.created_at DESC
     `
+    const jobs = profile.service_types?.length > 0
+      ? await sql`
+          SELECT j.*, u.name AS client_name,
+            (3958.8 * acos(LEAST(1.0,
+              cos(radians(${profile.coverage_lat})) * cos(radians(j.location_lat)) *
+              cos(radians(j.location_lng) - radians(${profile.coverage_lng})) +
+              sin(radians(${profile.coverage_lat})) * sin(radians(j.location_lat))
+            ))) AS distance_miles
+          FROM jobs j JOIN users u ON j.client_id = u.id
+          WHERE j.status = 'open' AND j.location_lat IS NOT NULL
+            AND j.service_type = ANY(${profile.service_types}::text[])
+          ORDER BY j.preferred_date ASC NULLS LAST, j.created_at DESC
+        `
+      : await sql`
+          SELECT j.*, u.name AS client_name,
+            (3958.8 * acos(LEAST(1.0,
+              cos(radians(${profile.coverage_lat})) * cos(radians(j.location_lat)) *
+              cos(radians(j.location_lng) - radians(${profile.coverage_lng})) +
+              sin(radians(${profile.coverage_lat})) * sin(radians(j.location_lat))
+            ))) AS distance_miles
+          FROM jobs j JOIN users u ON j.client_id = u.id
+          WHERE j.status = 'open' AND j.location_lat IS NOT NULL
+          ORDER BY j.preferred_date ASC NULLS LAST, j.created_at DESC
+        `
     // Filter by radius after fetch (avoids HAVING with aggregate confusion)
     const radius = profile.coverage_radius_mi || 50
     return json(jobs.filter(j => j.distance_miles <= radius))
@@ -98,9 +117,9 @@ async function createJob(req) {
 
   const [job] = await sql`
     INSERT INTO jobs (client_id, title, service_type, description, location_address, location_lat, location_lng, preferred_date, preferred_time, budget_cents)
-    VALUES (${user.id}, ${title}, ${service_type}, ${description || null}, ${location_address || null},
-            ${location_lat || null}, ${location_lng || null}, ${preferred_date || null},
-            ${preferred_time || null}, ${budget_cents || null})
+    VALUES (${user.id}, ${title}, ${service_type}, ${description ?? null}, ${location_address ?? null},
+            ${location_lat ?? null}, ${location_lng ?? null}, ${preferred_date ?? null},
+            ${preferred_time ?? null}, ${budget_cents ?? null})
     RETURNING *
   `
 
@@ -149,6 +168,8 @@ async function getJob(req, id) {
 async function updateJob(req, id) {
   const user = await requireAuth(req, sql)
   if (!user) return unauthorized()
+  // Only the owning client or an admin may update a job
+  if (user.role !== 'client' && user.role !== 'admin') return forbidden()
 
   const [job] = await sql`SELECT * FROM jobs WHERE id = ${id}`
   if (!job) return notFound()
@@ -164,11 +185,11 @@ async function updateJob(req, id) {
   // Build SET clause dynamically using tagged template
   const [updated] = await sql`
     UPDATE jobs SET
-      status = COALESCE(${updates.status || null}, status),
-      description = COALESCE(${updates.description || null}, description),
-      preferred_date = COALESCE(${updates.preferred_date || null}, preferred_date),
-      preferred_time = COALESCE(${updates.preferred_time || null}, preferred_time),
-      budget_cents = COALESCE(${updates.budget_cents || null}, budget_cents)
+      status = COALESCE(${updates.status ?? null}, status),
+      description = COALESCE(${updates.description ?? null}, description),
+      preferred_date = COALESCE(${updates.preferred_date ?? null}, preferred_date),
+      preferred_time = COALESCE(${updates.preferred_time ?? null}, preferred_time),
+      budget_cents = COALESCE(${updates.budget_cents ?? null}, budget_cents)
     WHERE id = ${id}
     RETURNING *
   `

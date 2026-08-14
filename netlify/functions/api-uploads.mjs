@@ -33,6 +33,9 @@ async function uploadCert(req) {
   if (!ALLOWED_TYPES.includes(file.type)) return error('cert must be a PDF or image (JPEG, PNG, WebP)')
   if (file.size > MAX_SIZE) return error('cert must be under 10MB')
 
+  const [profile] = await sql`SELECT id FROM operator_profiles WHERE user_id = ${user.id}`
+  if (!profile) return error('Operator profile not found — complete onboarding first', 422)
+
   const store = getStore({ name: 'operator-certs', consistency: 'strong' })
   const key   = `${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
   await store.set(key, await file.arrayBuffer(), {
