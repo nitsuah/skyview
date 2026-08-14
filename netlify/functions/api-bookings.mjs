@@ -81,8 +81,8 @@ async function createBooking(req) {
   const { job_id, operator_id, scheduled_at, duration_hours, total_cents } = body
   if (!job_id || !operator_id || !total_cents)
     return error('job_id, operator_id, and total_cents are required')
-  if (!Number.isInteger(total_cents) || total_cents <= 0)
-    return error('total_cents must be a positive integer')
+  if (!Number.isInteger(total_cents) || total_cents <= 0 || total_cents > 2_147_483_647)
+    return error('total_cents must be a positive integer within the supported range')
 
   // Validate operator is verified before creating booking
   const [opProfile] = await sql`

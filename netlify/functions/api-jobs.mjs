@@ -150,6 +150,8 @@ async function getJob(req, id) {
   `
   if (!job) return notFound()
   if (user.role === 'client' && job.client_id !== user.id) return forbidden()
+  // Operators may only see open jobs or jobs assigned to them
+  if (user.role === 'operator' && job.status !== 'open' && job.assigned_operator_id !== user.id) return forbidden()
 
   return json(job)
 }
