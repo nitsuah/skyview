@@ -48,18 +48,7 @@ async function listJobs(req) {
       return json([])
     }
 
-    // Haversine distance filter (SQL-level, no PostGIS required)
     // Two separate queries avoid nested sql template literals (unsupported by Neon HTTP driver)
-    const haversineBase = `
-      SELECT j.*, u.name AS client_name,
-        (3958.8 * acos(LEAST(1.0,
-          cos(radians(${profile.coverage_lat})) * cos(radians(j.location_lat)) *
-          cos(radians(j.location_lng) - radians(${profile.coverage_lng})) +
-          sin(radians(${profile.coverage_lat})) * sin(radians(j.location_lat))
-        ))) AS distance_miles
-      FROM jobs j JOIN users u ON j.client_id = u.id
-      WHERE j.status = 'open' AND j.location_lat IS NOT NULL
-    `
     const jobs = profile.service_types?.length > 0
       ? await sql`
           SELECT j.*, u.name AS client_name,
