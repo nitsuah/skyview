@@ -130,16 +130,18 @@ async function verifyOperator(req, id) {
 
   const body = await req.json().catch(() => null)
   const action = body?.action  // 'approve' | 'reject' | 'suspend'
+  const reason = body?.reason ?? null
 
-  const statusMap = { approve: 'verified', reject: 'pending', suspend: 'suspended' }
+  const statusMap = { approve: 'verified', reject: 'rejected', suspend: 'suspended' }
   const newStatus = statusMap[action]
   if (!newStatus) return error("action must be 'approve', 'reject', or 'suspend'")
 
   const [op] = await sql`
     UPDATE operator_profiles SET
       verification_status = ${newStatus},
-      verified_at = ${action === 'approve' ? sql`NOW()` : null},
-      verified_by = ${action === 'approve' ? user.id : null}
+      rejection_reason    = ${action === 'reject' ? reason : null},
+      verified_at         = ${action === 'approve' ? sql`NOW()` : null},
+      verified_by         = ${action === 'approve' ? user.id : null}
     WHERE user_id = ${id}
     RETURNING *
   `

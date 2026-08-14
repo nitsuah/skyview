@@ -1,4 +1,5 @@
-import { randomBytes } from 'crypto'
+import { randomBytes, createHash } from 'crypto'
+const hashToken = (t) => createHash('sha256').update(t).digest('hex')
 import { sql } from './utils/db.js'
 import { signToken, hashPassword, checkPassword, requireAuth } from './utils/auth.js'
 import { sendVerificationEmail } from './utils/email.js'
@@ -50,7 +51,7 @@ async function register(req) {
   if (process.env.RESEND_API_KEY) {
     const token = randomBytes(32).toString('hex')
     const expires = new Date(Date.now() + 86_400_000) // 24h
-    await sql`INSERT INTO email_tokens (user_id, token, expires_at) VALUES (${user.id}, ${token}, ${expires})`
+    await sql`INSERT INTO email_tokens (user_id, token_hash, expires_at) VALUES (${user.id}, ${hashToken(token)}, ${expires})`
     sendVerificationEmail(user.email, token).catch(console.error)
   }
 
@@ -101,7 +102,7 @@ async function verifyEmail(url) {
   if (!token) return error('Missing token')
 
   const [record] = await sql`
-    SELECT id, user_id, expires_at, used_at FROM email_tokens WHERE token = ${token}
+    SELECT id, user_id, expires_at, used_at FROM email_tokens WHERE token_hash = ${hashToken(token)}
   `
   if (!record)          return error('Invalid or expired token', 404)
   if (record.used_at)   return error('Token already used', 410)

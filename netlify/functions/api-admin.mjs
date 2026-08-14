@@ -16,8 +16,8 @@ export default async (req, context) => {
 
   if (req.method === 'GET' && route === '/dashboard')          return dashboard()
   if (req.method === 'GET' && route === '/pending-operators')  return pendingOperators()
-  if (req.method === 'GET' && route === '/jobs')               return allJobs()
-  if (req.method === 'GET' && route === '/users')              return allUsers()
+  if (req.method === 'GET' && route === '/jobs')               return allJobs(url)
+  if (req.method === 'GET' && route === '/users')              return allUsers(url)
 
   return error('Not found', 404)
 }
@@ -51,26 +51,32 @@ async function pendingOperators() {
   return json(operators)
 }
 
-async function allJobs() {
+async function allJobs(url) {
+  const limit  = Math.min(parseInt(url.searchParams.get('limit')  ?? '100', 10) || 100, 500)
+  const offset = Math.max(parseInt(url.searchParams.get('offset') ?? '0',   10) || 0,   0)
+  const [{ total }] = await sql`SELECT COUNT(*)::int AS total FROM jobs`
   const jobs = await sql`
     SELECT j.*, u.name AS client_name, ou.name AS operator_name
     FROM jobs j
     JOIN users u ON j.client_id = u.id
     LEFT JOIN users ou ON j.assigned_operator_id = ou.id
     ORDER BY j.created_at DESC
-    LIMIT 100
+    LIMIT ${limit} OFFSET ${offset}
   `
-  return json(jobs)
+  return json({ total, limit, offset, data: jobs })
 }
 
-async function allUsers() {
+async function allUsers(url) {
+  const limit  = Math.min(parseInt(url.searchParams.get('limit')  ?? '200', 10) || 200, 500)
+  const offset = Math.max(parseInt(url.searchParams.get('offset') ?? '0',   10) || 0,   0)
+  const [{ total }] = await sql`SELECT COUNT(*)::int AS total FROM users`
   const users = await sql`
     SELECT u.id, u.email, u.name, u.role, u.active, u.email_verified, u.created_at,
       op.verification_status
     FROM users u
     LEFT JOIN operator_profiles op ON op.user_id = u.id
     ORDER BY u.created_at DESC
-    LIMIT 200
+    LIMIT ${limit} OFFSET ${offset}
   `
-  return json(users)
+  return json({ total, limit, offset, data: users })
 }

@@ -49,7 +49,8 @@ CREATE TABLE IF NOT EXISTS operator_profiles (
 
   -- FAA verification
   verification_status TEXT DEFAULT 'pending'
-    CHECK (verification_status IN ('pending', 'under_review', 'verified', 'suspended')),
+    CHECK (verification_status IN ('pending', 'under_review', 'verified', 'suspended', 'rejected')),
+  rejection_reason    TEXT,
   faa_cert_number     TEXT,
   faa_cert_expires_at DATE,
   faa_cert_blob_key   TEXT,   -- Netlify Blobs storage key for uploaded cert doc
@@ -166,7 +167,7 @@ CREATE INDEX IF NOT EXISTS reviews_operator_idx ON reviews(operator_id);
 CREATE TABLE IF NOT EXISTS email_tokens (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id    UUID REFERENCES users(id) ON DELETE CASCADE,
-  token      TEXT UNIQUE NOT NULL,
+  token_hash TEXT UNIQUE NOT NULL,  -- SHA-256 hex of the raw bearer token; never store plaintext
   expires_at TIMESTAMPTZ NOT NULL,
   used_at    TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()

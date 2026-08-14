@@ -139,7 +139,7 @@ async function completeBooking(req, id) {
   // Atomic conditional update — only advances from valid predecessor states
   const [updated] = await sql`
     UPDATE bookings SET status = 'completed', completed_at = NOW()
-    WHERE id = ${id} AND status IN ('confirmed', 'in_progress')
+    WHERE id = ${id} AND status IN ('pending', 'confirmed', 'in_progress')
     RETURNING *
   `
   if (!updated) return error('Booking cannot be marked complete from its current status', 409)

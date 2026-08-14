@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+let _resend
+const getResend = () => _resend ?? (_resend = new Resend(process.env.RESEND_API_KEY))
 const FROM = 'SkyView Dynamics <noreply@skyviewdynamics.com>'
 const APP_URL = process.env.DEPLOY_PRIME_URL || process.env.URL || 'https://skyviewd.netlify.app'
 
@@ -8,7 +9,7 @@ const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 
 export async function sendVerificationEmail(to, token) {
   const link = `${APP_URL}/api/auth/verify?token=${token}`
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to,
     subject: 'Verify your SkyView account',
@@ -19,7 +20,7 @@ export async function sendVerificationEmail(to, token) {
 }
 
 export async function sendOperatorApprovedEmail(to, name) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to,
     subject: 'Your SkyView operator account is verified',
@@ -30,7 +31,7 @@ export async function sendOperatorApprovedEmail(to, name) {
 }
 
 export async function sendJobAlertEmail(to, job) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to,
     subject: `New job near you: ${esc(job.title)}`,
@@ -42,7 +43,7 @@ ${job.budget_cents ? `<p>Budget: $${(job.budget_cents / 100).toFixed(0)}</p>` : 
 }
 
 export async function sendCertExpiryWarning(to, name, daysLeft, certNumber) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to,
     subject: `Action required: FAA cert expires in ${daysLeft} days`,

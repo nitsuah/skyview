@@ -20,7 +20,8 @@ const ROLES = [
 export default function Register() {
   const { register } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm]   = useState({ name: '', email: '', password: '', role: 'client' })
+  const initialRole = new URLSearchParams(window.location.search).get('role') === 'operator' ? 'operator' : 'client'
+  const [form, setForm]   = useState({ name: '', email: '', password: '', role: initialRole })
   const [error, setError] = useState('')
   const [busy, setBusy]   = useState(false)
 

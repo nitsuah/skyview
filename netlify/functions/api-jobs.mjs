@@ -43,39 +43,57 @@ async function listJobs(req) {
       SELECT coverage_lat, coverage_lng, coverage_radius_mi, service_types
       FROM operator_profiles WHERE user_id = ${user.id}
     `
-    if (!profile?.coverage_lat) {
+    if (profile?.coverage_lat == null || profile?.coverage_lng == null) {
       // Profile incomplete — return empty so dashboard can prompt setup
       return json([])
     }
 
+    const lat = profile.coverage_lat
+    const lng = profile.coverage_lng
+    const radius = profile.coverage_radius_mi || 50
+    // Bounding-box prefilter lets Postgres use the location index before computing distances
+    const latDelta = radius / 69.0
+    const lngDelta = radius / (69.0 * Math.cos(lat * Math.PI / 180))
+
     // Two separate queries avoid nested sql template literals (unsupported by Neon HTTP driver)
+    // Radius filter runs in SQL via subquery; JS filter removed
     const jobs = profile.service_types?.length > 0
       ? await sql`
-          SELECT j.*, u.name AS client_name,
-            (3958.8 * acos(LEAST(1.0,
-              cos(radians(${profile.coverage_lat})) * cos(radians(j.location_lat)) *
-              cos(radians(j.location_lng) - radians(${profile.coverage_lng})) +
-              sin(radians(${profile.coverage_lat})) * sin(radians(j.location_lat))
-            ))) AS distance_miles
-          FROM jobs j JOIN users u ON j.client_id = u.id
-          WHERE j.status = 'open' AND j.location_lat IS NOT NULL
-            AND j.service_type = ANY(${profile.service_types}::text[])
-          ORDER BY j.preferred_date ASC NULLS LAST, j.created_at DESC
+          SELECT * FROM (
+            SELECT j.*, u.name AS client_name,
+              (3958.8 * acos(LEAST(1.0,
+                cos(radians(${lat})) * cos(radians(j.location_lat)) *
+                cos(radians(j.location_lng) - radians(${lng})) +
+                sin(radians(${lat})) * sin(radians(j.location_lat))
+              ))) AS distance_miles
+            FROM jobs j JOIN users u ON j.client_id = u.id
+            WHERE j.status = 'open' AND j.location_lat IS NOT NULL
+              AND j.location_lat BETWEEN ${lat - latDelta} AND ${lat + latDelta}
+              AND j.location_lng BETWEEN ${lng - lngDelta} AND ${lng + lngDelta}
+              AND j.service_type = ANY(${profile.service_types}::text[])
+          ) t
+          WHERE t.distance_miles <= ${radius}
+          ORDER BY t.preferred_date ASC NULLS LAST, t.created_at DESC
+          LIMIT 200
         `
       : await sql`
-          SELECT j.*, u.name AS client_name,
-            (3958.8 * acos(LEAST(1.0,
-              cos(radians(${profile.coverage_lat})) * cos(radians(j.location_lat)) *
-              cos(radians(j.location_lng) - radians(${profile.coverage_lng})) +
-              sin(radians(${profile.coverage_lat})) * sin(radians(j.location_lat))
-            ))) AS distance_miles
-          FROM jobs j JOIN users u ON j.client_id = u.id
-          WHERE j.status = 'open' AND j.location_lat IS NOT NULL
-          ORDER BY j.preferred_date ASC NULLS LAST, j.created_at DESC
+          SELECT * FROM (
+            SELECT j.*, u.name AS client_name,
+              (3958.8 * acos(LEAST(1.0,
+                cos(radians(${lat})) * cos(radians(j.location_lat)) *
+                cos(radians(j.location_lng) - radians(${lng})) +
+                sin(radians(${lat})) * sin(radians(j.location_lat))
+              ))) AS distance_miles
+            FROM jobs j JOIN users u ON j.client_id = u.id
+            WHERE j.status = 'open' AND j.location_lat IS NOT NULL
+              AND j.location_lat BETWEEN ${lat - latDelta} AND ${lat + latDelta}
+              AND j.location_lng BETWEEN ${lng - lngDelta} AND ${lng + lngDelta}
+          ) t
+          WHERE t.distance_miles <= ${radius}
+          ORDER BY t.preferred_date ASC NULLS LAST, t.created_at DESC
+          LIMIT 200
         `
-    // Filter by radius after fetch (avoids HAVING with aggregate confusion)
-    const radius = profile.coverage_radius_mi || 50
-    return json(jobs.filter(j => j.distance_miles <= radius))
+    return json(jobs)
   }
 
   if (user.role === 'admin') {
@@ -102,7 +120,13 @@ async function createJob(req) {
   if (!body) return error('Invalid JSON')
 
   const { title, service_type, description, location_address, location_lat, location_lng, preferred_date, preferred_time, budget_cents } = body
+  const SERVICE_TYPES = ['real_estate', 'cinematography', 'mapping', 'events', 'inspection']
+  const PREFERRED_TIMES = ['morning', 'afternoon', 'evening', 'flexible']
   if (!title || !service_type) return error('title and service_type are required')
+  if (!SERVICE_TYPES.includes(service_type))
+    return error(`service_type must be one of: ${SERVICE_TYPES.join(', ')}`)
+  if (preferred_time && !PREFERRED_TIMES.includes(preferred_time))
+    return error(`preferred_time must be one of: ${PREFERRED_TIMES.join(', ')}`)
 
   const [job] = await sql`
     INSERT INTO jobs (client_id, title, service_type, description, location_address, location_lat, location_lng, preferred_date, preferred_time, budget_cents)
@@ -112,9 +136,9 @@ async function createJob(req) {
     RETURNING *
   `
 
-  // Alert nearby verified operators (fire-and-forget)
-  if (process.env.RESEND_API_KEY && location_lat && location_lng) {
-    alertNearbyOperators(job).catch(console.error)
+  // Await alerts so they complete before the function freezes after the response
+  if (process.env.RESEND_API_KEY && location_lat != null && location_lng != null) {
+    await alertNearbyOperators(job).catch(err => console.error('[alert] failed:', err))
   }
 
   return json(job, 201)
