@@ -1,18 +1,26 @@
 # Netlify Configuration
-# This file is optional but helps ensure consistent deployments
 
 [build]
-  # No build command needed for static HTML
-  publish = "."
-  
-[build.environment]
-  # No environment variables needed
+  command = "node scripts/build.js"
+  publish = "dist"
 
-# Form submission notifications
-# Note: Configure actual email address in Netlify UI under Site Settings > Forms > Form notifications
-# This section documents the form setup
+[build.environment]
+  NODE_VERSION = "20"
+
 [functions]
-  # No functions needed for now
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Daily cert expiry checker — runs at 9am UTC
+[functions."cron-cert-expiry"]
+  schedule = "0 9 * * *"
+
+# Platform SPA — client-side routing for React app at /app
+[[redirects]]
+  from = "/app/*"
+  to = "/app/index.html"
+  status = 200
+  force = false
 
 # Backward-compat redirects for pages moved to /pages/
 [[redirects]]
@@ -50,8 +58,19 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://assets.calendly.com https://plausible.io https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://assets.calendly.com; font-src https://fonts.gstatic.com; frame-src https://calendly.com; connect-src 'self' https://plausible.io https://api.netlify.com https://identity.netlify.com; img-src 'self' data: https:; media-src 'self';"
+
+# Platform app — Stripe-compatible CSP, no Calendly
+[[headers]]
+  for = "/app/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; img-src 'self' data: blob: https:; media-src 'self';"
 
 [[headers]]
   for = "/admin/*"
