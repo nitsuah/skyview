@@ -167,11 +167,20 @@ async function updateJob(req, id) {
   const body = await req.json().catch(() => null)
   if (!body) return error('Invalid JSON')
 
+  const VALID_STATUSES = ['open', 'booked', 'in_progress', 'completed', 'cancelled']
+  const CLIENT_ALLOWED_STATUSES = ['cancelled']
+
+  if (body.status !== undefined) {
+    if (!VALID_STATUSES.includes(body.status))
+      return error(`status must be one of: ${VALID_STATUSES.join(', ')}`)
+    if (user.role === 'client' && !CLIENT_ALLOWED_STATUSES.includes(body.status))
+      return error(`Clients may only set status to: ${CLIENT_ALLOWED_STATUSES.join(', ')}`)
+  }
+
   const allowed = ['status', 'description', 'preferred_date', 'preferred_time', 'budget_cents']
   const updates = Object.fromEntries(Object.entries(body).filter(([k]) => allowed.includes(k)))
   if (!Object.keys(updates).length) return error('No valid fields to update')
 
-  // Build SET clause dynamically using tagged template
   const [updated] = await sql`
     UPDATE jobs SET
       status = COALESCE(${updates.status ?? null}, status),

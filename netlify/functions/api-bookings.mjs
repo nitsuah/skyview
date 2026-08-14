@@ -135,14 +135,16 @@ async function completeBooking(req, id) {
   const [booking] = await sql`SELECT * FROM bookings WHERE id = ${id}`
   if (!booking) return notFound()
   if (booking.client_id !== user.id && user.role !== 'admin') return forbidden()
-  if (booking.status !== 'confirmed' && booking.status !== 'in_progress')
-    return error('Booking cannot be marked complete from its current status', 409)
 
+  // Atomic conditional update — only advances from valid predecessor states
   const [updated] = await sql`
     UPDATE bookings SET status = 'completed', completed_at = NOW()
-    WHERE id = ${id} RETURNING *
+    WHERE id = ${id} AND status IN ('confirmed', 'in_progress')
+    RETURNING *
   `
-  await sql`UPDATE jobs SET status = 'completed' WHERE id = ${booking.job_id}`
+  if (!updated) return error('Booking cannot be marked complete from its current status', 409)
+
+  await sql`UPDATE jobs SET status = 'completed' WHERE id = ${booking.job_id} AND status != 'completed'`
 
   // TODO Phase 2: trigger Stripe Transfer to operator here
 
