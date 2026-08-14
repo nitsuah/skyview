@@ -1,23 +1,39 @@
 import { useState, useEffect } from 'react'
 import { api } from '../lib/api'
 
+const JOBS_PAGE_SIZE = 50
+
 export default function AdminDashboard() {
   const [stats, setStats]       = useState(null)
   const [pending, setPending]   = useState([])
   const [jobs, setJobs]         = useState([])
+  const [jobsTotal, setJobsTotal] = useState(0)
+  const [jobsOffset, setJobsOffset] = useState(0)
   const [loading, setLoading]   = useState(true)
+  const [jobsLoading, setJobsLoading] = useState(false)
   const [actionBusy, setActionBusy] = useState({})
   const [tab, setTab]           = useState('operators')
 
+  const loadJobs = async (offset = 0) => {
+    setJobsLoading(true)
+    try {
+      const jr = await api.admin.allJobs({ limit: JOBS_PAGE_SIZE, offset })
+      setJobs(jr?.data ?? [])
+      setJobsTotal(jr?.total ?? 0)
+      setJobsOffset(offset)
+    } catch { /* ignore */ }
+    finally { setJobsLoading(false) }
+  }
+
   const load = async () => {
     setLoading(true)
-    const [s, p, jr] = await Promise.all([
+    const [s, p] = await Promise.all([
       api.admin.dashboard().catch(() => null),
-      api.admin.pendingOperators().catch(() => []),
-      api.admin.allJobs().catch(() => ({ data: [] }))
+      api.admin.pendingOperators().catch(() => [])
     ])
-    setStats(s); setPending(p); setJobs(jr?.data ?? jr ?? [])
+    setStats(s); setPending(p)
     setLoading(false)
+    loadJobs(0)
   }
 
   useEffect(() => { load() }, [])
@@ -163,28 +179,52 @@ export default function AdminDashboard() {
 
       {/* All jobs */}
       {tab === 'jobs' && (
-        <div className="card" style={{ padding: 0 }}>
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Title</th><th>Service</th><th>Client</th><th>Location</th><th>Date</th><th>Budget</th><th>Status</th></tr>
-              </thead>
-              <tbody>
-                {jobs.map(j => (
-                  <tr key={j.id}>
-                    <td style={{ fontWeight: 500 }}>{j.title}</td>
-                    <td style={{ textTransform: 'capitalize' }}>{j.service_type?.replace('_',' ')}</td>
-                    <td className="text-muted">{j.client_name}</td>
-                    <td className="text-muted" style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{j.location_address || '—'}</td>
-                    <td className="text-muted">{j.preferred_date ? new Date(j.preferred_date).toLocaleDateString() : '—'}</td>
-                    <td className="text-muted">{j.budget_cents ? `$${(j.budget_cents/100).toFixed(0)}` : '—'}</td>
-                    <td><span className={`badge badge-${j.status}`}>{j.status.replace('_',' ')}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <>
+          <div className="card" style={{ padding: 0 }}>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Title</th><th>Service</th><th>Client</th><th>Location</th><th>Date</th><th>Budget</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  {jobsLoading
+                    ? <tr><td colSpan={7} style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)' }}>Loading…</td></tr>
+                    : jobs.map(j => (
+                        <tr key={j.id}>
+                          <td style={{ fontWeight: 500 }}>{j.title}</td>
+                          <td style={{ textTransform: 'capitalize' }}>{j.service_type?.replace('_',' ')}</td>
+                          <td className="text-muted">{j.client_name}</td>
+                          <td className="text-muted" style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{j.location_address || '—'}</td>
+                          <td className="text-muted">{j.preferred_date ? new Date(j.preferred_date).toLocaleDateString() : '—'}</td>
+                          <td className="text-muted">{j.budget_cents ? `$${(j.budget_cents/100).toFixed(0)}` : '—'}</td>
+                          <td><span className={`badge badge-${j.status}`}>{j.status.replace('_',' ')}</span></td>
+                        </tr>
+                      ))
+                  }
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+          {jobsTotal > JOBS_PAGE_SIZE && (
+            <div className="flex-between mt-2" style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+              <span>
+                {jobsOffset + 1}–{Math.min(jobsOffset + JOBS_PAGE_SIZE, jobsTotal)} of {jobsTotal} jobs
+              </span>
+              <div className="flex gap-1">
+                <button className="btn btn-ghost btn-sm"
+                  disabled={jobsOffset === 0 || jobsLoading}
+                  onClick={() => loadJobs(jobsOffset - JOBS_PAGE_SIZE)}>
+                  ← Prev
+                </button>
+                <button className="btn btn-ghost btn-sm"
+                  disabled={jobsOffset + JOBS_PAGE_SIZE >= jobsTotal || jobsLoading}
+                  onClick={() => loadJobs(jobsOffset + JOBS_PAGE_SIZE)}>
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </>
   )

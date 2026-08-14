@@ -18,12 +18,14 @@ export default function OperatorsDirectory() {
   const [error, setError]         = useState('')
 
   useEffect(() => {
+    let cancelled = false
     setLoading(true)
     setError('')
     api.operators.list(service ? { service } : {})
-      .then(setOperators)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false))
+      .then(result  => { if (!cancelled) setOperators(result) })
+      .catch(e      => { if (!cancelled) setError(e.message) })
+      .finally(()   => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
   }, [service])
 
   return (

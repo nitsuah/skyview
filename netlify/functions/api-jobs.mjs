@@ -193,7 +193,7 @@ async function updateJob(req, id) {
   const body = await req.json().catch(() => null)
   if (!body) return error('Invalid JSON')
 
-  const VALID_STATUSES = ['open', 'booked', 'in_progress', 'completed', 'cancelled']
+  const VALID_STATUSES = ['open', 'matched', 'booked', 'in_progress', 'completed', 'cancelled']
   const CLIENT_ALLOWED_STATUSES = ['cancelled']
 
   if (body.status !== undefined) {

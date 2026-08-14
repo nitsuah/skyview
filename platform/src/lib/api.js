@@ -43,8 +43,8 @@ export const api = {
   admin: {
     dashboard:        () => request('/admin/dashboard'),
     pendingOperators: () => request('/admin/pending-operators'),
-    allJobs:          () => request('/admin/jobs'),
-    allUsers:         () => request('/admin/users')
+    allJobs:  (params = {}) => request(`/admin/jobs?${new URLSearchParams(params)}`),
+    allUsers: (params = {}) => request(`/admin/users?${new URLSearchParams(params)}`)
   },
   reviews: {
     list:   (operatorId) => request(`/reviews?operator_id=${operatorId}`),

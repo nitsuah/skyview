@@ -28,27 +28,42 @@ export default async (req, context) => {
 
 async function listOperators(url) {
   const serviceType = url.searchParams.get('service')
-  const serviceFilter = serviceType
-    ? sql`AND ${serviceType} = ANY(op.service_types::text[])`
-    : sql``
 
-  const operators = await sql`
-    SELECT u.id, u.name,
-           op.bio, op.equipment, op.service_types,
-           op.coverage_radius_mi,
-           op.base_rate_cents, op.hourly_rate_cents, op.booking_url,
-           COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS avg_rating,
-           COUNT(r.id) AS review_count
-    FROM operator_profiles op
-    JOIN users u ON op.user_id = u.id
-    LEFT JOIN reviews r ON r.operator_id = u.id
-    WHERE op.verification_status = 'verified'
-      ${serviceFilter}
-    GROUP BY u.id, u.name, op.bio, op.equipment, op.service_types,
-             op.coverage_radius_mi,
-             op.base_rate_cents, op.hourly_rate_cents, op.booking_url
-    ORDER BY avg_rating DESC, review_count DESC
-  `
+  // Two explicit branches — Neon HTTP driver does not support nested sql fragments
+  const operators = serviceType
+    ? await sql`
+        SELECT u.id, u.name,
+               op.bio, op.equipment, op.service_types,
+               op.coverage_radius_mi,
+               op.base_rate_cents, op.hourly_rate_cents, op.booking_url,
+               COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS avg_rating,
+               COUNT(r.id) AS review_count
+        FROM operator_profiles op
+        JOIN users u ON op.user_id = u.id
+        LEFT JOIN reviews r ON r.operator_id = u.id
+        WHERE op.verification_status = 'verified'
+          AND ${serviceType} = ANY(op.service_types::text[])
+        GROUP BY u.id, u.name, op.bio, op.equipment, op.service_types,
+                 op.coverage_radius_mi,
+                 op.base_rate_cents, op.hourly_rate_cents, op.booking_url
+        ORDER BY avg_rating DESC, review_count DESC
+      `
+    : await sql`
+        SELECT u.id, u.name,
+               op.bio, op.equipment, op.service_types,
+               op.coverage_radius_mi,
+               op.base_rate_cents, op.hourly_rate_cents, op.booking_url,
+               COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS avg_rating,
+               COUNT(r.id) AS review_count
+        FROM operator_profiles op
+        JOIN users u ON op.user_id = u.id
+        LEFT JOIN reviews r ON r.operator_id = u.id
+        WHERE op.verification_status = 'verified'
+        GROUP BY u.id, u.name, op.bio, op.equipment, op.service_types,
+                 op.coverage_radius_mi,
+                 op.base_rate_cents, op.hourly_rate_cents, op.booking_url
+        ORDER BY avg_rating DESC, review_count DESC
+      `
   return json(operators)
 }
 
@@ -80,7 +95,10 @@ async function updateProfile(req, id) {
   const targetId = user.role === 'admin' ? id : user.id
   if (user.role === 'operator' && user.id !== id) return forbidden()
 
-  const [profile] = await sql`SELECT id FROM operator_profiles WHERE user_id = ${targetId}`
+  const [profile] = await sql`
+    SELECT id, faa_cert_number, faa_cert_expires_at
+    FROM operator_profiles WHERE user_id = ${targetId}
+  `
   if (!profile) return notFound()
 
   const body = await req.json().catch(() => null)
@@ -101,7 +119,11 @@ async function updateProfile(req, id) {
     }
   }
 
-  const certChanging = faa_cert_number != null || faa_cert_expires_at != null
+  // Only reset verification when cert values actually differ from what's stored
+  const certChanging = (
+    (faa_cert_number != null && faa_cert_number !== profile.faa_cert_number) ||
+    (faa_cert_expires_at != null && faa_cert_expires_at !== String(profile.faa_cert_expires_at ?? '').slice(0, 10))
+  )
 
   const [updated] = await sql`
     UPDATE operator_profiles SET
@@ -140,7 +162,7 @@ async function verifyOperator(req, id) {
     UPDATE operator_profiles SET
       verification_status = ${newStatus},
       rejection_reason    = ${action === 'reject' ? reason : null},
-      verified_at         = ${action === 'approve' ? sql`NOW()` : null},
+      verified_at         = ${action === 'approve' ? new Date() : null},
       verified_by         = ${action === 'approve' ? user.id : null}
     WHERE user_id = ${id}
     RETURNING *

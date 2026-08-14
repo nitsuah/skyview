@@ -111,6 +111,6 @@ async function verifyEmail(url) {
   await sql`UPDATE users SET email_verified = true WHERE id = ${record.user_id}`
   await sql`UPDATE email_tokens SET used_at = NOW() WHERE id = ${record.id}`
 
-  const base = process.env.URL || 'https://skyviewd.netlify.app'
+  const base = process.env.DEPLOY_PRIME_URL || process.env.URL || 'https://skyviewd.netlify.app'
   return Response.redirect(`${base}/app?verified=1`, 302)
 }

@@ -52,8 +52,8 @@ async function pendingOperators() {
 }
 
 async function allJobs(url) {
-  const limit  = Math.min(parseInt(url.searchParams.get('limit')  ?? '100', 10) || 100, 500)
-  const offset = Math.max(parseInt(url.searchParams.get('offset') ?? '0',   10) || 0,   0)
+  const limit  = Math.max(1, Math.min(parseInt(url.searchParams.get('limit')  ?? '100', 10) || 100, 500))
+  const offset = Math.max(0, parseInt(url.searchParams.get('offset') ?? '0',   10) || 0)
   const [{ total }] = await sql`SELECT COUNT(*)::int AS total FROM jobs`
   const jobs = await sql`
     SELECT j.*, u.name AS client_name, ou.name AS operator_name
@@ -67,8 +67,8 @@ async function allJobs(url) {
 }
 
 async function allUsers(url) {
-  const limit  = Math.min(parseInt(url.searchParams.get('limit')  ?? '200', 10) || 200, 500)
-  const offset = Math.max(parseInt(url.searchParams.get('offset') ?? '0',   10) || 0,   0)
+  const limit  = Math.max(1, Math.min(parseInt(url.searchParams.get('limit')  ?? '200', 10) || 200, 500))
+  const offset = Math.max(0, parseInt(url.searchParams.get('offset') ?? '0',   10) || 0)
   const [{ total }] = await sql`SELECT COUNT(*)::int AS total FROM users`
   const users = await sql`
     SELECT u.id, u.email, u.name, u.role, u.active, u.email_verified, u.created_at,
