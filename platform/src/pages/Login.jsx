@@ -10,7 +10,9 @@ export default function Login() {
   const [error, setError] = useState('')
   const [busy, setBusy]   = useState(false)
 
-  const verified = new URLSearchParams(location.search).get('verified')
+  const params   = new URLSearchParams(location.search)
+  const verified = params.get('verified')
+  const reset    = params.get('reset')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -44,6 +46,9 @@ export default function Login() {
         {verified && (
           <div className="alert alert-success mb-2">Email verified — you're good to go.</div>
         )}
+        {reset && (
+          <div className="alert alert-success mb-2">Password updated — sign in with your new password.</div>
+        )}
         {error && <div className="alert alert-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>
@@ -53,7 +58,10 @@ export default function Login() {
               onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
           </div>
           <div className="form-group">
-            <label>Password</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <label>Password</label>
+              <Link to="/app/forgot-password" className="link" style={{ fontSize: 12.5 }}>Forgot password?</Link>
+            </div>
             <input type="password" value={form.password} placeholder="········" required
               onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
           </div>

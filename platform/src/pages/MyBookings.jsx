@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom'
 import { api } from '../lib/api'
 
 const STATUS_COLOR = {
-  pending:   'badge-open',
-  confirmed: 'badge-booked',
-  declined:  'badge-cancelled',
-  completed: 'badge-completed'
+  pending:     'badge-open',
+  confirmed:   'badge-booked',
+  in_progress: 'badge-booked',
+  completed:   'badge-completed',
+  cancelled:   'badge-cancelled',
+  disputed:    'badge-cancelled'
 }
 
 export default function MyBookings() {

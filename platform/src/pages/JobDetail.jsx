@@ -18,7 +18,8 @@ export default function JobDetail() {
   const [comment, setComment]   = useState('')
   const [reviewSaving, setReviewSaving] = useState(false)
   const [reviewError, setReviewError]   = useState('')
-  const [reviewDone, setReviewDone]     = useState(false)
+  // Track per-booking ID so multiple completed bookings can each be reviewed
+  const [reviewedIds, setReviewedIds] = useState(new Set())
 
   const load = () => {
     setLoading(true)
@@ -56,7 +57,7 @@ export default function JobDetail() {
         rating,
         comment
       })
-      setReviewDone(true)
+      setReviewedIds(prev => new Set(prev).add(reviewBookingId))
       setReviewBookingId(null)
     } catch (err) {
       setReviewError(err.message)
@@ -129,13 +130,13 @@ export default function JobDetail() {
                         Mark Complete
                       </button>
                     )}
-                    {b.status === 'completed' && !reviewDone && (
+                    {b.status === 'completed' && !reviewedIds.has(b.id) && (
                       <button className="btn btn-sm btn-ghost"
                         onClick={() => setReviewBookingId(reviewBookingId === b.id ? null : b.id)}>
                         {reviewBookingId === b.id ? 'Cancel' : 'Leave Review'}
                       </button>
                     )}
-                    {reviewDone && b.status === 'completed' && (
+                    {reviewedIds.has(b.id) && (
                       <span className="text-muted" style={{ fontSize: 12 }}>Review submitted ✓</span>
                     )}
                   </div>

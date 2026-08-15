@@ -139,6 +139,10 @@ async function updateProfile(req, id) {
     faa_cert_number, faa_cert_expires_at
   } = body
 
+  // Distinguish explicit null (clear the field) from omitted (keep existing value)
+  const hasCoverageLat = Object.hasOwn(body, 'coverage_lat')
+  const hasCoverageLng = Object.hasOwn(body, 'coverage_lng')
+
   if (booking_url != null) {
     try {
       const u = new URL(booking_url)
@@ -159,8 +163,8 @@ async function updateProfile(req, id) {
       bio                = COALESCE(${bio ?? null}, bio),
       equipment          = COALESCE(${equipment ?? null}, equipment),
       service_types      = COALESCE(${service_types ?? null}, service_types),
-      coverage_lat       = COALESCE(${coverage_lat ?? null}, coverage_lat),
-      coverage_lng       = COALESCE(${coverage_lng ?? null}, coverage_lng),
+      coverage_lat       = CASE WHEN ${hasCoverageLat} THEN ${coverage_lat ?? null} ELSE coverage_lat END,
+      coverage_lng       = CASE WHEN ${hasCoverageLng} THEN ${coverage_lng ?? null} ELSE coverage_lng END,
       coverage_radius_mi = COALESCE(${coverage_radius_mi ?? null}, coverage_radius_mi),
       base_rate_cents    = COALESCE(${base_rate_cents ?? null}, base_rate_cents),
       hourly_rate_cents  = COALESCE(${hourly_rate_cents ?? null}, hourly_rate_cents),

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../lib/api'
 import { useAuth } from '../lib/auth'
 
-const STATUS_ORDER = ['open','booked','in_progress','completed','cancelled']
+const STATUS_ORDER = ['open','matched','booked','in_progress','completed','cancelled']
 
 export default function ClientDashboard() {
   const { user } = useAuth()

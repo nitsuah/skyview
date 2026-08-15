@@ -17,8 +17,9 @@ export default async (req, context) => {
   if (req.method === 'POST' && route === '/login')           return login(req)
   if (req.method === 'GET'  && route === '/me')              return me(req)
   if (req.method === 'GET'  && route === '/verify')          return verifyEmail(url)
-  if (req.method === 'POST' && route === '/forgot-password') return forgotPassword(req)
-  if (req.method === 'POST' && route === '/reset-password')  return resetPassword(req)
+  if (req.method === 'POST' && route === '/forgot-password')         return forgotPassword(req)
+  if (req.method === 'POST' && route === '/reset-password')          return resetPassword(req)
+  if (req.method === 'POST' && route === '/resend-verification')     return resendVerification(req)
 
   return error('Not found', 404)
 }
@@ -117,6 +118,26 @@ async function verifyEmail(url) {
   return Response.redirect(`${base}/app?verified=1`, 302)
 }
 
+async function resendVerification(req) {
+  const body = await req.json().catch(() => null)
+  const { email } = body ?? {}
+  if (!email) return error('email is required')
+
+  const [user] = await sql`
+    SELECT id, email_verified, active FROM users WHERE email = ${email.toLowerCase().trim()}
+  `
+  // Always return 200 to avoid email enumeration
+  if (!user || !user.active || user.email_verified) return json({ ok: true })
+
+  if (process.env.RESEND_API_KEY) {
+    const token   = randomBytes(32).toString('hex')
+    const expires = new Date(Date.now() + 86_400_000) // 24h
+    await sql`INSERT INTO email_tokens (user_id, token_hash, expires_at) VALUES (${user.id}, ${hashToken(token)}, ${expires})`
+    sendVerificationEmail(user.email, token).catch(console.error)
+  }
+  return json({ ok: true })
+}
+
 async function forgotPassword(req) {
   const body = await req.json().catch(() => null)
   if (!body) return error('Invalid JSON')
@@ -148,17 +169,20 @@ async function resetPassword(req) {
   if (!token || !password) return error('token and password are required')
   if (password.length < 8) return error('Password must be at least 8 characters')
 
-  const [record] = await sql`
-    SELECT id, user_id, expires_at, used_at FROM password_reset_tokens
-    WHERE token_hash = ${hashToken(token)}
-  `
-  if (!record)          return error('Invalid or expired reset link', 400)
-  if (record.used_at)   return error('This reset link has already been used', 410)
-  if (new Date(record.expires_at) < new Date()) return error('Reset link expired', 410)
-
   const password_hash = await hashPassword(password)
-  await sql`UPDATE users SET password_hash = ${password_hash} WHERE id = ${record.user_id}`
-  await sql`UPDATE password_reset_tokens SET used_at = NOW() WHERE id = ${record.id}`
+
+  // Atomic claim: mark token used and fetch user_id in one query to prevent replay
+  const [claimed] = await sql`
+    UPDATE password_reset_tokens
+    SET used_at = NOW()
+    WHERE token_hash = ${hashToken(token)}
+      AND used_at IS NULL
+      AND expires_at > NOW()
+    RETURNING user_id
+  `
+  if (!claimed) return error('Invalid or expired reset link', 400)
+
+  await sql`UPDATE users SET password_hash = ${password_hash} WHERE id = ${claimed.user_id}`
 
   return json({ ok: true })
 }

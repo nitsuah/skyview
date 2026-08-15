@@ -6,3 +6,5 @@ node_modules/
 test-results/
 test-results.json
 coverage/
+# Local Netlify folder
+.netlify
