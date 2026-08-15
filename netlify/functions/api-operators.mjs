@@ -19,7 +19,7 @@ export default async (req, context) => {
   } else if (action === 'verify') {
     if (req.method === 'POST') return verifyOperator(req, id)
   } else {
-    if (req.method === 'GET') return getOperator(id)
+    if (req.method === 'GET') return getOperator(req, id)
     if (req.method === 'PUT') return updateProfile(req, id)
   }
 
@@ -67,14 +67,43 @@ async function listOperators(url) {
   return json(operators)
 }
 
-async function getOperator(id) {
+async function getOperator(req, id) {
+  // Operators fetching their own profile get private fields (coordinates, cert data)
+  const user = await requireAuth(req, sql)
+  const isSelf = user?.role === 'operator' && user.id === id
+
+  if (isSelf) {
+    const [op] = await sql`
+      SELECT u.id, u.name,
+             op.bio, op.equipment, op.service_types,
+             op.coverage_lat, op.coverage_lng, op.coverage_radius_mi,
+             op.base_rate_cents, op.hourly_rate_cents, op.booking_url,
+             op.faa_cert_number, op.faa_cert_expires_at,
+             op.verification_status,
+             COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS avg_rating,
+             COUNT(r.id)::int AS review_count
+      FROM operator_profiles op
+      JOIN users u ON op.user_id = u.id
+      LEFT JOIN reviews r ON r.operator_id = u.id
+      WHERE u.id = ${id}
+      GROUP BY u.id, u.name, op.bio, op.equipment, op.service_types,
+               op.coverage_lat, op.coverage_lng, op.coverage_radius_mi,
+               op.base_rate_cents, op.hourly_rate_cents, op.booking_url,
+               op.faa_cert_number, op.faa_cert_expires_at,
+               op.verification_status
+    `
+    if (!op) return notFound()
+    return json(op)
+  }
+
+  // Public profile — verified operators only, no private fields
   const [op] = await sql`
     SELECT u.id, u.name,
            op.bio, op.equipment, op.service_types,
            op.coverage_radius_mi,
            op.base_rate_cents, op.hourly_rate_cents, op.booking_url,
            COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS avg_rating,
-           COUNT(r.id) AS review_count
+           COUNT(r.id)::int AS review_count
     FROM operator_profiles op
     JOIN users u ON op.user_id = u.id
     LEFT JOIN reviews r ON r.operator_id = u.id

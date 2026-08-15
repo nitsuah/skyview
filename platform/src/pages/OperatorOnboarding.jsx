@@ -17,6 +17,7 @@ export default function OperatorOnboarding() {
   const fileRef   = useRef()
 
   const [step, setStep]     = useState(1)
+  const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState({
     bio: '', equipment: '', service_types: [],
     coverage_lat: '', coverage_lng: '', coverage_radius_mi: 50,
@@ -30,6 +31,31 @@ export default function OperatorOnboarding() {
   const [uploading, setUploading] = useState(false)
   const [done, setDone]           = useState(false)
 
+  // Hydrate form from stored profile so edits don't overwrite existing data with blanks
+  useEffect(() => {
+    if (!user?.id) { setLoading(false); return }
+    api.operators.get(user.id)
+      .then(data => {
+        setProfile({
+          bio:                 data.bio ?? '',
+          equipment:           data.equipment ?? '',
+          service_types:       data.service_types ?? [],
+          coverage_lat:        data.coverage_lat ?? '',
+          coverage_lng:        data.coverage_lng ?? '',
+          coverage_radius_mi:  data.coverage_radius_mi ?? 50,
+          base_rate_cents:     data.base_rate_cents != null ? String(data.base_rate_cents / 100) : '',
+          hourly_rate_cents:   data.hourly_rate_cents != null ? String(data.hourly_rate_cents / 100) : '',
+          booking_url:         data.booking_url ?? '',
+          faa_cert_number:     data.faa_cert_number ?? '',
+          faa_cert_expires_at: data.faa_cert_expires_at
+            ? String(data.faa_cert_expires_at).slice(0, 10)
+            : ''
+        })
+      })
+      .catch(() => {}) // No profile row yet — first-time onboarding, keep empty defaults
+      .finally(() => setLoading(false))
+  }, [user?.id])
+
   const set = (k, v) => setProfile(p => ({ ...p, [k]: v }))
 
   const toggleService = (val) => {
@@ -42,7 +68,11 @@ export default function OperatorOnboarding() {
   }
 
   const geocodeCity = async (address) => {
-    if (!address) return
+    if (!address) {
+      set('coverage_lat', '')
+      set('coverage_lng', '')
+      return
+    }
     setCityError('')
     try {
       const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
@@ -51,9 +81,13 @@ export default function OperatorOnboarding() {
         set('coverage_lat', parseFloat(d[0].lat))
         set('coverage_lng', parseFloat(d[0].lon))
       } else {
+        set('coverage_lat', '')
+        set('coverage_lng', '')
         setCityError('City not found — you can continue but geo-matching may not work until corrected.')
       }
     } catch {
+      set('coverage_lat', '')
+      set('coverage_lng', '')
       setCityError('Could not look up coordinates — you can continue but geo-matching may not work until corrected.')
     }
   }
@@ -63,10 +97,10 @@ export default function OperatorOnboarding() {
     try {
       await api.operators.updateProfile(user.id, {
         ...profile,
-        base_rate_cents:   profile.base_rate_cents   ? Math.round(parseFloat(profile.base_rate_cents)   * 100) : null,
-        hourly_rate_cents: profile.hourly_rate_cents ? Math.round(parseFloat(profile.hourly_rate_cents) * 100) : null,
-        coverage_lat:      profile.coverage_lat      ? parseFloat(profile.coverage_lat)  : null,
-        coverage_lng:      profile.coverage_lng      ? parseFloat(profile.coverage_lng)  : null,
+        base_rate_cents:    profile.base_rate_cents   !== '' && profile.base_rate_cents   != null ? Math.round(parseFloat(profile.base_rate_cents)   * 100) : null,
+        hourly_rate_cents:  profile.hourly_rate_cents !== '' && profile.hourly_rate_cents != null ? Math.round(parseFloat(profile.hourly_rate_cents) * 100) : null,
+        coverage_lat:       profile.coverage_lat      !== '' && profile.coverage_lat      != null ? parseFloat(profile.coverage_lat)  : null,
+        coverage_lng:       profile.coverage_lng      !== '' && profile.coverage_lng      != null ? parseFloat(profile.coverage_lng)  : null,
         coverage_radius_mi: parseInt(profile.coverage_radius_mi) || 50
       })
       setStep(s => s + 1)
@@ -96,6 +130,8 @@ export default function OperatorOnboarding() {
       setUploading(false)
     }
   }
+
+  if (loading) return <div className="text-muted" style={{ padding: '2rem' }}>Loading…</div>
 
   if (done) {
     return (
