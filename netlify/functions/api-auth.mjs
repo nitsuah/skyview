@@ -70,13 +70,15 @@ async function login(req) {
   if (!email || !password) return error('email and password are required')
 
   const [user] = await sql`
-    SELECT id, email, role, name, password_hash, active
+    SELECT id, email, role, name, password_hash, active, email_verified
     FROM users WHERE email = ${email.toLowerCase().trim()}
   `
   if (!user || !user.active) return error('Invalid email or password', 401)
 
   const valid = await checkPassword(password, user.password_hash)
   if (!valid) return error('Invalid email or password', 401)
+
+  if (!user.email_verified) return error('Please verify your email before signing in. Check your inbox or use the resend option on the verify page.', 403)
 
   const { password_hash: _, ...safeUser } = user
   const jwt = await signToken({ sub: user.id, role: user.role })

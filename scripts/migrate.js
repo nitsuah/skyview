@@ -1,5 +1,5 @@
 import { neon } from '@neondatabase/serverless'
-import { readFileSync } from 'fs'
+import { readFileSync, readdirSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -11,6 +11,9 @@ if (!process.env.DATABASE_URL) {
 }
 
 const sql = neon(process.env.DATABASE_URL)
+
+// PostgreSQL error codes that mean the object already exists — safe to skip on re-run
+const IDEMPOTENT_PG_CODES = new Set(['42P07', '42710', '42701', '42723', '42809'])
 
 // Split SQL into individual statements, respecting dollar-quoted blocks ($$ ... $$)
 // so PL/pgSQL function bodies are never split at internal semicolons.
@@ -53,30 +56,46 @@ function splitStatements(sqlText) {
 async function migrate() {
   console.log('Running migrations...')
 
-  const migrationFile = resolve(__dirname, '../db/migrations/001_initial.sql')
-  const migrationSQL = readFileSync(migrationFile, 'utf8')
-  const statements = splitStatements(migrationSQL)
-  console.log(`  ${statements.length} statements found`)
+  const migrationsDir = resolve(__dirname, '../db/migrations')
+  const files = readdirSync(migrationsDir)
+    .filter(f => f.endsWith('.sql'))
+    .sort() // alphabetical = chronological for NNN_ naming
 
-  let applied = 0
-  let skipped = 0
-  for (let i = 0; i < statements.length; i++) {
-    const stmt = statements[i]
-    try {
-      await sql(stmt)
-      applied++
-    } catch (err) {
-      if (err.message.includes('already exists')) {
-        skipped++
-      } else {
-        console.error(`\nMigration error on statement ${i + 1}:`, err.message)
-        console.error('Statement preview:', stmt.slice(0, 200))
-        process.exit(1)
+  let totalApplied = 0
+  let totalSkipped = 0
+
+  for (const file of files) {
+    console.log(`\n  → ${file}`)
+    const migrationSQL = readFileSync(resolve(migrationsDir, file), 'utf8')
+    const statements = splitStatements(migrationSQL)
+    console.log(`    ${statements.length} statements`)
+
+    let applied = 0
+    let skipped = 0
+    for (let i = 0; i < statements.length; i++) {
+      const stmt = statements[i]
+      try {
+        await sql(stmt)
+        applied++
+      } catch (err) {
+        // Skip only genuine "object already exists" errors using PG error codes
+        const isIdempotent = IDEMPOTENT_PG_CODES.has(err.code) ||
+          (err.message && err.message.includes('already exists'))
+        if (isIdempotent) {
+          skipped++
+        } else {
+          console.error(`\nMigration error in ${file}, statement ${i + 1}:`, err.message)
+          console.error('Statement preview:', stmt.slice(0, 200))
+          process.exit(1)
+        }
       }
     }
+    console.log(`    applied: ${applied}, skipped: ${skipped}`)
+    totalApplied += applied
+    totalSkipped += skipped
   }
 
-  console.log(`Migrations complete — ${applied} applied, ${skipped} skipped (already exist).`)
+  console.log(`\nMigrations complete — ${totalApplied} applied, ${totalSkipped} skipped across ${files.length} file(s).`)
 }
 
 migrate().catch(err => {

@@ -6,7 +6,8 @@ import { json, error, cors, unauthorized, forbidden } from './utils/response.js'
 export const config = { path: '/api/uploads*' }
 
 const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
-const MAX_SIZE = 10 * 1024 * 1024 // 10MB
+// Netlify synchronous functions have a 6 MB request body limit; keep cert uploads below that
+const MAX_SIZE = 5 * 1024 * 1024 // 5MB
 
 export default async (req, context) => {
   if (req.method === 'OPTIONS') return cors()
@@ -31,7 +32,7 @@ async function uploadCert(req) {
   const file = formData.get('cert')
   if (!file || !(file instanceof File)) return error('cert field must be a file')
   if (!ALLOWED_TYPES.includes(file.type)) return error('cert must be a PDF or image (JPEG, PNG, WebP)')
-  if (file.size > MAX_SIZE) return error('cert must be under 10MB')
+  if (file.size > MAX_SIZE) return error('cert must be under 5MB')
 
   const [profile] = await sql`SELECT id FROM operator_profiles WHERE user_id = ${user.id}`
   if (!profile) return error('Operator profile not found — complete onboarding first', 422)
@@ -71,7 +72,7 @@ async function uploadDeliverable(req, url) {
 
   const file = formData.get('file')
   if (!file || !(file instanceof File)) return error('file field must be a file')
-  if (file.size > 500 * 1024 * 1024) return error('Deliverable must be under 500MB')
+  if (file.size > MAX_SIZE) return error('Deliverable must be under 5MB')
 
   const store  = getStore({ name: 'deliverables', consistency: 'strong' })
   const key    = `${bookingId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`

@@ -289,7 +289,7 @@ export default function OperatorOnboarding() {
               onDrop={e => { e.preventDefault(); setCertFile(e.dataTransfer.files[0]) }}>
               {certFile
                 ? <><div style={{ fontSize: '1.5rem' }}>📄</div><p style={{ color: 'var(--text)' }}>{certFile.name}</p></>
-                : <><div style={{ fontSize: '1.5rem' }}>⬆️</div><p>Click to upload or drag and drop</p><p style={{ fontSize: 12 }}>PDF, JPEG, PNG — max 10MB</p></>
+                : <><div style={{ fontSize: '1.5rem' }}>⬆️</div><p>Click to upload or drag and drop</p><p style={{ fontSize: 12 }}>PDF, JPEG, PNG — max 5MB</p></>
               }
             </div>
             <input ref={fileRef} type="file" accept=".pdf,image/*" style={{ display: 'none' }}

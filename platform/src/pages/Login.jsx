@@ -49,7 +49,16 @@ export default function Login() {
         {reset && (
           <div className="alert alert-success mb-2">Password updated — sign in with your new password.</div>
         )}
-        {error && <div className="alert alert-error">{error}</div>}
+        {error && (
+          <div className="alert alert-error">
+            {error}
+            {error.includes('verify your email') && (
+              <div style={{ marginTop: '0.5rem', fontSize: 12.5 }}>
+                <Link to="/app/verify-email" className="link">Resend verification email →</Link>
+              </div>
+            )}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
