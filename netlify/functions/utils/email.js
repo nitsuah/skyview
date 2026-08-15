@@ -42,6 +42,18 @@ ${job.budget_cents ? `<p>Budget: $${(job.budget_cents / 100).toFixed(0)}</p>` : 
   })
 }
 
+export async function sendPasswordResetEmail(to, token) {
+  const link = `${APP_URL}/app/reset-password?token=${token}`
+  return getResend().emails.send({
+    from: FROM,
+    to,
+    subject: 'Reset your SkyView password',
+    html: `<p>You requested a password reset for your SkyView Dynamics account.</p>
+<p><a href="${link}">Click here to set a new password</a></p>
+<p>This link expires in 1 hour. If you didn't request this, you can safely ignore this email — your password won't change.</p>`
+  })
+}
+
 export async function sendCertExpiryWarning(to, name, daysLeft, certNumber) {
   return getResend().emails.send({
     from: FROM,

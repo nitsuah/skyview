@@ -2,7 +2,7 @@ import { randomBytes, createHash } from 'crypto'
 const hashToken = (t) => createHash('sha256').update(t).digest('hex')
 import { sql } from './utils/db.js'
 import { signToken, hashPassword, checkPassword, requireAuth } from './utils/auth.js'
-import { sendVerificationEmail } from './utils/email.js'
+import { sendVerificationEmail, sendPasswordResetEmail } from './utils/email.js'
 import { json, error, cors, unauthorized } from './utils/response.js'
 
 export const config = { path: '/api/auth/*' }
@@ -13,10 +13,12 @@ export default async (req, context) => {
   const url = new URL(req.url)
   const route = url.pathname.replace('/api/auth', '')
 
-  if (req.method === 'POST' && route === '/register') return register(req)
-  if (req.method === 'POST' && route === '/login')    return login(req)
-  if (req.method === 'GET'  && route === '/me')       return me(req)
-  if (req.method === 'GET'  && route === '/verify')   return verifyEmail(url)
+  if (req.method === 'POST' && route === '/register')        return register(req)
+  if (req.method === 'POST' && route === '/login')           return login(req)
+  if (req.method === 'GET'  && route === '/me')              return me(req)
+  if (req.method === 'GET'  && route === '/verify')          return verifyEmail(url)
+  if (req.method === 'POST' && route === '/forgot-password') return forgotPassword(req)
+  if (req.method === 'POST' && route === '/reset-password')  return resetPassword(req)
 
   return error('Not found', 404)
 }
@@ -113,4 +115,50 @@ async function verifyEmail(url) {
 
   const base = process.env.DEPLOY_PRIME_URL || process.env.URL || 'https://skyviewd.netlify.app'
   return Response.redirect(`${base}/app?verified=1`, 302)
+}
+
+async function forgotPassword(req) {
+  const body = await req.json().catch(() => null)
+  if (!body) return error('Invalid JSON')
+
+  const { email } = body
+  if (!email) return error('email is required')
+
+  const [user] = await sql`SELECT id, active FROM users WHERE email = ${email.toLowerCase().trim()}`
+  // Always return 200 to avoid email enumeration
+  if (!user || !user.active) return json({ ok: true })
+
+  const token   = randomBytes(32).toString('hex')
+  const expires = new Date(Date.now() + 3_600_000) // 1 hour
+  await sql`
+    INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
+    VALUES (${user.id}, ${hashToken(token)}, ${expires})
+  `
+  if (process.env.RESEND_API_KEY) {
+    sendPasswordResetEmail(email.toLowerCase().trim(), token).catch(console.error)
+  }
+  return json({ ok: true })
+}
+
+async function resetPassword(req) {
+  const body = await req.json().catch(() => null)
+  if (!body) return error('Invalid JSON')
+
+  const { token, password } = body
+  if (!token || !password) return error('token and password are required')
+  if (password.length < 8) return error('Password must be at least 8 characters')
+
+  const [record] = await sql`
+    SELECT id, user_id, expires_at, used_at FROM password_reset_tokens
+    WHERE token_hash = ${hashToken(token)}
+  `
+  if (!record)          return error('Invalid or expired reset link', 400)
+  if (record.used_at)   return error('This reset link has already been used', 410)
+  if (new Date(record.expires_at) < new Date()) return error('Reset link expired', 410)
+
+  const password_hash = await hashPassword(password)
+  await sql`UPDATE users SET password_hash = ${password_hash} WHERE id = ${record.user_id}`
+  await sql`UPDATE password_reset_tokens SET used_at = NOW() WHERE id = ${record.id}`
+
+  return json({ ok: true })
 }

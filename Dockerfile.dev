@@ -1,0 +1,20 @@
+FROM node:20-alpine
+
+RUN npm install -g netlify-cli@latest
+
+WORKDIR /app
+
+# Install root deps (functions)
+COPY package*.json ./
+RUN npm install
+
+# Install platform deps
+COPY platform/package*.json ./platform/
+RUN cd platform && npm install
+
+# Copy source
+COPY . .
+
+EXPOSE 8888
+
+CMD ["netlify", "dev", "--port", "8888", "--host", "0.0.0.0"]

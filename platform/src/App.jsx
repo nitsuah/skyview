@@ -4,8 +4,13 @@ import { AuthGuard } from './components/AuthGuard'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
+import VerifyEmail from './pages/VerifyEmail'
 import ClientDashboard from './pages/ClientDashboard'
 import PostJob from './pages/PostJob'
+import JobDetail from './pages/JobDetail'
+import MyBookings from './pages/MyBookings'
 import OperatorOnboarding from './pages/OperatorOnboarding'
 import OperatorDashboard from './pages/OperatorDashboard'
 import OperatorsDirectory from './pages/OperatorsDirectory'
@@ -28,12 +33,15 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           {/* Root redirect */}
-          <Route path="/app" element={<RoleRedirect />} />
+          <Route path="/app"  element={<RoleRedirect />} />
           <Route path="/app/" element={<RoleRedirect />} />
 
-          {/* Auth */}
-          <Route path="/app/login"    element={<Login />} />
-          <Route path="/app/register" element={<Register />} />
+          {/* Auth — public */}
+          <Route path="/app/login"           element={<Login />} />
+          <Route path="/app/register"        element={<Register />} />
+          <Route path="/app/forgot-password" element={<ForgotPassword />} />
+          <Route path="/app/reset-password"  element={<ResetPassword />} />
+          <Route path="/app/verify-email"    element={<VerifyEmail />} />
 
           {/* Client routes */}
           <Route path="/app/dashboard" element={
@@ -41,6 +49,12 @@ export default function App() {
           } />
           <Route path="/app/jobs/new" element={
             <AuthGuard role="client"><Layout><PostJob /></Layout></AuthGuard>
+          } />
+          <Route path="/app/jobs/:id" element={
+            <AuthGuard role="client"><Layout><JobDetail /></Layout></AuthGuard>
+          } />
+          <Route path="/app/bookings" element={
+            <AuthGuard role="client"><Layout><MyBookings /></Layout></AuthGuard>
           } />
           <Route path="/app/operators" element={
             <AuthGuard role="client"><Layout><OperatorsDirectory /></Layout></AuthGuard>

@@ -4,12 +4,22 @@ import { api } from '../lib/api'
 import { useAuth } from '../lib/auth'
 
 export default function OperatorProfile() {
-  const { id }          = useParams()
-  const { user }        = useAuth()
-  const [op, setOp]     = useState(null)
+  const { id }        = useParams()
+  const { user }      = useAuth()
+  const [op, setOp]   = useState(null)
   const [reviews, setReviews]   = useState([])
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState('')
+
+  // Booking modal state
+  const [showBook, setShowBook]     = useState(false)
+  const [jobs, setJobs]             = useState([])
+  const [jobsLoading, setJobsLoading] = useState(false)
+  const [selectedJob, setSelectedJob] = useState('')
+  const [totalDollars, setTotalDollars] = useState('')
+  const [bookError, setBookError]   = useState('')
+  const [bookSaving, setBookSaving] = useState(false)
+  const [bookDone, setBookDone]     = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -20,6 +30,40 @@ export default function OperatorProfile() {
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [id])
+
+  const openBookModal = async () => {
+    setShowBook(true); setBookError(''); setBookDone(false)
+    if (jobs.length === 0) {
+      setJobsLoading(true)
+      try {
+        const all = await api.jobs.list()
+        setJobs(all.filter(j => j.status === 'open'))
+      } catch (e) {
+        setBookError(e.message)
+      } finally {
+        setJobsLoading(false)
+      }
+    }
+  }
+
+  const submitBooking = async (e) => {
+    e.preventDefault()
+    if (!selectedJob)   { setBookError('Select a job'); return }
+    if (!totalDollars || parseFloat(totalDollars) <= 0) { setBookError('Enter a valid total amount'); return }
+    setBookSaving(true); setBookError('')
+    try {
+      await api.bookings.create({
+        job_id:      selectedJob,
+        operator_id: id,
+        total_cents: Math.round(parseFloat(totalDollars) * 100)
+      })
+      setBookDone(true)
+    } catch (err) {
+      setBookError(err.message)
+    } finally {
+      setBookSaving(false)
+    }
+  }
 
   if (loading) return <div className="text-muted" style={{ padding: '2rem' }}>Loading…</div>
   if (error)   return <div className="alert alert-error">{error}</div>
@@ -48,10 +92,85 @@ export default function OperatorProfile() {
             )}
           </div>
           {user?.role === 'client' && (
-            <Link to="/app/jobs/new" className="btn btn-primary">Request This Operator</Link>
+            <button className="btn btn-primary" onClick={openBookModal}>
+              Book This Operator
+            </button>
           )}
         </div>
       </div>
+
+      {/* Booking modal */}
+      {showBook && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200
+        }} onClick={e => { if (e.target === e.currentTarget) setShowBook(false) }}>
+          <div className="card" style={{ maxWidth: 440, width: '100%', margin: '0 1rem' }}>
+            {bookDone ? (
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🎉</div>
+                <h2 style={{ marginBottom: '0.5rem' }}>Booking request sent!</h2>
+                <p className="text-muted" style={{ fontSize: 13.5, marginBottom: '1.5rem' }}>
+                  <strong>{op.name}</strong> will confirm or decline. You'll see the status in <Link to="/app/bookings">My Bookings</Link>.
+                </p>
+                <button className="btn btn-ghost" onClick={() => setShowBook(false)}>Close</button>
+              </div>
+            ) : (
+              <>
+                <div className="flex-between mb-2">
+                  <h2 style={{ fontSize: 17 }}>Book {op.name}</h2>
+                  <button onClick={() => setShowBook(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-muted)' }}>✕</button>
+                </div>
+
+                {bookError && <div className="alert alert-error mb-2">{bookError}</div>}
+
+                <form onSubmit={submitBooking}>
+                  <div className="form-group">
+                    <label>Select one of your open jobs</label>
+                    {jobsLoading ? (
+                      <p className="text-muted" style={{ fontSize: 13 }}>Loading your jobs…</p>
+                    ) : jobs.length === 0 ? (
+                      <div className="alert alert-info" style={{ fontSize: 13 }}>
+                        You have no open jobs. <Link to="/app/jobs/new">Post a job</Link> first.
+                      </div>
+                    ) : (
+                      <select value={selectedJob} onChange={e => setSelectedJob(e.target.value)} required>
+                        <option value="">— Choose a job —</option>
+                        {jobs.map(j => (
+                          <option key={j.id} value={j.id}>{j.title}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <label>Agreed total (USD)</label>
+                    <div className="currency-wrap">
+                      <span className="currency-prefix">$</span>
+                      <input type="number" className="currency-input"
+                        value={totalDollars} min={1} step={0.01}
+                        placeholder={op.base_rate_cents ? (op.base_rate_cents / 100).toFixed(0) : 'e.g. 350'}
+                        onChange={e => setTotalDollars(e.target.value)}
+                        required />
+                    </div>
+                    {op.base_rate_cents > 0 && (
+                      <small className="text-muted">This operator's base rate is ${(op.base_rate_cents / 100).toFixed(0)}</small>
+                    )}
+                  </div>
+                  <div className="alert alert-info mb-2" style={{ fontSize: 12 }}>
+                    SkyView charges a 15% platform fee. The operator receives 85% of the total.
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="btn btn-primary" disabled={bookSaving || jobs.length === 0}>
+                      {bookSaving ? 'Sending…' : 'Send Booking Request'}
+                    </button>
+                    <button type="button" className="btn btn-ghost" onClick={() => setShowBook(false)}>Cancel</button>
+                  </div>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
         {/* Main column */}

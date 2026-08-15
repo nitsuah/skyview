@@ -7,13 +7,14 @@ const STATUS_ORDER = ['open','booked','in_progress','completed','cancelled']
 
 export default function ClientDashboard() {
   const { user } = useAuth()
-  const [jobs, setJobs]     = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError]   = useState('')
+  const [jobs, setJobs]       = useState([])
+  const [bookings, setBookings] = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [error, setError]       = useState('')
 
   useEffect(() => {
-    api.jobs.list()
-      .then(setJobs)
+    Promise.all([api.jobs.list(), api.bookings.list()])
+      .then(([j, b]) => { setJobs(j); setBookings(b) })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
@@ -74,25 +75,36 @@ export default function ClientDashboard() {
                 <tr>
                   <th>Job</th>
                   <th>Service</th>
-                  <th>Location</th>
                   <th>Date</th>
                   <th>Budget</th>
                   <th>Status</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
-                {[...jobs].sort((a,b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status)).map(job => (
-                  <tr key={job.id}>
-                    <td style={{ fontWeight: 500 }}>{job.title}</td>
-                    <td style={{ textTransform: 'capitalize' }}>{job.service_type?.replace('_',' ')}</td>
-                    <td className="text-muted" style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {job.location_address || '—'}
-                    </td>
-                    <td className="text-muted">{job.preferred_date ? new Date(job.preferred_date).toLocaleDateString(undefined, { timeZone: 'UTC' }) : '—'}</td>
-                    <td className="text-muted">{job.budget_cents ? `$${(job.budget_cents / 100).toFixed(0)}` : '—'}</td>
-                    <td><span className={`badge badge-${job.status}`}>{job.status.replace('_',' ')}</span></td>
-                  </tr>
-                ))}
+                {[...jobs].sort((a,b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status)).map(job => {
+                  const jobBookings = bookings.filter(b => b.job_id === job.id)
+                  const confirmed   = jobBookings.find(b => b.status === 'confirmed')
+                  return (
+                    <tr key={job.id}>
+                      <td style={{ fontWeight: 500 }}>
+                        <Link to={`/app/jobs/${job.id}`} style={{ color: 'var(--accent)' }}>{job.title}</Link>
+                        {confirmed && (
+                          <div className="text-muted" style={{ fontSize: 11.5, marginTop: 2 }}>
+                            Booked: {confirmed.operator_name}
+                          </div>
+                        )}
+                      </td>
+                      <td style={{ textTransform: 'capitalize' }}>{job.service_type?.replace('_',' ')}</td>
+                      <td className="text-muted">{job.preferred_date ? new Date(job.preferred_date).toLocaleDateString(undefined, { timeZone: 'UTC' }) : '—'}</td>
+                      <td className="text-muted">{job.budget_cents ? `$${(job.budget_cents / 100).toFixed(0)}` : '—'}</td>
+                      <td><span className={`badge badge-${job.status}`}>{job.status.replace('_',' ')}</span></td>
+                      <td>
+                        <Link to={`/app/jobs/${job.id}`} className="btn btn-sm btn-ghost">Details</Link>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>

@@ -17,20 +17,22 @@ async function request(path, options = {}) {
 
 export const api = {
   auth: {
-    register:     (data) => request('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
-    login:        (data) => request('/auth/login',    { method: 'POST', body: JSON.stringify(data) }),
-    me:           ()     => request('/auth/me')
+    register:       (data)         => request('/auth/register',        { method: 'POST', body: JSON.stringify(data) }),
+    login:          (data)         => request('/auth/login',           { method: 'POST', body: JSON.stringify(data) }),
+    me:             ()             => request('/auth/me'),
+    forgotPassword: (email)        => request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+    resetPassword:  (token, password) => request('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, password }) })
   },
   jobs: {
     list:   ()          => request('/jobs'),
     get:    (id)        => request(`/jobs/${id}`),
-    create: (data)      => request('/jobs',      { method: 'POST', body: JSON.stringify(data) }),
+    create: (data)      => request('/jobs',       { method: 'POST', body: JSON.stringify(data) }),
     update: (id, data)  => request(`/jobs/${id}`, { method: 'PUT',  body: JSON.stringify(data) })
   },
   operators: {
     list:          (params = {}) => request(`/operators?${new URLSearchParams(params)}`),
     get:           (id)          => request(`/operators/${id}`),
-    updateProfile: (id, data)    => request(`/operators/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    updateProfile: (id, data)    => request(`/operators/${id}`,        { method: 'PUT',  body: JSON.stringify(data) }),
     verify:        (id, action)  => request(`/operators/${id}/verify`, { method: 'POST', body: JSON.stringify({ action }) })
   },
   bookings: {
@@ -49,6 +51,11 @@ export const api = {
   reviews: {
     list:   (operatorId) => request(`/reviews?operator_id=${operatorId}`),
     submit: (data)       => request('/reviews', { method: 'POST', body: JSON.stringify(data) })
+  },
+  notifications: {
+    list:       ()    => request('/notifications'),
+    markRead:   (id)  => request(`/notifications/${id}`,       { method: 'POST' }),
+    markAllRead: ()   => request('/notifications/read-all',    { method: 'POST' })
   },
   uploads: {
     cert: (file) => {
