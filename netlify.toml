@@ -4,6 +4,13 @@
   command = "node scripts/build.js"
   publish = "dist"
 
+[dev]
+  port = 8888
+  targetPort = 5173
+  command = "cd platform && npm run dev -- --port 5173 --host 0.0.0.0"
+  framework = "#custom"
+  functionsPort = 8889
+
 [build.environment]
   NODE_VERSION = "20"
 
