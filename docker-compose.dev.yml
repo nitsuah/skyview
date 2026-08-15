@@ -1,0 +1,17 @@
+services:
+  platform:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "127.0.0.1:8888:8888"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - NETLIFY_AUTH_TOKEN=${NETLIFY_AUTH_TOKEN:-}
+      - NETLIFY_SITE_ID=${NETLIFY_SITE_ID:-}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/platform/node_modules

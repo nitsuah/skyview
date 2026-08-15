@@ -35,7 +35,10 @@ window.SKYVIEW_CONFIG = {
         analytics: false,
 
         // Local conversion dashboard - enable for a persistent preview metrics panel outside localhost if desired
-        analyticsDebugPanel: false
+        analyticsDebugPanel: false,
+
+        // Marketplace platform — enable after running db:migrate and setting env vars in Netlify
+        platform: false
     },
     
     // Contact information
@@ -281,29 +284,60 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Hide Calendly section if disabled
-    if (!config.calendly) {
+    // Handle booking section: platform CTA replaces or supplements Calendly
+    if (config.platform) {
+        const bookingSection = document.getElementById('booking');
+        if (bookingSection) {
+            // Hide the Calendly widget and subtitle, replace with platform CTA
+            const calendlyWidget = bookingSection.querySelector('.calendly-inline-widget');
+            const calendlyScript = bookingSection.querySelector('script[src*="calendly"]');
+            const subtitle       = bookingSection.querySelector('.booking-subtitle');
+            if (calendlyWidget) calendlyWidget.style.display = 'none';
+            if (calendlyScript) calendlyScript.remove();
+            if (subtitle) subtitle.style.display = 'none';
+
+            const h2 = bookingSection.querySelector('h2');
+            if (h2) h2.textContent = 'FIND A DRONE OPERATOR';
+
+            const cta = document.createElement('div');
+            cta.className = 'platform-cta';
+            cta.innerHTML = `
+                <p class="platform-cta__sub">Browse verified, FAA Part 107-certified operators near you.<br>Post a job and get matched in minutes.</p>
+                <div class="platform-cta__actions">
+                    <a href="/app/register?role=client" class="cta-button platform-cta__btn">
+                        <span class="cta-text">POST A JOB</span>
+                        <span class="cta-icon">→</span>
+                    </a>
+                    <a href="/app/register?role=operator" class="platform-cta__secondary">
+                        List as an operator →
+                    </a>
+                </div>
+            `;
+            const bookingContainer = bookingSection.querySelector('.container') ?? bookingSection;
+            bookingContainer.appendChild(cta);
+        }
+    } else if (!config.calendly) {
         const bookingSection = document.getElementById('booking');
         const bookingNavLink = document.querySelector('a[href="#booking"]');
-        if (bookingSection) {
-            bookingSection.style.display = 'none';
-        }
-        if (bookingNavLink) {
-            bookingNavLink.parentElement.style.display = 'none';
-        }
+        if (bookingSection) bookingSection.style.display = 'none';
+        if (bookingNavLink) bookingNavLink.parentElement.style.display = 'none';
     }
-    
+
     // Update hero CTA button based on what's enabled
     const heroCTA = document.querySelector('.hero-content .cta-button');
     if (heroCTA) {
-        if (config.calendly) {
+        if (config.platform) {
+            heroCTA.setAttribute('href', '/app/register');
+            const ctaText = heroCTA.querySelector('.cta-text');
+            if (ctaText) ctaText.textContent = 'FIND AN OPERATOR';
+        } else if (config.calendly) {
             heroCTA.setAttribute('href', '#booking');
         } else if (config.contactForm) {
             heroCTA.setAttribute('href', '#contact');
         } else {
-            // Both disabled - link to gallery instead
             heroCTA.setAttribute('href', '#gallery');
-            heroCTA.querySelector('.cta-text').textContent = 'VIEW OUR WORK';
+            const ctaText = heroCTA.querySelector('.cta-text');
+            if (ctaText) ctaText.textContent = 'VIEW OUR WORK';
         }
     }
     

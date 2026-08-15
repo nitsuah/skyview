@@ -8,10 +8,6 @@ test-results
 tests
 *.md
 *.log
-Dockerfile*
-netlify.toml
-package-lock.json
-package.json
 playwright.config.ts
 eslint.config.mjs
 stylelint.config.mjs
