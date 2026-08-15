@@ -1951,6 +1951,11 @@ textarea:focus-visible {
     opacity: 0.85;
 }
 
+.platform-cta__btn:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 3px var(--color-background, #fff);
+}
+
 .platform-cta__secondary {
     color: var(--color-secondary);
     font-size: 0.9rem;

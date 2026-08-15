@@ -25,6 +25,7 @@ export default function OperatorOnboarding() {
   })
   const [certFile, setCertFile]   = useState(null)
   const [error, setError]         = useState('')
+  const [cityError, setCityError] = useState('')
   const [saving, setSaving]       = useState(false)
   const [uploading, setUploading] = useState(false)
   const [done, setDone]           = useState(false)
@@ -41,11 +42,20 @@ export default function OperatorOnboarding() {
   }
 
   const geocodeCity = async (address) => {
+    if (!address) return
+    setCityError('')
     try {
       const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
       const d = await r.json()
-      if (d[0]) { set('coverage_lat', parseFloat(d[0].lat)); set('coverage_lng', parseFloat(d[0].lon)) }
-    } catch {}
+      if (d[0]) {
+        set('coverage_lat', parseFloat(d[0].lat))
+        set('coverage_lng', parseFloat(d[0].lon))
+      } else {
+        setCityError('City not found — you can continue but geo-matching may not work until corrected.')
+      }
+    } catch {
+      setCityError('Could not look up coordinates — you can continue but geo-matching may not work until corrected.')
+    }
   }
 
   const saveProfile = async () => {
@@ -125,9 +135,10 @@ export default function OperatorOnboarding() {
             <div className="service-grid">
               {SERVICES.map(s => (
                 <label key={s.value}
-                  className={`service-option${profile.service_types.includes(s.value) ? ' selected' : ''}`}
-                  onClick={() => toggleService(s.value)}>
-                  <input type="checkbox" value={s.value} />
+                  className={`service-option${profile.service_types.includes(s.value) ? ' selected' : ''}`}>
+                  <input type="checkbox" value={s.value}
+                    checked={profile.service_types.includes(s.value)}
+                    onChange={() => toggleService(s.value)} />
                   <span className="service-icon">{s.icon}</span>
                   <span className="service-label">{s.label}</span>
                 </label>
@@ -138,7 +149,10 @@ export default function OperatorOnboarding() {
             <label>Your city / base location</label>
             <input type="text" placeholder="e.g. Austin, TX"
               onBlur={e => geocodeCity(e.target.value)} />
-            <small className="text-muted">Used to match you with nearby jobs.</small>
+            {cityError
+              ? <small style={{ color: 'var(--amber, #b45309)' }}>{cityError}</small>
+              : <small className="text-muted">Used to match you with nearby jobs.</small>
+            }
           </div>
           <div className="form-group">
             <label>Service radius (miles)</label>
@@ -231,7 +245,10 @@ export default function OperatorOnboarding() {
 
           <div className="form-group">
             <label>Certificate document (PDF or image)</label>
-            <div className="drop-zone" onClick={() => fileRef.current.click()}
+            <div className="drop-zone"
+              role="button" tabIndex={0}
+              onClick={() => fileRef.current.click()}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileRef.current.click() } }}
               onDragOver={e => e.preventDefault()}
               onDrop={e => { e.preventDefault(); setCertFile(e.dataTransfer.files[0]) }}>
               {certFile

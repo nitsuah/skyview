@@ -43,10 +43,9 @@ for (const file of staticFiles) {
 
 // Build Vite platform SPA → dist/app/
 const platformDir = resolve(root, 'platform')
-if (!existsSync(resolve(platformDir, 'node_modules'))) {
-  console.log('\n  [platform] Installing dependencies...')
-  execSync('npm install --prefer-offline', { cwd: platformDir, stdio: 'inherit' })
-}
+const installCmd  = existsSync(resolve(platformDir, 'package-lock.json')) ? 'npm ci' : 'npm install'
+console.log('\n  [platform] Installing dependencies...')
+execSync(installCmd, { cwd: platformDir, stdio: 'inherit' })
 
 console.log('\n  [platform] Building React app...')
 execSync('npm run build', { cwd: platformDir, stdio: 'inherit' })

@@ -10,6 +10,7 @@ export default function AdminDashboard() {
   const [jobsTotal, setJobsTotal] = useState(0)
   const [jobsOffset, setJobsOffset] = useState(0)
   const [loading, setLoading]   = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [jobsLoading, setJobsLoading] = useState(false)
   const [actionBusy, setActionBusy] = useState({})
   const [tab, setTab]           = useState('operators')
@@ -27,12 +28,19 @@ export default function AdminDashboard() {
 
   const load = async () => {
     setLoading(true)
-    const [s, p] = await Promise.all([
-      api.admin.dashboard().catch(() => null),
-      api.admin.pendingOperators().catch(() => [])
-    ])
-    setStats(s); setPending(p)
-    setLoading(false)
+    setLoadError('')
+    try {
+      const [s, p] = await Promise.all([
+        api.admin.dashboard(),
+        api.admin.pendingOperators()
+      ])
+      setStats(s)
+      setPending(p)
+    } catch (e) {
+      setLoadError(e.message)
+    } finally {
+      setLoading(false)
+    }
     loadJobs(0)
   }
 
@@ -58,6 +66,8 @@ export default function AdminDashboard() {
           {loading ? 'Loading…' : '↺ Refresh'}
         </button>
       </div>
+
+      {loadError && <div className="alert alert-error">{loadError}</div>}
 
       {/* Stats */}
       {stats && (
@@ -138,7 +148,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <div className="text-muted" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>Expires</div>
-                  <div>{op.faa_cert_expires_at ? new Date(op.faa_cert_expires_at).toLocaleDateString() : '—'}</div>
+                  <div>{op.faa_cert_expires_at ? new Date(op.faa_cert_expires_at).toLocaleDateString(undefined, { timeZone: 'UTC' }) : '—'}</div>
                 </div>
                 <div>
                   <div className="text-muted" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>Services</div>
@@ -195,7 +205,7 @@ export default function AdminDashboard() {
                           <td style={{ textTransform: 'capitalize' }}>{j.service_type?.replace('_',' ')}</td>
                           <td className="text-muted">{j.client_name}</td>
                           <td className="text-muted" style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{j.location_address || '—'}</td>
-                          <td className="text-muted">{j.preferred_date ? new Date(j.preferred_date).toLocaleDateString() : '—'}</td>
+                          <td className="text-muted">{j.preferred_date ? new Date(j.preferred_date).toLocaleDateString(undefined, { timeZone: 'UTC' }) : '—'}</td>
                           <td className="text-muted">{j.budget_cents ? `$${(j.budget_cents/100).toFixed(0)}` : '—'}</td>
                           <td><span className={`badge badge-${j.status}`}>{j.status.replace('_',' ')}</span></td>
                         </tr>

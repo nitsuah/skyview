@@ -88,7 +88,7 @@ export default function ClientDashboard() {
                     <td className="text-muted" style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {job.location_address || '—'}
                     </td>
-                    <td className="text-muted">{job.preferred_date ? new Date(job.preferred_date).toLocaleDateString() : '—'}</td>
+                    <td className="text-muted">{job.preferred_date ? new Date(job.preferred_date).toLocaleDateString(undefined, { timeZone: 'UTC' }) : '—'}</td>
                     <td className="text-muted">{job.budget_cents ? `$${(job.budget_cents / 100).toFixed(0)}` : '—'}</td>
                     <td><span className={`badge badge-${job.status}`}>{job.status.replace('_',' ')}</span></td>
                   </tr>

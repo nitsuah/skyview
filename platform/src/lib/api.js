@@ -3,7 +3,7 @@ const BASE = '/api'
 async function request(path, options = {}) {
   const token = localStorage.getItem('skyview_token')
   const headers = {
-    'Content-Type': 'application/json',
+    ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers
   }
@@ -54,28 +54,12 @@ export const api = {
     cert: (file) => {
       const form = new FormData()
       form.append('cert', file)
-      const token = localStorage.getItem('skyview_token')
-      return fetch(`${BASE}/uploads/cert`, {
-        method:  'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body:    form
-      }).then(async r => {
-        if (!r.ok) { const e = await r.json().catch(() => ({ error: `HTTP ${r.status}` })); throw new Error(e.error || `HTTP ${r.status}`) }
-        return r.json()
-      })
+      return request('/uploads/cert', { method: 'POST', body: form })
     },
     deliverable: (file, bookingId) => {
       const form = new FormData()
       form.append('file', file)
-      const token = localStorage.getItem('skyview_token')
-      return fetch(`${BASE}/uploads/deliverable?booking_id=${encodeURIComponent(bookingId)}`, {
-        method:  'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body:    form
-      }).then(async r => {
-        if (!r.ok) { const e = await r.json().catch(() => ({ error: `HTTP ${r.status}` })); throw new Error(e.error || `HTTP ${r.status}`) }
-        return r.json()
-      })
+      return request(`/uploads/deliverable?booking_id=${encodeURIComponent(bookingId)}`, { method: 'POST', body: form })
     }
   }
 }

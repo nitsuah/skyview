@@ -15,6 +15,7 @@ export default function OperatorDashboard() {
   const [jobs, setJobs]         = useState([])
   const [bookings, setBookings] = useState([])
   const [loading, setLoading]   = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [actionBusy, setActionBusy] = useState({})
 
   const profile = user?.profile || {}
@@ -22,12 +23,13 @@ export default function OperatorDashboard() {
 
   useEffect(() => {
     Promise.all([
-      api.jobs.list().catch(() => []),
-      api.bookings.list().catch(() => [])
+      api.jobs.list(),
+      api.bookings.list()
     ]).then(([j, b]) => {
       setJobs(j)
       setBookings(b)
-    }).finally(() => setLoading(false))
+    }).catch(e => setLoadError(e.message))
+    .finally(() => setLoading(false))
   }, [])
 
   const earnings = bookings
@@ -94,6 +96,8 @@ export default function OperatorDashboard() {
         </div>
       </div>
 
+      {loadError && <div className="alert alert-error">{loadError}</div>}
+
       {/* Available jobs */}
       <div className="section-title">Available Jobs Near You</div>
       {loading && <div className="text-muted">Loading…</div>}
@@ -125,7 +129,7 @@ export default function OperatorDashboard() {
                     <td style={{ fontWeight: 500 }}>{job.title}</td>
                     <td style={{ textTransform: 'capitalize' }}>{job.service_type?.replace('_',' ')}</td>
                     <td className="text-muted">{job.location_address || '—'}</td>
-                    <td className="text-muted">{job.preferred_date ? new Date(job.preferred_date).toLocaleDateString() : '—'}</td>
+                    <td className="text-muted">{job.preferred_date ? new Date(job.preferred_date).toLocaleDateString(undefined, { timeZone: 'UTC' }) : '—'}</td>
                     <td className="text-muted">{job.budget_cents ? `$${(job.budget_cents/100).toFixed(0)}` : '—'}</td>
                     <td className="text-muted">{job.distance_miles ? `${Math.round(job.distance_miles)} mi` : '—'}</td>
                   </tr>
