@@ -152,8 +152,14 @@ select option { background: var(--surface-2); }
 .badge-verified::before { background: var(--green); }
 .badge-suspended  { background: var(--red-dim);    color: var(--red); }
 .badge-suspended::before { background: var(--red); }
+.badge-rejected   { background: var(--red-dim);    color: var(--red); }
+.badge-rejected::before { background: var(--red); }
 .badge-in_progress { background: var(--purple-dim); color: var(--purple); }
 .badge-in_progress::before { background: var(--purple); }
+.badge-matched    { background: var(--amber-dim);  color: var(--amber); }
+.badge-matched::before { background: var(--amber); }
+.badge-disputed   { background: var(--red-dim);    color: var(--red); }
+.badge-disputed::before { background: var(--red); }
 
 /* ── Table ── */
 .table-wrap { overflow-x: auto; }

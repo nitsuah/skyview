@@ -49,6 +49,10 @@ export default function PostJob() {
     setBusy(true); setError('')
     try {
       const geo = await geocodeAddress(form.location_address)
+      if (form.location_address && !geo.location_lat) {
+        setError('Location could not be geocoded — please try a more specific address (e.g. "Austin, TX") or clear the location field.')
+        return
+      }
       await api.jobs.create({
         ...form,
         ...geo,
