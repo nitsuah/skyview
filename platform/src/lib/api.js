@@ -60,7 +60,7 @@ export const api = {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body:    form
       }).then(async r => {
-        if (!r.ok) { const e = await r.json(); throw new Error(e.error) }
+        if (!r.ok) { const e = await r.json().catch(() => ({ error: `HTTP ${r.status}` })); throw new Error(e.error || `HTTP ${r.status}`) }
         return r.json()
       })
     },
@@ -68,12 +68,12 @@ export const api = {
       const form = new FormData()
       form.append('file', file)
       const token = localStorage.getItem('skyview_token')
-      return fetch(`${BASE}/uploads/deliverable?booking_id=${bookingId}`, {
+      return fetch(`${BASE}/uploads/deliverable?booking_id=${encodeURIComponent(bookingId)}`, {
         method:  'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body:    form
       }).then(async r => {
-        if (!r.ok) { const e = await r.json(); throw new Error(e.error) }
+        if (!r.ok) { const e = await r.json().catch(() => ({ error: `HTTP ${r.status}` })); throw new Error(e.error || `HTTP ${r.status}`) }
         return r.json()
       })
     }

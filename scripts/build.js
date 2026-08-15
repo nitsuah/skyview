@@ -13,7 +13,7 @@ if (existsSync(dist)) rmSync(dist, { recursive: true, force: true })
 mkdirSync(dist, { recursive: true })
 
 // Copy static marketing site
-const staticDirs = ['assets', 'pages', 'admin', 'styles', 'scripts']
+const staticDirs = ['assets', 'pages', 'admin', 'styles']
 const staticFiles = ['index.html', 'config.js', 'robots.txt', 'sitemap.xml']
 
 for (const dir of staticDirs) {

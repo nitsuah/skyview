@@ -19,22 +19,27 @@ export default function PostJob() {
     location_address: '', preferred_date: '', preferred_time: 'flexible',
     budget_cents: ''
   })
-  const [error, setError]     = useState('')
-  const [busy, setBusy]       = useState(false)
+  const [error, setError]       = useState('')
+  const [geoWarning, setGeoWarning] = useState('')
+  const [busy, setBusy]         = useState(false)
   const [geocoding, setGeocoding] = useState(false)
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
 
-  // Geocode address to lat/lng using the browser's Geocoding API (no key needed for basic lookup)
   const geocodeAddress = async (address) => {
     if (!address) return {}
     setGeocoding(true)
+    setGeoWarning('')
     try {
       const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
       const data = await res.json()
       if (data[0]) return { location_lat: parseFloat(data[0].lat), location_lng: parseFloat(data[0].lon) }
-    } catch { /* skip geocoding */ }
-    finally { setGeocoding(false) }
+      setGeoWarning('Address not found — operators in your area may not see this job in geo-matched searches.')
+    } catch {
+      setGeoWarning('Could not look up address coordinates — operators may not see this job in geo-matched searches.')
+    } finally {
+      setGeocoding(false)
+    }
     return {}
   }
 
@@ -103,7 +108,8 @@ export default function PostJob() {
             <input type="text" value={form.location_address}
               placeholder="Street address or area (e.g. Downtown Austin, TX)"
               onChange={e => set('location_address', e.target.value)} />
-            {geocoding && <small className="text-muted">Geocoding address…</small>}
+            {geocoding && <small className="text-muted">Looking up coordinates…</small>}
+            {geoWarning && !geocoding && <small className="text-muted" style={{ color: 'var(--amber, #b45309)' }}>{geoWarning}</small>}
           </div>
           <div className="form-row">
             <div className="form-group">

@@ -99,7 +99,7 @@ API functions are at `http://localhost:8888/api/`
 After registering normally via `/app/register`, run this in the Neon SQL editor:
 
 ```sql
-UPDATE users SET role = 'admin', email_verified = true WHERE email = 'nitsuahlabs@gmail.com';
+UPDATE users SET role = 'admin', email_verified = true WHERE email = 'your-email@example.com';
 ```
 
 The admin panel is at `/app/admin` — use it to approve operator certifications.

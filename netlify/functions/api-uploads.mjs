@@ -42,12 +42,14 @@ async function uploadCert(req) {
     metadata: { userId: user.id, fileName: file.name, mimeType: file.type }
   })
 
-  await sql`
+  const [updated] = await sql`
     UPDATE operator_profiles SET
       faa_cert_blob_key   = ${key},
       verification_status = 'under_review'
     WHERE user_id = ${user.id}
+    RETURNING id
   `
+  if (!updated) return error('Operator profile not found — complete onboarding first', 422)
 
   return json({ message: 'Certificate uploaded. Admin review typically completes within 24 hours.' })
 }
