@@ -313,7 +313,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </a>
                 </div>
             `;
-            bookingSection.querySelector('.container')?.appendChild(cta);
+            const bookingContainer = bookingSection.querySelector('.container') ?? bookingSection;
+            bookingContainer.appendChild(cta);
         }
     } else if (!config.calendly) {
         const bookingSection = document.getElementById('booking');

@@ -32,7 +32,7 @@ async function dashboard() {
       (SELECT COUNT(*)::int FROM jobs WHERE status = 'open')      AS open_jobs,
       (SELECT COUNT(*)::int FROM jobs WHERE status = 'completed') AS completed_jobs,
       (SELECT COUNT(*)::int FROM bookings WHERE status = 'completed') AS completed_bookings,
-      (SELECT COALESCE(SUM(platform_fee_cents), 0)::bigint FROM bookings WHERE status = 'completed') AS total_revenue_cents
+      (SELECT COALESCE(SUM(platform_fee_cents), 0)::float8 FROM bookings WHERE status = 'completed') AS total_revenue_cents
   `
   return json(stats)
 }
