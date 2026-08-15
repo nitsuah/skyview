@@ -13,7 +13,7 @@ if (existsSync(dist)) rmSync(dist, { recursive: true, force: true })
 mkdirSync(dist, { recursive: true })
 
 // Copy static marketing site
-const staticDirs = ['assets', 'pages', 'admin', 'styles']
+const staticDirs = ['assets', 'pages', 'admin', 'styles', 'scripts']
 const staticFiles = ['index.html', 'config.js', 'robots.txt', 'sitemap.xml']
 
 for (const dir of staticDirs) {
@@ -23,6 +23,13 @@ for (const dir of staticDirs) {
     cpSync(src, resolve(dist, dir), { recursive: true })
     console.log('ok')
   }
+}
+
+// Remove Node.js-only tooling scripts that must not be publicly served
+const toolingScripts = ['build.js', 'migrate.js', 'convert-to-webp.js']
+for (const f of toolingScripts) {
+  const p = resolve(dist, 'scripts', f)
+  if (existsSync(p)) rmSync(p)
 }
 
 for (const file of staticFiles) {
