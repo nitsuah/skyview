@@ -22,8 +22,19 @@ function splitStatements(sqlText) {
   let cur = ''
   let inDollar = false
   let dollarTag = ''
+  let inLineComment = false
   let i = 0
   while (i < sqlText.length) {
+    // Enter single-line comment mode on --
+    if (!inDollar && !inLineComment && sqlText[i] === '-' && sqlText[i + 1] === '-') {
+      inLineComment = true
+    }
+    // Inside a line comment: copy chars but skip semicolons as splitters
+    if (inLineComment) {
+      if (sqlText[i] === '\n') inLineComment = false
+      cur += sqlText[i++]
+      continue
+    }
     if (sqlText[i] === '$') {
       const m = sqlText.slice(i).match(/^\$[^$]*\$/)
       if (m) {
@@ -41,7 +52,9 @@ function splitStatements(sqlText) {
     }
     if (!inDollar && sqlText[i] === ';') {
       const stmt = cur.trim()
-      if (stmt && !stmt.startsWith('--')) stmts.push(stmt)
+      // Skip statements that are pure comments with no real SQL
+      const sqlContent = stmt.replace(/--[^\n]*/g, '').trim()
+      if (sqlContent) stmts.push(stmt)
       cur = ''
       i++
       continue
@@ -49,7 +62,8 @@ function splitStatements(sqlText) {
     cur += sqlText[i++]
   }
   const last = cur.trim()
-  if (last && !last.startsWith('--')) stmts.push(last)
+  const lastSql = last.replace(/--[^\n]*/g, '').trim()
+  if (lastSql) stmts.push(last)
   return stmts
 }
 
