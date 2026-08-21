@@ -20,7 +20,7 @@ export default async (req) => {
     await handleEvent(event)
   } catch (err) {
     console.error('Webhook handler error:', event.type, err.message)
-    // Return 200 so Stripe does not retry — log for manual resolution
+    return new Response('Internal error', { status: 500 })
   }
 
   return new Response('ok', { status: 200 })
@@ -33,26 +33,24 @@ async function handleEvent(event) {
       const booking_id = pi.metadata?.booking_id
       if (booking_id) {
         await sql`
-          UPDATE bookings SET status = 'cancelled', cancelled_at = NOW()
+          UPDATE bookings SET status = 'disputed'
           WHERE id = ${booking_id}
             AND stripe_payment_intent_id = ${pi.id}
             AND status = 'pending'
         `
-        console.log('Booking cancelled due to payment failure:', booking_id)
+        console.log('Booking flagged disputed due to payment failure:', booking_id)
       }
       break
     }
 
     case 'account.updated': {
       const account = event.data.object
-      // Mark operator as fully onboarded once Stripe enables charges and payouts
-      if (account.charges_enabled && account.payouts_enabled) {
-        await sql`
-          UPDATE operator_profiles
-          SET stripe_onboarded = true
-          WHERE stripe_account_id = ${account.id}
-        `
-      }
+      const transfersActive = account.capabilities?.transfers === 'active'
+      await sql`
+        UPDATE operator_profiles
+        SET stripe_onboarded = ${transfersActive}
+        WHERE stripe_account_id = ${account.id}
+      `
       break
     }
 

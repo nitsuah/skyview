@@ -195,14 +195,23 @@ async function connectOperator(req, id) {
   if (!accountId) {
     const [u] = await sql`SELECT email, name FROM users WHERE id = ${id}`
     if (!u) return notFound()
-    const account = await stripe.accounts.create({
-      type: 'express',
-      email: u.email,
-      capabilities: { transfers: { requested: true } },
-      metadata: { operator_user_id: id },
-    })
-    accountId = account.id
-    await sql`UPDATE operator_profiles SET stripe_account_id = ${accountId} WHERE user_id = ${id}`
+    const account = await stripe.accounts.create(
+      {
+        type: 'express',
+        email: u.email,
+        capabilities: { transfers: { requested: true } },
+        metadata: { operator_user_id: id },
+      },
+      { idempotencyKey: `create-connect-account-${id}` }
+    )
+    // Conditional update — safe when concurrent requests share the same idempotencyKey
+    const [saved] = await sql`
+      UPDATE operator_profiles SET stripe_account_id = ${account.id}
+      WHERE user_id = ${id} AND stripe_account_id IS NULL
+      RETURNING stripe_account_id
+    `
+    accountId = saved ? account.id
+      : (await sql`SELECT stripe_account_id FROM operator_profiles WHERE user_id = ${id}`)[0]?.stripe_account_id
   }
 
   const base = process.env.URL || 'https://skyviewd.netlify.app'

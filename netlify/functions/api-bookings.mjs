@@ -88,6 +88,8 @@ async function createBooking(req) {
     return error('job_id, operator_id, and total_cents are required')
   if (!Number.isInteger(total_cents) || total_cents <= 0 || total_cents > 2_147_483_647)
     return error('total_cents must be a positive integer within the supported range')
+  if (stripe && total_cents < 50)
+    return error('total_cents must be at least 50 cents when payments are enabled', 422)
 
   // Validate operator is verified before creating booking
   const [opProfile] = await sql`
@@ -128,6 +130,9 @@ async function createBooking(req) {
       stripe_client_secret = intent.client_secret
     } catch (err) {
       console.error('Stripe PaymentIntent creation failed:', err.message)
+      await sql`DELETE FROM bookings WHERE id = ${booking.id}`
+      await sql`UPDATE jobs SET status = 'open', assigned_operator_id = NULL WHERE id = ${job_id}`
+      return error('Payment setup failed — please try again', 502)
     }
   }
 
@@ -189,9 +194,12 @@ async function declineBooking(req, id) {
 
   // Release the payment authorization
   if (stripe && booking.stripe_payment_intent_id) {
-    stripe.paymentIntents.cancel(booking.stripe_payment_intent_id).catch(err =>
-      console.error('Stripe PI cancel failed:', err.message)
-    )
+    try {
+      await stripe.paymentIntents.cancel(booking.stripe_payment_intent_id)
+    } catch (err) {
+      console.error('PI cancel failed for booking', id, err.message)
+      // Non-fatal: Stripe uncaptured PIs auto-expire after 7 days
+    }
   }
 
   return json(updated)
@@ -216,56 +224,66 @@ async function completeBooking(req, id) {
   await sql`UPDATE jobs SET status = 'completed' WHERE id = ${booking.job_id} AND status != 'completed'`
 
   if (stripe && updated.stripe_payment_intent_id) {
-    captureAndPayout(updated).catch(err => console.error('Stripe payout error:', err.message))
+    try {
+      await stripe.paymentIntents.capture(updated.stripe_payment_intent_id)
+    } catch (err) {
+      console.error('Stripe capture failed for booking', updated.id, err.message)
+      await sql`UPDATE bookings SET status = 'disputed' WHERE id = ${updated.id}`
+      return json({ ...updated, status: 'disputed' })
+    }
+    payoutAndInvoice(updated).catch(err => console.error('Payout/invoice error:', err.message))
   }
 
   return json(updated)
 }
 
-async function captureAndPayout(booking) {
-  try {
-    await stripe.paymentIntents.capture(booking.stripe_payment_intent_id)
-  } catch (err) {
-    console.error('Stripe capture failed for booking', booking.id, err.message)
-    await sql`UPDATE bookings SET status = 'disputed' WHERE id = ${booking.id}`
-    return
-  }
-
+async function payoutAndInvoice(booking) {
   // Transfer to operator if they have Stripe Connect onboarded
   const [opProfile] = await sql`
     SELECT stripe_account_id, stripe_onboarded FROM operator_profiles WHERE user_id = ${booking.operator_id}
   `
   if (opProfile?.stripe_account_id && opProfile.stripe_onboarded) {
-    const transfer = await stripe.transfers.create({
-      amount: booking.operator_payout_cents,
-      currency: 'usd',
-      destination: opProfile.stripe_account_id,
-      metadata: { booking_id: booking.id },
-    })
+    const transfer = await stripe.transfers.create(
+      {
+        amount: booking.operator_payout_cents,
+        currency: 'usd',
+        destination: opProfile.stripe_account_id,
+        metadata: { booking_id: booking.id },
+      },
+      { idempotencyKey: `transfer-${booking.id}` }
+    )
     await sql`UPDATE bookings SET stripe_transfer_id = ${transfer.id} WHERE id = ${booking.id}`
   }
 
-  // Generate Stripe Invoice for the client
   await issueInvoice(booking).catch(err => console.error('Invoice error:', err.message))
 }
 
 async function issueInvoice(booking) {
-  const [client] = await sql`SELECT email, name FROM users WHERE id = ${booking.client_id}`
+  const [client] = await sql`SELECT id, email, name, stripe_customer_id FROM users WHERE id = ${booking.client_id}`
   const [job] = await sql`SELECT title FROM jobs WHERE id = ${booking.job_id}`
   if (!client) return
 
-  const existing = await stripe.customers.list({ email: client.email, limit: 1 })
-  const customer = existing.data[0]
-    ?? await stripe.customers.create({ email: client.email, name: client.name })
+  let customerId = client.stripe_customer_id
+  if (!customerId) {
+    const customer = await stripe.customers.create(
+      { email: client.email, name: client.name, metadata: { skyview_user_id: client.id } },
+      { idempotencyKey: `create-customer-${client.id}` }
+    )
+    customerId = customer.id
+    // Persist only if not already set (safe under concurrent calls with the same idempotencyKey)
+    await sql`
+      UPDATE users SET stripe_customer_id = ${customerId}
+      WHERE id = ${client.id} AND stripe_customer_id IS NULL
+    `.catch(err => console.error('Failed to persist stripe_customer_id:', err.message))
+  }
 
-  const invoice = await stripe.invoices.create({
-    customer: customer.id,
-    auto_advance: false,
-    metadata: { booking_id: booking.id },
-  })
+  const invoice = await stripe.invoices.create(
+    { customer: customerId, auto_advance: false, metadata: { booking_id: booking.id } },
+    { idempotencyKey: `invoice-${booking.id}` }
+  )
 
   await stripe.invoiceItems.create({
-    customer: customer.id,
+    customer: customerId,
     invoice: invoice.id,
     amount: booking.total_cents,
     currency: 'usd',
