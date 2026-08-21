@@ -8,3 +8,5 @@ test-results.json
 coverage/
 # Local Netlify folder
 .netlify
+
+.env
