@@ -231,7 +231,16 @@ async function completeBooking(req, id) {
       await sql`UPDATE bookings SET status = 'disputed' WHERE id = ${updated.id}`
       return json({ ...updated, status: 'disputed' })
     }
-    payoutAndInvoice(updated).catch(err => console.error('Payout/invoice error:', err.message))
+
+    await sql`UPDATE bookings SET payout_status = 'pending' WHERE id = ${updated.id}`
+    try {
+      await payoutAndInvoice(updated)
+      await sql`UPDATE bookings SET payout_status = 'completed' WHERE id = ${updated.id}`
+    } catch (err) {
+      console.error('Payout/invoice failed for booking', updated.id, err.message)
+      await sql`UPDATE bookings SET payout_status = 'failed' WHERE id = ${updated.id}`
+      // Service was delivered — completion stands; admin retries payout separately
+    }
   }
 
   return json(updated)
