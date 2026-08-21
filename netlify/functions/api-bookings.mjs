@@ -221,20 +221,25 @@ async function completeBooking(req, id) {
   `
   if (!updated) return error('Booking cannot be marked complete from its current status', 409)
 
-  await sql`UPDATE jobs SET status = 'completed' WHERE id = ${booking.job_id} AND status != 'completed'`
-
+  let capturedPi = null
   if (stripe && updated.stripe_payment_intent_id) {
     try {
-      await stripe.paymentIntents.capture(updated.stripe_payment_intent_id)
+      capturedPi = await stripe.paymentIntents.capture(updated.stripe_payment_intent_id)
     } catch (err) {
       console.error('Stripe capture failed for booking', updated.id, err.message)
       await sql`UPDATE bookings SET status = 'disputed' WHERE id = ${updated.id}`
+      // Job stays in its previous state since payment did not succeed
       return json({ ...updated, status: 'disputed' })
     }
+  }
 
+  // Update job only after payment is confirmed (or when Stripe is not configured)
+  await sql`UPDATE jobs SET status = 'completed' WHERE id = ${booking.job_id} AND status != 'completed'`
+
+  if (capturedPi) {
     await sql`UPDATE bookings SET payout_status = 'pending' WHERE id = ${updated.id}`
     try {
-      await payoutAndInvoice(updated)
+      await payoutAndInvoice(updated, capturedPi.latest_charge)
       await sql`UPDATE bookings SET payout_status = 'completed' WHERE id = ${updated.id}`
     } catch (err) {
       console.error('Payout/invoice failed for booking', updated.id, err.message)
@@ -246,7 +251,7 @@ async function completeBooking(req, id) {
   return json(updated)
 }
 
-async function payoutAndInvoice(booking) {
+async function payoutAndInvoice(booking, chargeId = null) {
   // Transfer to operator if they have Stripe Connect onboarded
   const [opProfile] = await sql`
     SELECT stripe_account_id, stripe_onboarded FROM operator_profiles WHERE user_id = ${booking.operator_id}
@@ -257,6 +262,9 @@ async function payoutAndInvoice(booking) {
         amount: booking.operator_payout_cents,
         currency: 'usd',
         destination: opProfile.stripe_account_id,
+        // source_transaction links the transfer to the specific captured charge
+        // so funds are drawn from that charge rather than platform available balance
+        ...(chargeId ? { source_transaction: chargeId } : {}),
         metadata: { booking_id: booking.id },
       },
       { idempotencyKey: `transfer-${booking.id}` }
@@ -264,7 +272,8 @@ async function payoutAndInvoice(booking) {
     await sql`UPDATE bookings SET stripe_transfer_id = ${transfer.id} WHERE id = ${booking.id}`
   }
 
-  await issueInvoice(booking).catch(err => console.error('Invoice error:', err.message))
+  // Let invoice errors propagate so payout_status reflects the true outcome
+  await issueInvoice(booking)
 }
 
 async function issueInvoice(booking) {
@@ -291,13 +300,16 @@ async function issueInvoice(booking) {
     { idempotencyKey: `invoice-${booking.id}` }
   )
 
-  await stripe.invoiceItems.create({
-    customer: customerId,
-    invoice: invoice.id,
-    amount: booking.total_cents,
-    currency: 'usd',
-    description: `SkyView Drone Service${job ? ': ' + job.title : ''}`,
-  })
+  await stripe.invoiceItems.create(
+    {
+      customer: customerId,
+      invoice: invoice.id,
+      amount: booking.total_cents,
+      currency: 'usd',
+      description: `SkyView Drone Service${job ? ': ' + job.title : ''}`,
+    },
+    { idempotencyKey: `invoice-item-${booking.id}` }
+  )
 
   const finalized = await stripe.invoices.finalizeInvoice(invoice.id)
   // Mark paid out-of-band since we captured via PaymentIntent
