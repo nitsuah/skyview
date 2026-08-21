@@ -1,6 +1,7 @@
 import { sql } from './utils/db.js'
 import { requireAuth } from './utils/auth.js'
 import { json, error, cors, unauthorized, forbidden, notFound } from './utils/response.js'
+import { stripe } from './utils/stripe.js'
 
 export const config = { path: '/api/bookings*' }
 
@@ -114,9 +115,23 @@ async function createBooking(req) {
     RETURNING *
   `
 
-  // TODO Phase 2: create Stripe PaymentIntent here and return client_secret
+  let stripe_client_secret = null
+  if (stripe) {
+    try {
+      const intent = await stripe.paymentIntents.create({
+        amount: total_cents,
+        currency: 'usd',
+        capture_method: 'manual',
+        metadata: { booking_id: booking.id, job_id, client_id: user.id, operator_id },
+      })
+      await sql`UPDATE bookings SET stripe_payment_intent_id = ${intent.id} WHERE id = ${booking.id}`
+      stripe_client_secret = intent.client_secret
+    } catch (err) {
+      console.error('Stripe PaymentIntent creation failed:', err.message)
+    }
+  }
 
-  return json(booking, 201)
+  return json({ ...booking, stripe_client_secret }, 201)
 }
 
 async function getBooking(req, id) {
@@ -171,6 +186,14 @@ async function declineBooking(req, id) {
     UPDATE jobs SET status = 'open', assigned_operator_id = NULL
     WHERE id = ${booking.job_id} AND status = 'booked'
   `
+
+  // Release the payment authorization
+  if (stripe && booking.stripe_payment_intent_id) {
+    stripe.paymentIntents.cancel(booking.stripe_payment_intent_id).catch(err =>
+      console.error('Stripe PI cancel failed:', err.message)
+    )
+  }
+
   return json(updated)
 }
 
@@ -192,7 +215,64 @@ async function completeBooking(req, id) {
 
   await sql`UPDATE jobs SET status = 'completed' WHERE id = ${booking.job_id} AND status != 'completed'`
 
-  // TODO Phase 2: trigger Stripe Transfer to operator here
+  if (stripe && updated.stripe_payment_intent_id) {
+    captureAndPayout(updated).catch(err => console.error('Stripe payout error:', err.message))
+  }
 
   return json(updated)
+}
+
+async function captureAndPayout(booking) {
+  try {
+    await stripe.paymentIntents.capture(booking.stripe_payment_intent_id)
+  } catch (err) {
+    console.error('Stripe capture failed for booking', booking.id, err.message)
+    await sql`UPDATE bookings SET status = 'disputed' WHERE id = ${booking.id}`
+    return
+  }
+
+  // Transfer to operator if they have Stripe Connect onboarded
+  const [opProfile] = await sql`
+    SELECT stripe_account_id, stripe_onboarded FROM operator_profiles WHERE user_id = ${booking.operator_id}
+  `
+  if (opProfile?.stripe_account_id && opProfile.stripe_onboarded) {
+    const transfer = await stripe.transfers.create({
+      amount: booking.operator_payout_cents,
+      currency: 'usd',
+      destination: opProfile.stripe_account_id,
+      metadata: { booking_id: booking.id },
+    })
+    await sql`UPDATE bookings SET stripe_transfer_id = ${transfer.id} WHERE id = ${booking.id}`
+  }
+
+  // Generate Stripe Invoice for the client
+  await issueInvoice(booking).catch(err => console.error('Invoice error:', err.message))
+}
+
+async function issueInvoice(booking) {
+  const [client] = await sql`SELECT email, name FROM users WHERE id = ${booking.client_id}`
+  const [job] = await sql`SELECT title FROM jobs WHERE id = ${booking.job_id}`
+  if (!client) return
+
+  const existing = await stripe.customers.list({ email: client.email, limit: 1 })
+  const customer = existing.data[0]
+    ?? await stripe.customers.create({ email: client.email, name: client.name })
+
+  const invoice = await stripe.invoices.create({
+    customer: customer.id,
+    auto_advance: false,
+    metadata: { booking_id: booking.id },
+  })
+
+  await stripe.invoiceItems.create({
+    customer: customer.id,
+    invoice: invoice.id,
+    amount: booking.total_cents,
+    currency: 'usd',
+    description: `SkyView Drone Service${job ? ': ' + job.title : ''}`,
+  })
+
+  const finalized = await stripe.invoices.finalizeInvoice(invoice.id)
+  // Mark paid out-of-band since we captured via PaymentIntent
+  await stripe.invoices.pay(finalized.id, { paid_out_of_band: true })
 }

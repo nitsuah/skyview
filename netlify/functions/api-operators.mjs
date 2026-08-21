@@ -2,6 +2,7 @@ import { sql } from './utils/db.js'
 import { requireAuth } from './utils/auth.js'
 import { sendOperatorApprovedEmail } from './utils/email.js'
 import { json, error, cors, unauthorized, forbidden, notFound } from './utils/response.js'
+import { stripe } from './utils/stripe.js'
 
 export const config = { path: '/api/operators*' }
 
@@ -18,6 +19,9 @@ export default async (req, context) => {
     if (req.method === 'GET') return listOperators(url)
   } else if (action === 'verify') {
     if (req.method === 'POST') return verifyOperator(req, id)
+  } else if (action === 'connect') {
+    if (req.method === 'POST') return connectOperator(req, id)
+    if (req.method === 'GET')  return getConnectStatus(req, id)
   } else {
     if (req.method === 'GET') return getOperator(req, id)
     if (req.method === 'PUT') return updateProfile(req, id)
@@ -176,6 +180,52 @@ async function updateProfile(req, id) {
     RETURNING *
   `
   return json(updated)
+}
+
+async function connectOperator(req, id) {
+  const user = await requireAuth(req, sql)
+  if (!user) return unauthorized()
+  if (user.role !== 'admin' && (user.role !== 'operator' || user.id !== id)) return forbidden()
+  if (!stripe) return error('Stripe is not configured', 503)
+
+  const [profile] = await sql`SELECT stripe_account_id, stripe_onboarded FROM operator_profiles WHERE user_id = ${id}`
+  if (!profile) return notFound()
+
+  let accountId = profile.stripe_account_id
+  if (!accountId) {
+    const [u] = await sql`SELECT email, name FROM users WHERE id = ${id}`
+    if (!u) return notFound()
+    const account = await stripe.accounts.create({
+      type: 'express',
+      email: u.email,
+      capabilities: { transfers: { requested: true } },
+      metadata: { operator_user_id: id },
+    })
+    accountId = account.id
+    await sql`UPDATE operator_profiles SET stripe_account_id = ${accountId} WHERE user_id = ${id}`
+  }
+
+  const base = process.env.URL || 'https://skyviewd.netlify.app'
+  const link = await stripe.accountLinks.create({
+    account: accountId,
+    refresh_url: `${base}/operator/connect`,
+    return_url: `${base}/operator/dashboard`,
+    type: 'account_onboarding',
+  })
+
+  return json({ onboarding_url: link.url, account_id: accountId })
+}
+
+async function getConnectStatus(req, id) {
+  const user = await requireAuth(req, sql)
+  if (!user) return unauthorized()
+  if (user.role !== 'admin' && (user.role !== 'operator' || user.id !== id)) return forbidden()
+
+  const [profile] = await sql`
+    SELECT stripe_account_id, stripe_onboarded FROM operator_profiles WHERE user_id = ${id}
+  `
+  if (!profile) return notFound()
+  return json({ account_id: profile.stripe_account_id, onboarded: profile.stripe_onboarded ?? false })
 }
 
 async function verifyOperator(req, id) {
