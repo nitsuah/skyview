@@ -37,7 +37,7 @@
     "@neondatabase/serverless": "^0.9.5",
     "@netlify/blobs": "^10.7.13",
     "bcryptjs": "^2.4.3",
-    "jose": "^5.9.6",
+    "jose": "^6.2.9",
     "resend": "^4.0.0",
     "sharp": "^0.35.3",
     "stripe": "^16.0.0"
