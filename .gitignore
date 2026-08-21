@@ -10,3 +10,7 @@ coverage/
 .netlify
 
 .env
+
+# Build output
+dist/
+platform/dist/
