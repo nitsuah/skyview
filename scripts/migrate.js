@@ -15,55 +15,82 @@ const sql = neon(process.env.DATABASE_URL)
 // PostgreSQL error codes that mean the object already exists — safe to skip on re-run
 const IDEMPOTENT_PG_CODES = new Set(['42P07', '42710', '42701', '42723', '42809'])
 
-// Split SQL into individual statements, respecting dollar-quoted blocks ($$ ... $$)
-// so PL/pgSQL function bodies are never split at internal semicolons.
+// Split SQL into individual statements, respecting:
+//   - dollar-quoted blocks  ($$ ... $$) — internal semicolons are not separators
+//   - single-quoted strings ('...')     — including '' escape sequences
+//   - double-quoted identifiers ("...") — including "" escape sequences
+//   - single-line comments  (-- ...)    — semicolons inside are not separators
 function splitStatements(sqlText) {
   const stmts = []
   let cur = ''
-  let inDollar = false
-  let dollarTag = ''
+  let inDollar      = false
+  let dollarTag     = ''
+  let inSingleQuote = false
+  let inDoubleQuote = false
   let inLineComment = false
   let i = 0
+
   while (i < sqlText.length) {
-    // Enter single-line comment mode on --
-    if (!inDollar && !inLineComment && sqlText[i] === '-' && sqlText[i + 1] === '-') {
+    const ch   = sqlText[i]
+    const next = sqlText[i + 1]
+
+    // ── Line comment (-- ...) ────────────────────────────────────────────────
+    // Only recognised outside all quoted contexts so that 'a--b' stays a string.
+    if (!inDollar && !inSingleQuote && !inDoubleQuote && !inLineComment &&
+        ch === '-' && next === '-') {
       inLineComment = true
     }
-    // Inside a line comment: copy chars but skip semicolons as splitters
     if (inLineComment) {
-      if (sqlText[i] === '\n') inLineComment = false
-      cur += sqlText[i++]
+      if (ch === '\n') inLineComment = false
+      cur += ch; i++
       continue
     }
-    if (sqlText[i] === '$') {
+
+    // ── Single-quoted strings ('...', '' = escaped quote) ───────────────────
+    if (!inDollar && !inDoubleQuote && ch === "'") {
+      if (inSingleQuote && next === "'") { cur += ch + next; i += 2; continue }
+      inSingleQuote = !inSingleQuote
+      cur += ch; i++
+      continue
+    }
+
+    // ── Double-quoted identifiers ("...", "" = escaped quote) ───────────────
+    if (!inDollar && !inSingleQuote && ch === '"') {
+      if (inDoubleQuote && next === '"') { cur += ch + next; i += 2; continue }
+      inDoubleQuote = !inDoubleQuote
+      cur += ch; i++
+      continue
+    }
+
+    // ── Dollar-quoted blocks ($tag$ ... $tag$) ───────────────────────────────
+    if (!inSingleQuote && !inDoubleQuote && ch === '$') {
       const m = sqlText.slice(i).match(/^\$[^$]*\$/)
       if (m) {
         if (!inDollar) {
-          inDollar = true
-          dollarTag = m[0]
+          inDollar = true; dollarTag = m[0]
         } else if (m[0] === dollarTag) {
-          inDollar = false
-          dollarTag = ''
+          inDollar = false; dollarTag = ''
         }
-        cur += m[0]
-        i += m[0].length
+        cur += m[0]; i += m[0].length
         continue
       }
     }
-    if (!inDollar && sqlText[i] === ';') {
+
+    // ── Statement separator ──────────────────────────────────────────────────
+    if (!inDollar && !inSingleQuote && !inDoubleQuote && ch === ';') {
       const stmt = cur.trim()
-      // Skip statements that are pure comments with no real SQL
-      const sqlContent = stmt.replace(/--[^\n]*/g, '').trim()
-      if (sqlContent) stmts.push(stmt)
-      cur = ''
-      i++
+      // Strip line comments, then check if any real SQL remains
+      if (stmt.replace(/--[^\n]*/g, '').trim()) stmts.push(stmt)
+      cur = ''; i++
       continue
     }
-    cur += sqlText[i++]
+
+    cur += ch; i++
   }
+
+  // Trailing content after the last semicolon (or a file with no semicolons)
   const last = cur.trim()
-  const lastSql = last.replace(/--[^\n]*/g, '').trim()
-  if (lastSql) stmts.push(last)
+  if (last.replace(/--[^\n]*/g, '').trim()) stmts.push(last)
   return stmts
 }
 
