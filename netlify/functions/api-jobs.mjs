@@ -124,8 +124,11 @@ async function createJob(req) {
   const SERVICE_TYPES = ['real_estate', 'cinematography', 'mapping', 'events', 'inspection']
   const PREFERRED_TIMES = ['morning', 'afternoon', 'evening', 'flexible']
   if (!title || !service_type) return error('title and service_type are required')
+  if (typeof title !== 'string') return error('title must be a string')
   if (title.length > 200) return error('title must be 200 characters or fewer')
-  if (description && description.length > 5000) return error('description must be 5000 characters or fewer')
+  if (description !== undefined && description !== null && typeof description !== 'string')
+    return error('description must be a string')
+  if (typeof description === 'string' && description.length > 5000) return error('description must be 5000 characters or fewer')
   if (!SERVICE_TYPES.includes(service_type))
     return error(`service_type must be one of: ${SERVICE_TYPES.join(', ')}`)
   if (preferred_time && !PREFERRED_TIMES.includes(preferred_time))
@@ -248,7 +251,7 @@ async function updateJob(req, id) {
   if (cancelledBookings.length > 0 && stripe) {
     for (const b of cancelledBookings) {
       if (b.stripe_payment_intent_id) {
-        stripe.paymentIntents.cancel(b.stripe_payment_intent_id)
+        await stripe.paymentIntents.cancel(b.stripe_payment_intent_id)
           .catch(err => console.error('PI cancel on job cancel failed:', err.message))
       }
     }

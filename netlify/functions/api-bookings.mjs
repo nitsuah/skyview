@@ -254,8 +254,9 @@ async function completeBooking(req, id) {
     }
   }
 
-  // Update job only after payment is confirmed (or when Stripe is not configured)
-  await sql`UPDATE jobs SET status = 'completed' WHERE id = ${booking.job_id} AND status != 'completed'`
+  // Update job only after payment is confirmed (or when Stripe is not configured).
+  // Exclude 'cancelled' so a concurrent job cancellation is never overwritten.
+  await sql`UPDATE jobs SET status = 'completed' WHERE id = ${booking.job_id} AND status NOT IN ('completed', 'cancelled')`
 
   if (capturedPi) {
     await sql`UPDATE bookings SET payout_status = 'pending' WHERE id = ${updated.id}`
