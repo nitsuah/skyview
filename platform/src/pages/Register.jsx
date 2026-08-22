@@ -24,7 +24,8 @@ export default function Register() {
   const [form, setForm]     = useState({ name: '', email: '', password: '', role: initialRole })
   const [error, setError]   = useState('')
   const [busy, setBusy]     = useState(false)
-  const [verifyEmail, setVerifyEmail] = useState('')
+  const [verifyEmail, setVerifyEmail]       = useState('')
+  const [sessionClearFailed, setSessionClearFailed] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -32,16 +33,22 @@ export default function Register() {
     setBusy(true); setError('')
     try {
       await register(form)
-      // Clear the session — account isn't active until email is verified.
-      // Best-effort: if the server cookie clear fails, the local token is still
-      // removed and the session will expire in 7 days.
-      await logout().catch(() => {})
-      setVerifyEmail(form.email)
     } catch (err) {
       setError(err.message)
-    } finally {
       setBusy(false)
+      return
     }
+    // Registration succeeded — clear the session so the unverified account
+    // can't be used until email is confirmed.
+    try {
+      await logout()
+    } catch {
+      // Cookie clear failed; local state is still cleared by logout's finally block.
+      // Surface a retry so the user can attempt cleanup again.
+      setSessionClearFailed(true)
+    }
+    setVerifyEmail(form.email)
+    setBusy(false)
   }
 
   if (verifyEmail) {
@@ -54,6 +61,15 @@ export default function Register() {
           </a>
           <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📬</div>
           <h1 style={{ marginBottom: '0.5rem' }}>Check your inbox</h1>
+          {sessionClearFailed && (
+            <div className="alert alert-warning" style={{ textAlign: 'left', marginBottom: '1rem' }}>
+              Session cleanup failed — your browser session may remain active until it expires.{' '}
+              <button className="btn btn-ghost btn-sm"
+                onClick={() => logout().then(() => setSessionClearFailed(false)).catch(() => {})}>
+                Retry
+              </button>
+            </div>
+          )}
           <p className="text-muted" style={{ fontSize: 14, marginBottom: '1.5rem' }}>
             We sent a verification link to <strong>{verifyEmail}</strong>.<br />
             Click it to activate your account.

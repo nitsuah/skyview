@@ -39,11 +39,15 @@ export function AuthProvider({ children }) {
   }
 
   const logout = async () => {
-    // Clear local state first so the UI reflects logout immediately
-    localStorage.removeItem('skyview_token')
-    setUser(null)
-    // Clear the HttpOnly session cookie server-side; propagate failures to callers
-    await api.auth.logout()
+    // Try server-side cookie removal first. Use try/finally so local state is
+    // always cleared (user can always navigate away), but the error still
+    // propagates to callers that need to show a retry path.
+    try {
+      await api.auth.logout()
+    } finally {
+      localStorage.removeItem('skyview_token')
+      setUser(null)
+    }
   }
 
   return (
