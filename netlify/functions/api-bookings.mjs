@@ -262,18 +262,17 @@ async function completeBooking(req, id) {
     try {
       await payoutAndInvoice(updated, capturedPi.latest_charge)
       await sql`UPDATE bookings SET payout_status = 'completed' WHERE id = ${updated.id}`
+      // Notify operator only after payout succeeds
+      const [opRow]  = await sql`SELECT email, name FROM users WHERE id = ${updated.operator_id}`
+      const [jobRow] = await sql`SELECT title FROM jobs WHERE id = ${updated.job_id}`
+      if (opRow && jobRow) {
+        await sendBookingCompletedEmail(opRow.email, opRow.name, jobRow, updated.operator_payout_cents)
+          .catch(err => console.error('sendBookingCompletedEmail failed:', err.message))
+      }
     } catch (err) {
       console.error('Payout/invoice failed for booking', updated.id, err.message)
       await sql`UPDATE bookings SET payout_status = 'failed' WHERE id = ${updated.id}`
       // Service was delivered — completion stands; admin retries payout separately
-    }
-
-    // Notify operator their payout is processing
-    const [opRow]  = await sql`SELECT email, name FROM users WHERE id = ${updated.operator_id}`
-    const [jobRow] = await sql`SELECT title FROM jobs WHERE id = ${updated.job_id}`
-    if (opRow && jobRow) {
-      await sendBookingCompletedEmail(opRow.email, opRow.name, jobRow, updated.operator_payout_cents)
-        .catch(err => console.error('sendBookingCompletedEmail failed:', err.message))
     }
   }
 

@@ -127,7 +127,9 @@ async function googleCallback(req, url) {
   const clearState  = `oauth_state=; HttpOnly${sf}; SameSite=Lax; Path=/api/auth/google; Max-Age=0`
   const sessionCook = `skyview_session=${encodeURIComponent(jwt)}; HttpOnly${sf}; SameSite=Lax; Path=/; Max-Age=604800`
 
-  const headers = new Headers({ Location: `${base}/app` })
+  // ?oauth=1 signals the client to flush any stale bearer token before reading
+  // the new cookie session, preventing a prior account's token from masking it.
+  const headers = new Headers({ Location: `${base}/app?oauth=1` })
   headers.append('Set-Cookie', clearState)
   headers.append('Set-Cookie', sessionCook)
   return new Response(null, { status: 302, headers })

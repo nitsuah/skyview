@@ -32,8 +32,10 @@ export default function Register() {
     setBusy(true); setError('')
     try {
       await register(form)
-      // Clear the session immediately — account isn't active until email is verified
-      await logout()
+      // Clear the session — account isn't active until email is verified.
+      // Best-effort: if the server cookie clear fails, the local token is still
+      // removed and the session will expire in 7 days.
+      await logout().catch(() => {})
       setVerifyEmail(form.email)
     } catch (err) {
       setError(err.message)

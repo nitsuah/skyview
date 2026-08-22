@@ -34,10 +34,16 @@ export default function Layout({ children }) {
       .catch(() => {}) // Non-blocking — badge is bonus UX
   }, [user?.id])
 
+  useEffect(() => {
+    const handler = (e) => setUnread(e.detail.unread_count)
+    window.addEventListener('notifications-changed', handler)
+    return () => window.removeEventListener('notifications-changed', handler)
+  }, [])
+
   const links = NAV[user?.role] || []
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    try { await logout() } catch {}
     navigate('/app/login', { replace: true })
   }
 

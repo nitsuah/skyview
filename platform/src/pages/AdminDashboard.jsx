@@ -88,7 +88,7 @@ export default function AdminDashboard() {
     <>
       <div className="flex-between mb-3">
         <h1 className="page-title">Admin</h1>
-        <button className="btn btn-ghost btn-sm" onClick={load} disabled={loading}>
+        <button className="btn btn-ghost btn-sm" onClick={load} disabled={loading || usersLoading}>
           {loading ? 'Loading…' : '↺ Refresh'}
         </button>
       </div>

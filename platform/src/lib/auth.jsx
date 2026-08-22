@@ -8,6 +8,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // If the OAuth callback redirected here with ?oauth=1, flush any stale bearer
+    // token so it can't mask the new HttpOnly session cookie.
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('oauth') === '1') {
+      localStorage.removeItem('skyview_token')
+      window.history.replaceState({}, '', window.location.pathname)
+    }
     // Always call /me — covers both localStorage tokens (email/password) and
     // HttpOnly session cookies (Google OAuth). The cookie is sent automatically
     // for same-origin requests; no JS token read required.
@@ -32,10 +39,11 @@ export function AuthProvider({ children }) {
   }
 
   const logout = async () => {
+    // Clear local state first so the UI reflects logout immediately
     localStorage.removeItem('skyview_token')
     setUser(null)
-    // Ask server to clear the HttpOnly session cookie (Google OAuth sessions)
-    try { await api.auth.logout() } catch {}
+    // Clear the HttpOnly session cookie server-side; propagate failures to callers
+    await api.auth.logout()
   }
 
   return (
