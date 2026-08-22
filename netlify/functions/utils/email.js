@@ -54,6 +54,40 @@ export async function sendPasswordResetEmail(to, token) {
   })
 }
 
+export async function sendBookingConfirmedEmail(to, job, operatorName) {
+  return getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `Booking confirmed: ${esc(job.title)}`,
+    html: `<p>Great news! <strong>${esc(operatorName)}</strong> has accepted your booking for <strong>${esc(job.title)}</strong>.</p>
+<p>They'll be in touch to confirm final logistics. Once the work is complete, mark the booking as done in your dashboard to release payment.</p>
+<p><a href="${APP_URL}/app/bookings">View your bookings</a></p>`
+  })
+}
+
+export async function sendBookingDeclinedEmail(to, job) {
+  return getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `Booking update: ${esc(job.title)}`,
+    html: `<p>The operator was unable to accept your booking for <strong>${esc(job.title)}</strong>.</p>
+<p>No payment was taken. Your job is back on the marketplace and other operators can respond.</p>
+<p><a href="${APP_URL}/app/operators">Browse operators</a></p>`
+  })
+}
+
+export async function sendBookingCompletedEmail(to, operatorName, job, payoutCents) {
+  return getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `Payout processing: ${esc(job.title)}`,
+    html: `<p>Hi ${esc(operatorName)},</p>
+<p>The client has marked the job <strong>${esc(job.title)}</strong> as complete. Your payout of <strong>$${(payoutCents / 100).toFixed(2)}</strong> is being processed to your connected bank account.</p>
+<p>Payouts typically arrive within 2 business days.</p>
+<p><a href="${APP_URL}/app/operator/dashboard">View your dashboard</a></p>`
+  })
+}
+
 export async function sendCertExpiryWarning(to, name, daysLeft, certNumber) {
   return getResend().emails.send({
     from: FROM,

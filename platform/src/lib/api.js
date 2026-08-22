@@ -17,12 +17,13 @@ async function request(path, options = {}) {
 
 export const api = {
   auth: {
-    register:       (data)         => request('/auth/register',        { method: 'POST', body: JSON.stringify(data) }),
-    login:          (data)         => request('/auth/login',           { method: 'POST', body: JSON.stringify(data) }),
-    me:             ()             => request('/auth/me'),
-    forgotPassword:       (email)          => request('/auth/forgot-password',     { method: 'POST', body: JSON.stringify({ email }) }),
-    resetPassword:        (token, password) => request('/auth/reset-password',      { method: 'POST', body: JSON.stringify({ token, password }) }),
-    resendVerification:   (email)          => request('/auth/resend-verification',  { method: 'POST', body: JSON.stringify({ email }) })
+    register:           (data)          => request('/auth/register',           { method: 'POST', body: JSON.stringify(data) }),
+    login:              (data)          => request('/auth/login',              { method: 'POST', body: JSON.stringify(data) }),
+    logout:             ()              => request('/auth/logout',             { method: 'POST' }),
+    me:                 ()              => request('/auth/me'),
+    forgotPassword:     (email)         => request('/auth/forgot-password',    { method: 'POST', body: JSON.stringify({ email }) }),
+    resetPassword:      (token, password) => request('/auth/reset-password',   { method: 'POST', body: JSON.stringify({ token, password }) }),
+    resendVerification: (email)         => request('/auth/resend-verification', { method: 'POST', body: JSON.stringify({ email }) })
   },
   jobs: {
     list:   ()          => request('/jobs'),
@@ -31,10 +32,12 @@ export const api = {
     update: (id, data)  => request(`/jobs/${id}`, { method: 'PUT',  body: JSON.stringify(data) })
   },
   operators: {
-    list:          (params = {}) => request(`/operators?${new URLSearchParams(params)}`),
-    get:           (id)          => request(`/operators/${id}`),
-    updateProfile: (id, data)    => request(`/operators/${id}`,        { method: 'PUT',  body: JSON.stringify(data) }),
-    verify:        (id, action)  => request(`/operators/${id}/verify`, { method: 'POST', body: JSON.stringify({ action }) })
+    list:            (params = {}) => request(`/operators?${new URLSearchParams(params)}`),
+    get:             (id)          => request(`/operators/${id}`),
+    updateProfile:   (id, data)    => request(`/operators/${id}`,         { method: 'PUT',  body: JSON.stringify(data) }),
+    verify:          (id, action)  => request(`/operators/${id}/verify`,  { method: 'POST', body: JSON.stringify({ action }) }),
+    connect:         (id)          => request(`/operators/${id}/connect`,  { method: 'POST' }),
+    getConnectStatus:(id)          => request(`/operators/${id}/connect`)
   },
   bookings: {
     list:     ()      => request('/bookings'),

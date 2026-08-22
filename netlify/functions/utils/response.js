@@ -1,6 +1,6 @@
 const ALLOWED_ORIGIN = process.env.URL || process.env.DEPLOY_PRIME_URL || 'https://skyviewd.netlify.app'
 
-const CORS_HEADERS = {
+export const CORS_HEADERS = {
   'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
