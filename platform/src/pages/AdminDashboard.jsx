@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { api } from '../lib/api'
 
 const JOBS_PAGE_SIZE = 50
+const USERS_PAGE_SIZE = 50
 
 export default function AdminDashboard() {
   const [stats, setStats]       = useState(null)
@@ -9,6 +10,10 @@ export default function AdminDashboard() {
   const [jobs, setJobs]         = useState([])
   const [jobsTotal, setJobsTotal] = useState(0)
   const [jobsOffset, setJobsOffset] = useState(0)
+  const [users, setUsers]       = useState([])
+  const [usersTotal, setUsersTotal] = useState(0)
+  const [usersOffset, setUsersOffset] = useState(0)
+  const [usersLoading, setUsersLoading] = useState(false)
   const [loading, setLoading]   = useState(true)
   const [loadError, setLoadError] = useState('')
   const [jobsLoading, setJobsLoading] = useState(false)
@@ -24,6 +29,17 @@ export default function AdminDashboard() {
       setJobsOffset(offset)
     } catch { /* ignore */ }
     finally { setJobsLoading(false) }
+  }
+
+  const loadUsers = async (offset = 0) => {
+    setUsersLoading(true)
+    try {
+      const ur = await api.admin.allUsers({ limit: USERS_PAGE_SIZE, offset })
+      setUsers(ur?.data ?? [])
+      setUsersTotal(ur?.total ?? 0)
+      setUsersOffset(offset)
+    } catch { /* ignore */ }
+    finally { setUsersLoading(false) }
   }
 
   const load = async () => {
@@ -45,6 +61,10 @@ export default function AdminDashboard() {
   }
 
   useEffect(() => { load() }, [])
+
+  useEffect(() => {
+    if (tab === 'users' && users.length === 0) loadUsers(0)
+  }, [tab])
 
   const verifyOp = async (id, action) => {
     setActionBusy(b => ({ ...b, [id]: action }))
@@ -107,7 +127,8 @@ export default function AdminDashboard() {
       <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '1px' }}>
         {[
           { key: 'operators', label: `Pending Operators${pending.length ? ` (${pending.length})` : ''}` },
-          { key: 'jobs',      label: `All Jobs` }
+          { key: 'jobs',      label: `All Jobs` },
+          { key: 'users',     label: `All Users` }
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             style={{
@@ -184,6 +205,54 @@ export default function AdminDashboard() {
               </div>
             </div>
           ))}
+        </>
+      )}
+
+      {/* All users */}
+      {tab === 'users' && (
+        <>
+          <div className="card" style={{ padding: 0 }}>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Name</th><th>Email</th><th>Role</th><th>Verified</th><th>Joined</th></tr>
+                </thead>
+                <tbody>
+                  {usersLoading
+                    ? <tr><td colSpan={5} style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)' }}>Loading…</td></tr>
+                    : users.map(u => (
+                        <tr key={u.id}>
+                          <td style={{ fontWeight: 500 }}>{u.name}</td>
+                          <td className="text-muted">{u.email}</td>
+                          <td><span className={`badge badge-${u.role}`}>{u.role}</span></td>
+                          <td>{u.email_verified ? '✓' : <span className="text-muted">—</span>}</td>
+                          <td className="text-muted">{new Date(u.created_at).toLocaleDateString()}</td>
+                        </tr>
+                      ))
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {usersTotal > USERS_PAGE_SIZE && (
+            <div className="flex-between mt-2" style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+              <span>
+                {usersOffset + 1}–{Math.min(usersOffset + USERS_PAGE_SIZE, usersTotal)} of {usersTotal} users
+              </span>
+              <div className="flex gap-1">
+                <button className="btn btn-ghost btn-sm"
+                  disabled={usersOffset === 0 || usersLoading}
+                  onClick={() => loadUsers(usersOffset - USERS_PAGE_SIZE)}>
+                  ← Prev
+                </button>
+                <button className="btn btn-ghost btn-sm"
+                  disabled={usersOffset + USERS_PAGE_SIZE >= usersTotal || usersLoading}
+                  onClick={() => loadUsers(usersOffset + USERS_PAGE_SIZE)}>
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
 

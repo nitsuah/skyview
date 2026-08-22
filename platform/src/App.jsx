@@ -16,6 +16,7 @@ import OperatorDashboard from './pages/OperatorDashboard'
 import OperatorsDirectory from './pages/OperatorsDirectory'
 import OperatorProfile from './pages/OperatorProfile'
 import AdminDashboard from './pages/AdminDashboard'
+import Notifications from './pages/Notifications'
 import './styles/app.css'
 
 function RoleRedirect() {
@@ -74,6 +75,11 @@ export default function App() {
           {/* Admin */}
           <Route path="/app/admin" element={
             <AuthGuard role="admin"><Layout><AdminDashboard /></Layout></AuthGuard>
+          } />
+
+          {/* Shared */}
+          <Route path="/app/notifications" element={
+            <AuthGuard><Layout><Notifications /></Layout></AuthGuard>
           } />
 
           {/* Fallback */}

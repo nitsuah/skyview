@@ -5,17 +5,20 @@ import { api } from '../lib/api'
 
 const NAV = {
   client: [
-    { to: '/app/dashboard',  label: 'Dashboard' },
-    { to: '/app/jobs/new',   label: 'Post a Job' },
-    { to: '/app/operators',  label: 'Find Operators' },
-    { to: '/app/bookings',   label: 'My Bookings' }
+    { to: '/app/dashboard',       label: 'Dashboard' },
+    { to: '/app/jobs/new',        label: 'Post a Job' },
+    { to: '/app/operators',       label: 'Find Operators' },
+    { to: '/app/bookings',        label: 'My Bookings' },
+    { to: '/app/notifications',   label: 'Notifications', badge: true }
   ],
   operator: [
     { to: '/app/operator/dashboard',   label: 'Dashboard' },
-    { to: '/app/operator/onboarding',  label: 'My Profile' }
+    { to: '/app/operator/onboarding',  label: 'My Profile' },
+    { to: '/app/notifications',        label: 'Notifications', badge: true }
   ],
   admin: [
-    { to: '/app/admin', label: 'Admin' }
+    { to: '/app/admin',           label: 'Admin' },
+    { to: '/app/notifications',   label: 'Notifications', badge: true }
   ]
 }
 
@@ -53,10 +56,10 @@ export default function Layout({ children }) {
         </div>
 
         <nav className="sidebar-nav">
-          {links.map(({ to, label }) => (
+          {links.map(({ to, label, badge }) => (
             <NavLink key={to} to={to} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
               {label}
-              {label === 'My Bookings' && unread > 0 && (
+              {badge && unread > 0 && (
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   background: 'var(--accent)', color: '#fff',

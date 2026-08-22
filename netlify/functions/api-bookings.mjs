@@ -2,6 +2,7 @@ import { sql } from './utils/db.js'
 import { requireAuth } from './utils/auth.js'
 import { json, error, cors, unauthorized, forbidden, notFound } from './utils/response.js'
 import { stripe } from './utils/stripe.js'
+import { sendBookingConfirmedEmail, sendBookingDeclinedEmail, sendBookingCompletedEmail } from './utils/email.js'
 
 export const config = { path: '/api/bookings*' }
 
@@ -167,6 +168,16 @@ async function confirmBooking(req, id) {
     RETURNING *
   `
   if (!updated) return error('Booking is not in a confirmable state', 409)
+
+  // Fire-and-forget transactional email to client
+  const [clientRow] = await sql`SELECT email FROM users WHERE id = ${updated.client_id}`
+  const [jobRow]    = await sql`SELECT title FROM jobs WHERE id = ${updated.job_id}`
+  if (clientRow && jobRow) {
+    sendBookingConfirmedEmail(clientRow.email, jobRow, user.name).catch(err =>
+      console.error('sendBookingConfirmedEmail failed:', err.message)
+    )
+  }
+
   return json(updated)
 }
 
@@ -191,6 +202,15 @@ async function declineBooking(req, id) {
     UPDATE jobs SET status = 'open', assigned_operator_id = NULL
     WHERE id = ${booking.job_id} AND status = 'booked'
   `
+
+  // Fire-and-forget transactional email to client
+  const [clientRow] = await sql`SELECT email FROM users WHERE id = ${updated.client_id}`
+  const [jobRow]    = await sql`SELECT title FROM jobs WHERE id = ${updated.job_id}`
+  if (clientRow && jobRow) {
+    sendBookingDeclinedEmail(clientRow.email, jobRow).catch(err =>
+      console.error('sendBookingDeclinedEmail failed:', err.message)
+    )
+  }
 
   // Release the payment authorization
   if (stripe && booking.stripe_payment_intent_id) {
@@ -245,6 +265,15 @@ async function completeBooking(req, id) {
       console.error('Payout/invoice failed for booking', updated.id, err.message)
       await sql`UPDATE bookings SET payout_status = 'failed' WHERE id = ${updated.id}`
       // Service was delivered — completion stands; admin retries payout separately
+    }
+
+    // Notify operator their payout is processing
+    const [opRow]  = await sql`SELECT email, name FROM users WHERE id = ${updated.operator_id}`
+    const [jobRow] = await sql`SELECT title FROM jobs WHERE id = ${updated.job_id}`
+    if (opRow && jobRow) {
+      sendBookingCompletedEmail(opRow.email, opRow.name, jobRow, updated.operator_payout_cents).catch(err =>
+        console.error('sendBookingCompletedEmail failed:', err.message)
+      )
     }
   }
 

@@ -31,10 +31,12 @@ export const api = {
     update: (id, data)  => request(`/jobs/${id}`, { method: 'PUT',  body: JSON.stringify(data) })
   },
   operators: {
-    list:          (params = {}) => request(`/operators?${new URLSearchParams(params)}`),
-    get:           (id)          => request(`/operators/${id}`),
-    updateProfile: (id, data)    => request(`/operators/${id}`,        { method: 'PUT',  body: JSON.stringify(data) }),
-    verify:        (id, action)  => request(`/operators/${id}/verify`, { method: 'POST', body: JSON.stringify({ action }) })
+    list:            (params = {}) => request(`/operators?${new URLSearchParams(params)}`),
+    get:             (id)          => request(`/operators/${id}`),
+    updateProfile:   (id, data)    => request(`/operators/${id}`,         { method: 'PUT',  body: JSON.stringify(data) }),
+    verify:          (id, action)  => request(`/operators/${id}/verify`,  { method: 'POST', body: JSON.stringify({ action }) }),
+    connect:         (id)          => request(`/operators/${id}/connect`,  { method: 'POST' }),
+    getConnectStatus:(id)          => request(`/operators/${id}/connect`)
   },
   bookings: {
     list:     ()      => request('/bookings'),

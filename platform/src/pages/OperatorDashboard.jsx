@@ -141,9 +141,14 @@ export default function OperatorDashboard() {
       )}
 
       {/* Recent bookings */}
+      <div className="section-title">Recent Bookings</div>
+      {!loading && bookings.length === 0 && (
+        <div className="card" style={{ textAlign: 'center', padding: '2.5rem' }}>
+          <p className="text-muted">No bookings yet. Once clients book you, they'll appear here.</p>
+        </div>
+      )}
       {bookings.length > 0 && (
         <>
-          <div className="section-title">Recent Bookings</div>
           <div className="card" style={{ padding: 0 }}>
             <div className="table-wrap">
               <table>

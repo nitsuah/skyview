@@ -21,22 +21,47 @@ export default function Register() {
   const { register } = useAuth()
   const navigate = useNavigate()
   const initialRole = new URLSearchParams(window.location.search).get('role') === 'operator' ? 'operator' : 'client'
-  const [form, setForm]   = useState({ name: '', email: '', password: '', role: initialRole })
-  const [error, setError] = useState('')
-  const [busy, setBusy]   = useState(false)
+  const [form, setForm]     = useState({ name: '', email: '', password: '', role: initialRole })
+  const [error, setError]   = useState('')
+  const [busy, setBusy]     = useState(false)
+  const [verifyEmail, setVerifyEmail] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (form.password.length < 8) { setError('Password must be at least 8 characters'); return }
     setBusy(true); setError('')
     try {
-      const user = await register(form)
-      navigate(user.role === 'operator' ? '/app/operator/onboarding' : '/app/dashboard', { replace: true })
+      await register(form)
+      // Show email verification prompt instead of immediately navigating
+      setVerifyEmail(form.email)
     } catch (err) {
       setError(err.message)
     } finally {
       setBusy(false)
     }
+  }
+
+  if (verifyEmail) {
+    return (
+      <div className="auth-page">
+        <div className="auth-card" style={{ maxWidth: 480, textAlign: 'center' }}>
+          <a href="/" className="auth-logo">
+            <span className="brand-mark">⬡</span>
+            <span className="brand-name">SkyView</span>
+          </a>
+          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📬</div>
+          <h1 style={{ marginBottom: '0.5rem' }}>Check your inbox</h1>
+          <p className="text-muted" style={{ fontSize: 14, marginBottom: '1.5rem' }}>
+            We sent a verification link to <strong>{verifyEmail}</strong>.<br />
+            Click it to activate your account.
+          </p>
+          <p className="text-muted" style={{ fontSize: 13 }}>
+            Didn't get it? Check spam, or{' '}
+            <Link to="/app/login" className="link">sign in</Link> to resend.
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
