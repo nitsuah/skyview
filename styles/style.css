@@ -13,6 +13,9 @@
     --color-text-primary: #ffffff;
     --color-text-secondary: #b8c2d1;
     --color-dark: #030712;
+    --color-nav-btn-text: #0b1120;
+    --nav-btn-glow: rgba(0, 212, 255, 0.25);
+    --nav-btn-glow-hover: rgba(0, 212, 255, 0.45);
     --color-overlay: rgba(3, 7, 18, 0.72);
     --color-error: #ff4444;
 
@@ -274,21 +277,21 @@ button {
 }
 
 .nav-portal-btn {
-    font-size: 0.8rem;
-    font-weight: var(--font-weight-semibold);
-    letter-spacing: 0.1em;
-    color: #0b1120;
-    background: var(--color-secondary);
-    padding: 0.45rem 1.1rem;
-    border-radius: 999px;
-    transition: var(--transition-fast);
-    white-space: nowrap;
-    box-shadow: 0 0 14px rgba(0, 212, 255, 0.25);
+  background: var(--color-secondary);
+  border-radius: 999px;
+  box-shadow: 0 0 14px var(--nav-btn-glow);
+  color: var(--color-nav-btn-text);
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.1em;
+  padding: 0.45rem 1.1rem;
+  transition: var(--transition-fast);
+  white-space: nowrap;
 }
 
 .nav-portal-btn:hover {
-    opacity: 0.88;
-    box-shadow: 0 0 22px rgba(0, 212, 255, 0.45);
+  box-shadow: 0 0 22px var(--nav-btn-glow-hover);
+  opacity: 0.88;
 }
 
 .mobile-menu-toggle {

@@ -169,13 +169,11 @@ async function confirmBooking(req, id) {
   `
   if (!updated) return error('Booking is not in a confirmable state', 409)
 
-  // Fire-and-forget transactional email to client
   const [clientRow] = await sql`SELECT email FROM users WHERE id = ${updated.client_id}`
   const [jobRow]    = await sql`SELECT title FROM jobs WHERE id = ${updated.job_id}`
   if (clientRow && jobRow) {
-    sendBookingConfirmedEmail(clientRow.email, jobRow, user.name).catch(err =>
-      console.error('sendBookingConfirmedEmail failed:', err.message)
-    )
+    await sendBookingConfirmedEmail(clientRow.email, jobRow, user.name)
+      .catch(err => console.error('sendBookingConfirmedEmail failed:', err.message))
   }
 
   return json(updated)
@@ -203,13 +201,11 @@ async function declineBooking(req, id) {
     WHERE id = ${booking.job_id} AND status = 'booked'
   `
 
-  // Fire-and-forget transactional email to client
   const [clientRow] = await sql`SELECT email FROM users WHERE id = ${updated.client_id}`
   const [jobRow]    = await sql`SELECT title FROM jobs WHERE id = ${updated.job_id}`
   if (clientRow && jobRow) {
-    sendBookingDeclinedEmail(clientRow.email, jobRow).catch(err =>
-      console.error('sendBookingDeclinedEmail failed:', err.message)
-    )
+    await sendBookingDeclinedEmail(clientRow.email, jobRow)
+      .catch(err => console.error('sendBookingDeclinedEmail failed:', err.message))
   }
 
   // Release the payment authorization
@@ -229,9 +225,14 @@ async function completeBooking(req, id) {
   const user = await requireAuth(req, sql)
   if (!user) return unauthorized()
 
-  const [booking] = await sql`SELECT * FROM bookings WHERE id = ${id}`
+  const [booking] = await sql`
+    SELECT b.*, j.status AS job_status
+    FROM bookings b JOIN jobs j ON b.job_id = j.id
+    WHERE b.id = ${id}
+  `
   if (!booking) return notFound()
   if (booking.client_id !== user.id && user.role !== 'admin') return forbidden()
+  if (booking.job_status === 'cancelled') return error('Job has been cancelled', 409)
 
   // Atomic conditional update — only advances from valid predecessor states
   const [updated] = await sql`
@@ -271,9 +272,8 @@ async function completeBooking(req, id) {
     const [opRow]  = await sql`SELECT email, name FROM users WHERE id = ${updated.operator_id}`
     const [jobRow] = await sql`SELECT title FROM jobs WHERE id = ${updated.job_id}`
     if (opRow && jobRow) {
-      sendBookingCompletedEmail(opRow.email, opRow.name, jobRow, updated.operator_payout_cents).catch(err =>
-        console.error('sendBookingCompletedEmail failed:', err.message)
-      )
+      await sendBookingCompletedEmail(opRow.email, opRow.name, jobRow, updated.operator_payout_cents)
+        .catch(err => console.error('sendBookingCompletedEmail failed:', err.message))
     }
   }
 

@@ -14,6 +14,7 @@ export default function AdminDashboard() {
   const [usersTotal, setUsersTotal] = useState(0)
   const [usersOffset, setUsersOffset] = useState(0)
   const [usersLoading, setUsersLoading] = useState(false)
+  const [usersError, setUsersError]     = useState('')
   const [loading, setLoading]   = useState(true)
   const [loadError, setLoadError] = useState('')
   const [jobsLoading, setJobsLoading] = useState(false)
@@ -33,13 +34,17 @@ export default function AdminDashboard() {
 
   const loadUsers = async (offset = 0) => {
     setUsersLoading(true)
+    setUsersError('')
     try {
       const ur = await api.admin.allUsers({ limit: USERS_PAGE_SIZE, offset })
       setUsers(ur?.data ?? [])
       setUsersTotal(ur?.total ?? 0)
       setUsersOffset(offset)
-    } catch { /* ignore */ }
-    finally { setUsersLoading(false) }
+    } catch (e) {
+      setUsersError(e.message)
+    } finally {
+      setUsersLoading(false)
+    }
   }
 
   const load = async () => {
@@ -58,6 +63,7 @@ export default function AdminDashboard() {
       setLoading(false)
     }
     loadJobs(0)
+    if (tab === 'users') loadUsers(usersOffset)
   }
 
   useEffect(() => { load() }, [])
@@ -211,6 +217,15 @@ export default function AdminDashboard() {
       {/* All users */}
       {tab === 'users' && (
         <>
+          {usersError && (
+            <div className="alert alert-error mb-2">
+              {usersError}
+              <button className="btn btn-ghost btn-sm" style={{ marginLeft: '1rem' }}
+                onClick={() => loadUsers(usersOffset)}>
+                Retry
+              </button>
+            </div>
+          )}
           <div className="card" style={{ padding: 0 }}>
             <div className="table-wrap">
               <table>

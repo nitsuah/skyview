@@ -18,7 +18,7 @@ const ROLES = [
 ]
 
 export default function Register() {
-  const { register } = useAuth()
+  const { register, logout } = useAuth()
   const navigate = useNavigate()
   const initialRole = new URLSearchParams(window.location.search).get('role') === 'operator' ? 'operator' : 'client'
   const [form, setForm]     = useState({ name: '', email: '', password: '', role: initialRole })
@@ -32,7 +32,8 @@ export default function Register() {
     setBusy(true); setError('')
     try {
       await register(form)
-      // Show email verification prompt instead of immediately navigating
+      // Clear the session immediately — account isn't active until email is verified
+      await logout()
       setVerifyEmail(form.email)
     } catch (err) {
       setError(err.message)

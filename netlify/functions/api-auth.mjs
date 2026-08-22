@@ -3,7 +3,7 @@ const hashToken = (t) => createHash('sha256').update(t).digest('hex')
 import { sql } from './utils/db.js'
 import { signToken, hashPassword, checkPassword, requireAuth } from './utils/auth.js'
 import { sendVerificationEmail, sendPasswordResetEmail } from './utils/email.js'
-import { json, error, cors, unauthorized } from './utils/response.js'
+import { json, error, cors, unauthorized, CORS_HEADERS } from './utils/response.js'
 
 export const config = { path: '/api/auth/*' }
 
@@ -20,6 +20,7 @@ export default async (req, context) => {
   if (req.method === 'POST' && route === '/forgot-password')         return forgotPassword(req)
   if (req.method === 'POST' && route === '/reset-password')          return resetPassword(req)
   if (req.method === 'POST' && route === '/resend-verification')     return resendVerification(req)
+  if (req.method === 'POST' && route === '/logout')                  return logout()
 
   return error('Not found', 404)
 }
@@ -200,4 +201,14 @@ async function resetPassword(req) {
   await sql`UPDATE users SET password_hash = ${password_hash} WHERE id = ${claimed.user_id}`
 
   return json({ ok: true })
+}
+
+function logout() {
+  const base   = process.env.DEPLOY_PRIME_URL || process.env.URL || 'https://skyviewd.netlify.app'
+  const secure = base.startsWith('https') ? '; Secure' : ''
+  const clear  = `skyview_session=; HttpOnly${secure}; SameSite=Lax; Path=/; Max-Age=0`
+  return new Response(JSON.stringify({ ok: true }), {
+    status: 200,
+    headers: { ...CORS_HEADERS, 'Set-Cookie': clear }
+  })
 }

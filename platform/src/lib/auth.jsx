@@ -8,9 +8,9 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('skyview_token')
-    if (!token) { setLoading(false); return }
-
+    // Always call /me — covers both localStorage tokens (email/password) and
+    // HttpOnly session cookies (Google OAuth). The cookie is sent automatically
+    // for same-origin requests; no JS token read required.
     api.auth.me()
       .then(setUser)
       .catch(() => localStorage.removeItem('skyview_token'))
@@ -31,9 +31,11 @@ export function AuthProvider({ children }) {
     return user
   }
 
-  const logout = () => {
+  const logout = async () => {
     localStorage.removeItem('skyview_token')
     setUser(null)
+    // Ask server to clear the HttpOnly session cookie (Google OAuth sessions)
+    try { await api.auth.logout() } catch {}
   }
 
   return (

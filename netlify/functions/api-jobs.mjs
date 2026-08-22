@@ -214,6 +214,26 @@ async function updateJob(req, id) {
   const updates = Object.fromEntries(Object.entries(body).filter(([k]) => allowed.includes(k)))
   if (!Object.keys(updates).length) return error('No valid fields to update')
 
+  if (updates.description !== undefined && updates.description !== null) {
+    if (typeof updates.description !== 'string') return error('description must be a string')
+    if (updates.description.length > 5000) return error('description must be 5000 characters or fewer')
+  }
+  if (updates.budget_cents !== undefined && updates.budget_cents !== null) {
+    if (!Number.isInteger(updates.budget_cents) || updates.budget_cents < 0)
+      return error('budget_cents must be a non-negative integer')
+  }
+
+  // Cascade booking cancellations BEFORE updating the job status to prevent a
+  // race where completeBooking advances a booking after the job is already cancelled.
+  let cancelledBookings = []
+  if (updates.status === 'cancelled') {
+    cancelledBookings = await sql`
+      UPDATE bookings SET status = 'cancelled', cancelled_at = NOW()
+      WHERE job_id = ${id} AND status IN ('pending', 'confirmed')
+      RETURNING stripe_payment_intent_id
+    `
+  }
+
   const [updated] = await sql`
     UPDATE jobs SET
       status = COALESCE(${updates.status ?? null}, status),
@@ -225,19 +245,11 @@ async function updateJob(req, id) {
     RETURNING *
   `
 
-  // When a job is cancelled, cancel any active bookings and their Stripe PIs
-  if (updates.status === 'cancelled') {
-    const cancelledBookings = await sql`
-      UPDATE bookings SET status = 'cancelled', cancelled_at = NOW()
-      WHERE job_id = ${id} AND status IN ('pending', 'confirmed')
-      RETURNING stripe_payment_intent_id
-    `
-    if (stripe) {
-      for (const b of cancelledBookings) {
-        if (b.stripe_payment_intent_id) {
-          stripe.paymentIntents.cancel(b.stripe_payment_intent_id)
-            .catch(err => console.error('PI cancel on job cancel failed:', err.message))
-        }
+  if (cancelledBookings.length > 0 && stripe) {
+    for (const b of cancelledBookings) {
+      if (b.stripe_payment_intent_id) {
+        stripe.paymentIntents.cancel(b.stripe_payment_intent_id)
+          .catch(err => console.error('PI cancel on job cancel failed:', err.message))
       }
     }
   }

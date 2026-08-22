@@ -22,7 +22,7 @@ export default function Notifications() {
       setData(prev => ({
         ...prev,
         unread_count: Math.max(0, prev.unread_count - 1),
-        notifications: prev.notifications.map(n => n.id === id ? { ...n, read_at: new Date().toISOString() } : n)
+        notifications: prev.notifications.map(n => n.id === id ? { ...n, read: true } : n)
       }))
     } catch { /* ignore */ }
     finally { setBusy(b => ({ ...b, [id]: false })) }
@@ -34,7 +34,7 @@ export default function Notifications() {
       setData(prev => ({
         ...prev,
         unread_count: 0,
-        notifications: prev.notifications.map(n => ({ ...n, read_at: n.read_at || new Date().toISOString() }))
+        notifications: prev.notifications.map(n => ({ ...n, read: true }))
       }))
     } catch { /* ignore */ }
   }
@@ -75,15 +75,15 @@ export default function Notifications() {
               display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
               padding: '1rem 1.25rem',
               borderBottom: i < notifications.length - 1 ? '1px solid var(--border)' : 'none',
-              background: n.read_at ? 'transparent' : 'color-mix(in srgb, var(--accent) 5%, transparent)'
+              background: n.read ? 'transparent' : 'color-mix(in srgb, var(--accent) 5%, transparent)'
             }}>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ margin: 0, fontSize: 14, fontWeight: n.read_at ? 400 : 600 }}>{n.message}</p>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: n.read ? 400 : 600 }}>{n.message}</p>
                 <p style={{ margin: '0.25rem 0 0', fontSize: 12, color: 'var(--text-muted)' }}>
                   {new Date(n.created_at).toLocaleString()}
                 </p>
               </div>
-              {!n.read_at && (
+              {!n.read && (
                 <button
                   className="btn btn-ghost btn-sm"
                   disabled={!!busy[n.id]}

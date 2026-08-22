@@ -17,12 +17,13 @@ async function request(path, options = {}) {
 
 export const api = {
   auth: {
-    register:       (data)         => request('/auth/register',        { method: 'POST', body: JSON.stringify(data) }),
-    login:          (data)         => request('/auth/login',           { method: 'POST', body: JSON.stringify(data) }),
-    me:             ()             => request('/auth/me'),
-    forgotPassword:       (email)          => request('/auth/forgot-password',     { method: 'POST', body: JSON.stringify({ email }) }),
-    resetPassword:        (token, password) => request('/auth/reset-password',      { method: 'POST', body: JSON.stringify({ token, password }) }),
-    resendVerification:   (email)          => request('/auth/resend-verification',  { method: 'POST', body: JSON.stringify({ email }) })
+    register:           (data)          => request('/auth/register',           { method: 'POST', body: JSON.stringify(data) }),
+    login:              (data)          => request('/auth/login',              { method: 'POST', body: JSON.stringify(data) }),
+    logout:             ()              => request('/auth/logout',             { method: 'POST' }),
+    me:                 ()              => request('/auth/me'),
+    forgotPassword:     (email)         => request('/auth/forgot-password',    { method: 'POST', body: JSON.stringify({ email }) }),
+    resetPassword:      (token, password) => request('/auth/reset-password',   { method: 'POST', body: JSON.stringify({ token, password }) }),
+    resendVerification: (email)         => request('/auth/resend-verification', { method: 'POST', body: JSON.stringify({ email }) })
   },
   jobs: {
     list:   ()          => request('/jobs'),

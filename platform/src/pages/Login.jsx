@@ -13,8 +13,9 @@ export default function Login() {
   const params   = new URLSearchParams(location.search)
   const verified = params.get('verified')
   const reset    = params.get('reset')
-  const oauthErr = params.get('error') === 'oauth_failed'      ? 'Google sign-in failed — please try again.'
-                 : params.get('error') === 'account_disabled'   ? 'Your account has been disabled. Contact support.'
+  const oauthErr = params.get('error') === 'oauth_failed'         ? 'Google sign-in failed — please try again.'
+                 : params.get('error') === 'account_disabled'    ? 'Your account has been disabled. Contact support.'
+                 : params.get('error') === 'email_not_verified'  ? 'Your Google account email is not verified. Please verify it with Google and try again.'
                  : null
 
   const handleSubmit = async (e) => {
