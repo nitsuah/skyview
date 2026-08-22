@@ -273,6 +273,24 @@ button {
     text-shadow: 0 0 18px rgba(124, 242, 255, 0.22);
 }
 
+.nav-portal-btn {
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.1em;
+    color: #0b1120;
+    background: var(--color-secondary);
+    padding: 0.45rem 1.1rem;
+    border-radius: 999px;
+    transition: var(--transition-fast);
+    white-space: nowrap;
+    box-shadow: 0 0 14px rgba(0, 212, 255, 0.25);
+}
+
+.nav-portal-btn:hover {
+    opacity: 0.88;
+    box-shadow: 0 0 22px rgba(0, 212, 255, 0.45);
+}
+
 .mobile-menu-toggle {
     display: none;
     flex-direction: column;

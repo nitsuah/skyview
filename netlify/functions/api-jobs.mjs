@@ -2,6 +2,7 @@ import { sql } from './utils/db.js'
 import { requireAuth } from './utils/auth.js'
 import { sendJobAlertEmail } from './utils/email.js'
 import { json, error, cors, unauthorized, forbidden, notFound } from './utils/response.js'
+import { stripe } from './utils/stripe.js'
 
 export const config = { path: '/api/jobs*' }
 
@@ -123,10 +124,16 @@ async function createJob(req) {
   const SERVICE_TYPES = ['real_estate', 'cinematography', 'mapping', 'events', 'inspection']
   const PREFERRED_TIMES = ['morning', 'afternoon', 'evening', 'flexible']
   if (!title || !service_type) return error('title and service_type are required')
+  if (title.length > 200) return error('title must be 200 characters or fewer')
+  if (description && description.length > 5000) return error('description must be 5000 characters or fewer')
   if (!SERVICE_TYPES.includes(service_type))
     return error(`service_type must be one of: ${SERVICE_TYPES.join(', ')}`)
   if (preferred_time && !PREFERRED_TIMES.includes(preferred_time))
     return error(`preferred_time must be one of: ${PREFERRED_TIMES.join(', ')}`)
+  if (budget_cents !== undefined && budget_cents !== null) {
+    if (!Number.isInteger(budget_cents) || budget_cents < 0)
+      return error('budget_cents must be a non-negative integer')
+  }
 
   const [job] = await sql`
     INSERT INTO jobs (client_id, title, service_type, description, location_address, location_lat, location_lng, preferred_date, preferred_time, budget_cents)
@@ -217,5 +224,23 @@ async function updateJob(req, id) {
     WHERE id = ${id}
     RETURNING *
   `
+
+  // When a job is cancelled, cancel any active bookings and their Stripe PIs
+  if (updates.status === 'cancelled') {
+    const cancelledBookings = await sql`
+      UPDATE bookings SET status = 'cancelled', cancelled_at = NOW()
+      WHERE job_id = ${id} AND status IN ('pending', 'confirmed')
+      RETURNING stripe_payment_intent_id
+    `
+    if (stripe) {
+      for (const b of cancelledBookings) {
+        if (b.stripe_payment_intent_id) {
+          stripe.paymentIntents.cancel(b.stripe_payment_intent_id)
+            .catch(err => console.error('PI cancel on job cancel failed:', err.message))
+        }
+      }
+    }
+  }
+
   return json(updated)
 }

@@ -35,6 +35,10 @@ async function register(req) {
     return error('role must be client or operator')
   if (password.length < 8)
     return error('Password must be at least 8 characters')
+  if (name.trim().length > 120)
+    return error('name must be 120 characters or fewer')
+  if (email.length > 254)
+    return error('email must be 254 characters or fewer')
 
   const [existing] = await sql`SELECT id FROM users WHERE email = ${email.toLowerCase().trim()}`
   if (existing) return error('An account with this email already exists', 409)
@@ -74,6 +78,7 @@ async function login(req) {
     FROM users WHERE email = ${email.toLowerCase().trim()}
   `
   if (!user || !user.active) return error('Invalid email or password', 401)
+  if (!user.password_hash) return error('This account uses Google Sign-In. Please use the "Continue with Google" button.', 401)
 
   const valid = await checkPassword(password, user.password_hash)
   if (!valid) return error('Invalid email or password', 401)
@@ -150,6 +155,14 @@ async function forgotPassword(req) {
   const [user] = await sql`SELECT id, active FROM users WHERE email = ${email.toLowerCase().trim()}`
   // Always return 200 to avoid email enumeration
   if (!user || !user.active) return json({ ok: true })
+
+  // Rate-limit: if an unexpired token already exists, don't send another
+  const [existing] = await sql`
+    SELECT id FROM password_reset_tokens
+    WHERE user_id = ${user.id} AND used_at IS NULL AND expires_at > NOW()
+    LIMIT 1
+  `
+  if (existing) return json({ ok: true })
 
   const token   = randomBytes(32).toString('hex')
   const expires = new Date(Date.now() + 3_600_000) // 1 hour
