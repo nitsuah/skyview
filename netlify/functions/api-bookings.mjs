@@ -232,15 +232,18 @@ async function completeBooking(req, id) {
   `
   if (!booking) return notFound()
   if (booking.client_id !== user.id && user.role !== 'admin') return forbidden()
-  if (booking.job_status === 'cancelled') return error('Job has been cancelled', 409)
 
-  // Atomic conditional update — only advances from valid predecessor states
+  // Atomic conditional update: fold the job-status guard into the same statement
+  // so a concurrent job cancellation between the SELECT and here cannot slip through.
+  // The correlated subquery re-reads jobs.status at UPDATE time, eliminating the race.
   const [updated] = await sql`
     UPDATE bookings SET status = 'completed', completed_at = NOW()
-    WHERE id = ${id} AND status IN ('pending', 'confirmed', 'in_progress')
+    WHERE id = ${id}
+      AND status IN ('pending', 'confirmed', 'in_progress')
+      AND (SELECT status FROM jobs WHERE id = job_id) != 'cancelled'
     RETURNING *
   `
-  if (!updated) return error('Booking cannot be marked complete from its current status', 409)
+  if (!updated) return error('Job has been cancelled or booking cannot be completed from its current status', 409)
 
   let capturedPi = null
   if (stripe && updated.stripe_payment_intent_id) {
