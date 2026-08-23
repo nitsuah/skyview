@@ -31,6 +31,8 @@ docker compose -f config/docker-compose.yml up --build web
 docker compose -f config/docker-compose.yml run --rm unit
 ```
 
+The recommended dev command is `npm run dev` (runs `netlify dev` on port 8888 with Netlify Functions and Identity active). A static fallback is `npx http-server . -p 3000` for quick previews without Functions.
+
 ### Step 1: Deploy to Netlify (10 min)
 ```bash
 # If not already deployed
@@ -233,4 +235,4 @@ Your site is production-ready. Just:
 
 Questions? Check the docs/ folder or the inline comments in the code.
 
-**Last Updated:** December 13, 2025
+**Last Updated:** 2026-08-22
