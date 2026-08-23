@@ -13,6 +13,9 @@
     --color-text-primary: #ffffff;
     --color-text-secondary: #b8c2d1;
     --color-dark: #030712;
+    --color-nav-btn-text: #0b1120;
+    --nav-btn-glow: rgba(0, 212, 255, 0.25);
+    --nav-btn-glow-hover: rgba(0, 212, 255, 0.45);
     --color-overlay: rgba(3, 7, 18, 0.72);
     --color-error: #ff4444;
 
@@ -271,6 +274,24 @@ button {
 
 .nav-links a.is-active {
     text-shadow: 0 0 18px rgba(124, 242, 255, 0.22);
+}
+
+.nav-portal-btn {
+  background: var(--color-secondary);
+  border-radius: 999px;
+  box-shadow: 0 0 14px var(--nav-btn-glow);
+  color: var(--color-nav-btn-text);
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.1em;
+  padding: 0.45rem 1.1rem;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.nav-portal-btn:hover {
+  box-shadow: 0 0 22px var(--nav-btn-glow-hover);
+  opacity: 0.88;
 }
 
 .mobile-menu-toggle {

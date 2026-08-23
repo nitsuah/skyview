@@ -12,7 +12,7 @@
   functionsPort = 8889
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
 
 [functions]
   directory = "netlify/functions"

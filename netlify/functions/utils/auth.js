@@ -22,9 +22,14 @@ export async function verifyToken(token) {
 }
 
 export function extractToken(req) {
+  // Prefer Authorization header (email/password login)
   const auth = req.headers.get('authorization') || ''
-  if (!auth.startsWith('Bearer ')) return null
-  return auth.slice(7)
+  if (auth.startsWith('Bearer ')) return auth.slice(7)
+
+  // Fall back to HttpOnly session cookie (Google OAuth)
+  const cookie = req.headers.get('cookie') || ''
+  const match  = cookie.match(/(?:^|;\s*)skyview_session=([^;]+)/)
+  return match ? decodeURIComponent(match[1]) : null
 }
 
 export async function requireAuth(req, sql) {

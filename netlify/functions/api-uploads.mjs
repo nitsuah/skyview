@@ -5,7 +5,12 @@ import { json, error, cors, unauthorized, forbidden } from './utils/response.js'
 
 export const config = { path: '/api/uploads*' }
 
-const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
+const ALLOWED_CERT_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
+const ALLOWED_DELIVERABLE_TYPES = [
+  'application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+  'video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm',
+  'application/zip', 'application/x-zip-compressed',
+]
 // Netlify synchronous functions have a 6 MB request body limit; keep cert uploads below that
 const MAX_SIZE = 5 * 1024 * 1024 // 5MB
 
@@ -31,7 +36,7 @@ async function uploadCert(req) {
 
   const file = formData.get('cert')
   if (!file || !(file instanceof File)) return error('cert field must be a file')
-  if (!ALLOWED_TYPES.includes(file.type)) return error('cert must be a PDF or image (JPEG, PNG, WebP)')
+  if (!ALLOWED_CERT_TYPES.includes(file.type)) return error('cert must be a PDF or image (JPEG, PNG, WebP)')
   if (file.size > MAX_SIZE) return error('cert must be under 5MB')
 
   const [profile] = await sql`SELECT id FROM operator_profiles WHERE user_id = ${user.id}`
@@ -72,6 +77,8 @@ async function uploadDeliverable(req, url) {
 
   const file = formData.get('file')
   if (!file || !(file instanceof File)) return error('file field must be a file')
+  if (!ALLOWED_DELIVERABLE_TYPES.includes(file.type))
+    return error('Unsupported file type. Allowed: PDF, images (JPEG, PNG, WebP, GIF), video (MP4, MOV, AVI, WebM), ZIP')
   if (file.size > MAX_SIZE) return error('Deliverable must be under 5MB')
 
   const store  = getStore({ name: 'deliverables', consistency: 'strong' })

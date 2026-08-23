@@ -34,6 +34,8 @@ In **Netlify dashboard → your site → Site configuration → Environment vari
 | `RESEND_API_KEY` | `re_...` | Resend dashboard (step 3 below) |
 | `STRIPE_SECRET_KEY` | `sk_live_...` | Stripe dashboard (Phase 2) |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_...` | Stripe dashboard (Phase 2) |
+| `GOOGLE_CLIENT_ID` | `....apps.googleusercontent.com` | Google Cloud Console (optional) |
+| `GOOGLE_CLIENT_SECRET` | `GOCSPX-...` | Google Cloud Console (optional) |
 
 ---
 
@@ -54,7 +56,22 @@ Emails sent by the platform:
 
 ---
 
-## 4. Turn on the Platform
+## 4. Google OAuth (Optional)
+
+To enable "Continue with Google" on the login and register pages:
+
+1. Go to **https://console.cloud.google.com** → your project → **APIs & Services → Credentials**
+2. Click **Create Credentials → OAuth 2.0 Client ID** (type: Web application)
+3. Under **Authorized redirect URIs**, add:
+   - `https://skyviewd.netlify.app/api/auth/google/callback`
+   - `http://localhost:8888/api/auth/google/callback` (local dev)
+4. Copy **Client ID** and **Client Secret** → add to Netlify as `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
+
+If these env vars are absent, the Google button redirects to a 503 — everything else keeps working.
+
+---
+
+## 5. Turn on the Platform
 
 Once the DB is migrated and env vars are set, flip the feature flag in `config.js`:
 
@@ -70,7 +87,7 @@ This replaces the Calendly embed with the "Find an Operator / Post a Job" CTA an
 
 ---
 
-## 5. Local Development
+## 6. Local Development
 
 ```bash
 # Install deps
@@ -94,7 +111,7 @@ API functions are at `http://localhost:8888/api/`
 
 ---
 
-## 6. Creating an Admin Account
+## 7. Creating an Admin Account
 
 After registering normally via `/app/register`, run this in the Neon SQL editor:
 

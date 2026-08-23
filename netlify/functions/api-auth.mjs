@@ -3,7 +3,7 @@ const hashToken = (t) => createHash('sha256').update(t).digest('hex')
 import { sql } from './utils/db.js'
 import { signToken, hashPassword, checkPassword, requireAuth } from './utils/auth.js'
 import { sendVerificationEmail, sendPasswordResetEmail } from './utils/email.js'
-import { json, error, cors, unauthorized } from './utils/response.js'
+import { json, error, cors, unauthorized, CORS_HEADERS } from './utils/response.js'
 
 export const config = { path: '/api/auth/*' }
 
@@ -20,6 +20,7 @@ export default async (req, context) => {
   if (req.method === 'POST' && route === '/forgot-password')         return forgotPassword(req)
   if (req.method === 'POST' && route === '/reset-password')          return resetPassword(req)
   if (req.method === 'POST' && route === '/resend-verification')     return resendVerification(req)
+  if (req.method === 'POST' && route === '/logout')                  return logout()
 
   return error('Not found', 404)
 }
@@ -35,6 +36,10 @@ async function register(req) {
     return error('role must be client or operator')
   if (password.length < 8)
     return error('Password must be at least 8 characters')
+  if (name.trim().length > 120)
+    return error('name must be 120 characters or fewer')
+  if (email.length > 254)
+    return error('email must be 254 characters or fewer')
 
   const [existing] = await sql`SELECT id FROM users WHERE email = ${email.toLowerCase().trim()}`
   if (existing) return error('An account with this email already exists', 409)
@@ -74,6 +79,7 @@ async function login(req) {
     FROM users WHERE email = ${email.toLowerCase().trim()}
   `
   if (!user || !user.active) return error('Invalid email or password', 401)
+  if (!user.password_hash) return error('This account uses Google Sign-In. Please use the "Continue with Google" button.', 401)
 
   const valid = await checkPassword(password, user.password_hash)
   if (!valid) return error('Invalid email or password', 401)
@@ -151,6 +157,14 @@ async function forgotPassword(req) {
   // Always return 200 to avoid email enumeration
   if (!user || !user.active) return json({ ok: true })
 
+  // Rate-limit: if an unexpired token already exists, don't send another
+  const [existing] = await sql`
+    SELECT id FROM password_reset_tokens
+    WHERE user_id = ${user.id} AND used_at IS NULL AND expires_at > NOW()
+    LIMIT 1
+  `
+  if (existing) return json({ ok: true })
+
   const token   = randomBytes(32).toString('hex')
   const expires = new Date(Date.now() + 3_600_000) // 1 hour
   await sql`
@@ -187,4 +201,14 @@ async function resetPassword(req) {
   await sql`UPDATE users SET password_hash = ${password_hash} WHERE id = ${claimed.user_id}`
 
   return json({ ok: true })
+}
+
+function logout() {
+  const base   = process.env.DEPLOY_PRIME_URL || process.env.URL || 'https://skyviewd.netlify.app'
+  const secure = base.startsWith('https') ? '; Secure' : ''
+  const clear  = `skyview_session=; HttpOnly${secure}; SameSite=Lax; Path=/; Max-Age=0`
+  return new Response(JSON.stringify({ ok: true }), {
+    status: 200,
+    headers: { ...CORS_HEADERS, 'Set-Cookie': clear }
+  })
 }

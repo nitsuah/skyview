@@ -1,6 +1,8 @@
 import { sql } from './utils/db.js'
 import { requireAuth } from './utils/auth.js'
 import { json, error, cors, unauthorized, forbidden, notFound } from './utils/response.js'
+import { stripe } from './utils/stripe.js'
+import { sendBookingConfirmedEmail, sendBookingDeclinedEmail, sendBookingCompletedEmail } from './utils/email.js'
 
 export const config = { path: '/api/bookings*' }
 
@@ -87,6 +89,8 @@ async function createBooking(req) {
     return error('job_id, operator_id, and total_cents are required')
   if (!Number.isInteger(total_cents) || total_cents <= 0 || total_cents > 2_147_483_647)
     return error('total_cents must be a positive integer within the supported range')
+  if (stripe && total_cents < 50)
+    return error('total_cents must be at least 50 cents when payments are enabled', 422)
 
   // Validate operator is verified before creating booking
   const [opProfile] = await sql`
@@ -114,9 +118,26 @@ async function createBooking(req) {
     RETURNING *
   `
 
-  // TODO Phase 2: create Stripe PaymentIntent here and return client_secret
+  let stripe_client_secret = null
+  if (stripe) {
+    try {
+      const intent = await stripe.paymentIntents.create({
+        amount: total_cents,
+        currency: 'usd',
+        capture_method: 'manual',
+        metadata: { booking_id: booking.id, job_id, client_id: user.id, operator_id },
+      })
+      await sql`UPDATE bookings SET stripe_payment_intent_id = ${intent.id} WHERE id = ${booking.id}`
+      stripe_client_secret = intent.client_secret
+    } catch (err) {
+      console.error('Stripe PaymentIntent creation failed:', err.message)
+      await sql`DELETE FROM bookings WHERE id = ${booking.id}`
+      await sql`UPDATE jobs SET status = 'open', assigned_operator_id = NULL WHERE id = ${job_id}`
+      return error('Payment setup failed — please try again', 502)
+    }
+  }
 
-  return json(booking, 201)
+  return json({ ...booking, stripe_client_secret }, 201)
 }
 
 async function getBooking(req, id) {
@@ -147,6 +168,14 @@ async function confirmBooking(req, id) {
     RETURNING *
   `
   if (!updated) return error('Booking is not in a confirmable state', 409)
+
+  const [clientRow] = await sql`SELECT email FROM users WHERE id = ${updated.client_id}`
+  const [jobRow]    = await sql`SELECT title FROM jobs WHERE id = ${updated.job_id}`
+  if (clientRow && jobRow) {
+    await sendBookingConfirmedEmail(clientRow.email, jobRow, user.name)
+      .catch(err => console.error('sendBookingConfirmedEmail failed:', err.message))
+  }
+
   return json(updated)
 }
 
@@ -171,6 +200,24 @@ async function declineBooking(req, id) {
     UPDATE jobs SET status = 'open', assigned_operator_id = NULL
     WHERE id = ${booking.job_id} AND status = 'booked'
   `
+
+  const [clientRow] = await sql`SELECT email FROM users WHERE id = ${updated.client_id}`
+  const [jobRow]    = await sql`SELECT title FROM jobs WHERE id = ${updated.job_id}`
+  if (clientRow && jobRow) {
+    await sendBookingDeclinedEmail(clientRow.email, jobRow)
+      .catch(err => console.error('sendBookingDeclinedEmail failed:', err.message))
+  }
+
+  // Release the payment authorization
+  if (stripe && booking.stripe_payment_intent_id) {
+    try {
+      await stripe.paymentIntents.cancel(booking.stripe_payment_intent_id)
+    } catch (err) {
+      console.error('PI cancel failed for booking', id, err.message)
+      // Non-fatal: Stripe uncaptured PIs auto-expire after 7 days
+    }
+  }
+
   return json(updated)
 }
 
@@ -178,21 +225,125 @@ async function completeBooking(req, id) {
   const user = await requireAuth(req, sql)
   if (!user) return unauthorized()
 
-  const [booking] = await sql`SELECT * FROM bookings WHERE id = ${id}`
+  const [booking] = await sql`
+    SELECT b.*, j.status AS job_status
+    FROM bookings b JOIN jobs j ON b.job_id = j.id
+    WHERE b.id = ${id}
+  `
   if (!booking) return notFound()
   if (booking.client_id !== user.id && user.role !== 'admin') return forbidden()
 
-  // Atomic conditional update — only advances from valid predecessor states
+  // Atomic conditional update: fold the job-status guard into the same statement
+  // so a concurrent job cancellation between the SELECT and here cannot slip through.
+  // The correlated subquery re-reads jobs.status at UPDATE time, eliminating the race.
   const [updated] = await sql`
     UPDATE bookings SET status = 'completed', completed_at = NOW()
-    WHERE id = ${id} AND status IN ('pending', 'confirmed', 'in_progress')
+    WHERE id = ${id}
+      AND status IN ('pending', 'confirmed', 'in_progress')
+      AND (SELECT status FROM jobs WHERE id = job_id) != 'cancelled'
     RETURNING *
   `
-  if (!updated) return error('Booking cannot be marked complete from its current status', 409)
+  if (!updated) return error('Job has been cancelled or booking cannot be completed from its current status', 409)
 
-  await sql`UPDATE jobs SET status = 'completed' WHERE id = ${booking.job_id} AND status != 'completed'`
+  let capturedPi = null
+  if (stripe && updated.stripe_payment_intent_id) {
+    try {
+      capturedPi = await stripe.paymentIntents.capture(updated.stripe_payment_intent_id)
+    } catch (err) {
+      console.error('Stripe capture failed for booking', updated.id, err.message)
+      await sql`UPDATE bookings SET status = 'disputed' WHERE id = ${updated.id}`
+      // Job stays in its previous state since payment did not succeed
+      return json({ ...updated, status: 'disputed' })
+    }
+  }
 
-  // TODO Phase 2: trigger Stripe Transfer to operator here
+  // Update job only after payment is confirmed (or when Stripe is not configured).
+  // Exclude 'cancelled' so a concurrent job cancellation is never overwritten.
+  await sql`UPDATE jobs SET status = 'completed' WHERE id = ${booking.job_id} AND status NOT IN ('completed', 'cancelled')`
+
+  if (capturedPi) {
+    await sql`UPDATE bookings SET payout_status = 'pending' WHERE id = ${updated.id}`
+    try {
+      await payoutAndInvoice(updated, capturedPi.latest_charge)
+      await sql`UPDATE bookings SET payout_status = 'completed' WHERE id = ${updated.id}`
+      // Notify operator only after payout succeeds
+      const [opRow]  = await sql`SELECT email, name FROM users WHERE id = ${updated.operator_id}`
+      const [jobRow] = await sql`SELECT title FROM jobs WHERE id = ${updated.job_id}`
+      if (opRow && jobRow) {
+        await sendBookingCompletedEmail(opRow.email, opRow.name, jobRow, updated.operator_payout_cents)
+          .catch(err => console.error('sendBookingCompletedEmail failed:', err.message))
+      }
+    } catch (err) {
+      console.error('Payout/invoice failed for booking', updated.id, err.message)
+      await sql`UPDATE bookings SET payout_status = 'failed' WHERE id = ${updated.id}`
+      // Service was delivered — completion stands; admin retries payout separately
+    }
+  }
 
   return json(updated)
+}
+
+async function payoutAndInvoice(booking, chargeId = null) {
+  // Transfer to operator if they have Stripe Connect onboarded
+  const [opProfile] = await sql`
+    SELECT stripe_account_id, stripe_onboarded FROM operator_profiles WHERE user_id = ${booking.operator_id}
+  `
+  if (opProfile?.stripe_account_id && opProfile.stripe_onboarded) {
+    const transfer = await stripe.transfers.create(
+      {
+        amount: booking.operator_payout_cents,
+        currency: 'usd',
+        destination: opProfile.stripe_account_id,
+        // source_transaction links the transfer to the specific captured charge
+        // so funds are drawn from that charge rather than platform available balance
+        ...(chargeId ? { source_transaction: chargeId } : {}),
+        metadata: { booking_id: booking.id },
+      },
+      { idempotencyKey: `transfer-${booking.id}` }
+    )
+    await sql`UPDATE bookings SET stripe_transfer_id = ${transfer.id} WHERE id = ${booking.id}`
+  }
+
+  // Let invoice errors propagate so payout_status reflects the true outcome
+  await issueInvoice(booking)
+}
+
+async function issueInvoice(booking) {
+  const [client] = await sql`SELECT id, email, name, stripe_customer_id FROM users WHERE id = ${booking.client_id}`
+  const [job] = await sql`SELECT title FROM jobs WHERE id = ${booking.job_id}`
+  if (!client) return
+
+  let customerId = client.stripe_customer_id
+  if (!customerId) {
+    const customer = await stripe.customers.create(
+      { email: client.email, name: client.name, metadata: { skyview_user_id: client.id } },
+      { idempotencyKey: `create-customer-${client.id}` }
+    )
+    customerId = customer.id
+    // Persist only if not already set (safe under concurrent calls with the same idempotencyKey)
+    await sql`
+      UPDATE users SET stripe_customer_id = ${customerId}
+      WHERE id = ${client.id} AND stripe_customer_id IS NULL
+    `.catch(err => console.error('Failed to persist stripe_customer_id:', err.message))
+  }
+
+  const invoice = await stripe.invoices.create(
+    { customer: customerId, auto_advance: false, metadata: { booking_id: booking.id } },
+    { idempotencyKey: `invoice-${booking.id}` }
+  )
+
+  await stripe.invoiceItems.create(
+    {
+      customer: customerId,
+      invoice: invoice.id,
+      amount: booking.total_cents,
+      currency: 'usd',
+      description: `SkyView Drone Service${job ? ': ' + job.title : ''}`,
+    },
+    { idempotencyKey: `invoice-item-${booking.id}` }
+  )
+
+  const finalized = await stripe.invoices.finalizeInvoice(invoice.id)
+  // Mark paid out-of-band since we captured via PaymentIntent
+  await stripe.invoices.pay(finalized.id, { paid_out_of_band: true })
 }

@@ -43,6 +43,10 @@ async function submitReview(req) {
   if (!booking_id || !rating) return error('booking_id and rating are required')
   if (!Number.isInteger(rating) || rating < 1 || rating > 5)
     return error('rating must be an integer from 1 to 5')
+  if (comment !== undefined && comment !== null && typeof comment !== 'string')
+    return error('comment must be a string')
+  if (typeof comment === 'string' && comment.length > 2000)
+    return error('comment must be 2000 characters or fewer')
 
   const [booking] = await sql`
     SELECT * FROM bookings
