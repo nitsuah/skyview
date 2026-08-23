@@ -41,4 +41,4 @@
 - [ ] Populate production identity fields (phone, email, social URLs, schema coordinates).
   - Priority: P1
   - Context: all fields centralised in `config.js` and `index.html`; placeholders still present.
-  - Acceptance Criteria: no placeholder contact values remain on the live site.
+  - Acceptance Criteria: no placeholder values remain for any identity field on the live site, including phone number, email address, social URLs, and schema coordinates.

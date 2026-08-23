@@ -8,7 +8,7 @@ Next Review: 2026-10-01
 
 ## Completed (Q1–Q3 2026) ✅
 
-> Production-ready static site, test harnesses, SEO, Docker smoke, funnel tracking, Lighthouse monitoring, CSP headers, gallery governance, conversion funnel reporting, A/B testing framework, campaign personalization, and client portal hardening all shipped. See FEATURES.md for full details.
+> Production-ready static site, test harnesses, SEO, Docker smoke, funnel tracking, Lighthouse monitoring, CSP headers, gallery governance, conversion funnel reporting, A/B testing framework, campaign personalization, and client portal hardening (CSP, security headers, and funnel posture) all shipped. Note: server-side portal token validation is a separate in-progress workstream — see In Progress below. See FEATURES.md for full details.
 
 ## In Progress (Q3 2026)
 
