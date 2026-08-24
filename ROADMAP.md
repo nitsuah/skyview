@@ -6,14 +6,14 @@ Next Review: 2026-10-01
 
 > **Planning split:** public FE = landing, gallery, booking, contact, and privacy-safe funnel tracking. `/admin` = separate CMS surface. Client delivery / signed-download auth = separate backend workstream.
 
-## Completed (Q1–Q3 2026) ✅
+## Completed (Q1–Q2 2026, and selected Q3 items) ✅
 
 > Production-ready static site, test harnesses, SEO, Docker smoke, funnel tracking, Lighthouse monitoring, CSP headers, gallery governance, conversion funnel reporting, A/B testing framework, campaign personalization, and client portal hardening (CSP, security headers, and funnel posture) all shipped. Note: server-side portal token validation is a separate in-progress workstream — see In Progress below. See FEATURES.md for full details.
 
 ## In Progress (Q3 2026)
 
 - [ ] Build secure client delivery / portal backend separately from the public marketing FE.
-  - Next: wire `scripts/portal-token.js` to a Netlify Function or edge middleware with `PORTAL_SALT` secret.
+  - Next: wire `scripts/portal-token.js` to a Netlify Function or edge middleware. Requirements: (1) use HMAC-SHA256 (not a truncated SHA-256 checksum) for token generation, (2) `PORTAL_SALT` must be a mandatory production secret — no fallback salt, (3) fail closed (deny access) when `PORTAL_SALT` is absent.
   - Status: platform Netlify Functions scaffolded; portal token validation not yet server-side.
 
 ## Q4 2026 (Planned)
