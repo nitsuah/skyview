@@ -62,14 +62,14 @@ Update in [index.html](index.html):
 
 ### 3. Run Tests 🧪
 ```bash
-# Run unit tests
+# Run Playwright E2E tests
 npm test
 
-# Run Playwright tests (if configured)
-npx playwright test
+# Run unit tests with coverage
+npm run test:unit
 
-# Start local server
-npm run serve
+# Start local static server for manual testing
+npx http-server . -p 8080
 
 # Test in browser at http://localhost:8080
 ```
@@ -110,8 +110,8 @@ git push origin main
 
 #### Step 3: Configure Build Settings
 ```
-Build command: [leave empty]
-Publish directory: .
+Build command: node scripts/build.js
+Publish directory: dist
 ```
 
 #### Step 4: Deploy!
@@ -239,18 +239,9 @@ Add to your form in [index.html](index.html):
 
 ## 🔒 Security Hardening
 
-### 1. Update netlify.toml
-Add security headers:
-```toml
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
-```
+### 1. Security Headers
+
+Security headers (CSP, X-Frame-Options, Permissions-Policy, Referrer-Policy, and X-Robots-Tag on admin/portal routes) are **already defined in netlify.toml**. No manual step required. Review or extend the `[[headers]]` blocks in `netlify.toml` if you need to customise them.
 
 ### 2. Enable HTTPS
 - Automatic on Netlify! ✅
@@ -518,4 +509,4 @@ Send to:
 
 **Need help?** Check the docs folder or review Netlify deploy logs.
 
-**Ready to scale?** Consider Phase 5+ features from ROADMAP.md!
+**Ready to scale?** See ROADMAP.md for planned Q4 2026 and 2027 features.

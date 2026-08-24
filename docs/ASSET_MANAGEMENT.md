@@ -19,6 +19,10 @@ Inside the Admin Panel:
     * **Image**: Upload directly from your computer. Note: Large files will be stored in the repository.
     * **Alt Text**: Describe the image for accessibility.
     * **Category**: Select the appropriate category for future filtering.
+    * **Season**: Optionally tag the image with a season (spring, summer, fall, winter, all).
+    * **Display Order**: Set the sort priority (1–999; lower numbers appear first).
+    * **Active**: Uncheck to hide the item without deleting it.
+    * **Featured**: Check to mark the item for spotlight use.
 4. **Publish**: Click "Publish" to save changes. This will automatically trigger a site deployment.
 
 ## Using External Assets (Cloudinary/S3)
@@ -49,7 +53,33 @@ To enable direct Cloudinary uploads from the Admin panel:
 
 ## 4. Video Assets
 
-Currently, the gallery supports images. For video:
+Video is **natively supported**. The gallery renders `<video>` elements with playback controls for any entry that has `"type": "video"` in `assets/gallery.json`. No external hosting (YouTube/Vimeo) is required for MP4/MOV files.
 
-1. Upload video to YouTube/Vimeo.
-2. We will need to update the `gallery-loader.js` to handle video URLs if you wish to display efficient video embeds.
+Add a video entry to `assets/gallery.json`:
+
+```json
+{
+  "src": "assets/gallery/your-clip.mp4",
+  "alt": "Aerial flyover of the marina",
+  "category": "landscape",
+  "type": "video",
+  "active": true
+}
+```
+
+Place the file in `assets/gallery/` and push — the gallery loads it automatically.
+
+## 5. Gallery JSON Fields
+
+All fields supported in `assets/gallery.json` (editable via the Decap CMS admin panel or directly):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| src | string | yes | Path or URL to the image/video file |
+| alt | string | yes | Alt text (accessibility and SEO) |
+| category | string | yes | One of: events, real_estate, landscape, commercial |
+| season | string | no | One of: all, spring, summer, fall, winter (default: all) |
+| displayOrder | number | no | Sort priority 1–999; lower = appears first |
+| active | boolean | no | false hides the item without deleting it (default: true) |
+| featured | boolean | no | Marks entry for spotlight use (default: false) |
+| type | string | no | Set to `"video"` for MP4/MOV files; omit or leave blank for images |
