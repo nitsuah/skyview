@@ -28,7 +28,7 @@
   "homepage": "https://github.com/nitsuah/skyview#readme",
   "devDependencies": {
     "@playwright/test": "^1.62.1",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.11",
     "happy-dom": "^20.11.2",
     "netlify-cli": "^27.1.1",
     "vitest": "^4.1.10"
