@@ -28,6 +28,27 @@ describe('config branding', () => {
                 <span class="logo-text" data-company-name>Placeholder Co</span>
                 <p data-company-legal>Placeholder Co</p>
             </footer>
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "LocalBusiness",
+                "name": "Placeholder Co",
+                "email": "old@example.com",
+                "telephone": "+0 (000) 000-0000",
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": "Old City",
+                    "addressRegion": "Old State",
+                    "addressCountry": "US"
+                },
+                "geo": {
+                    "@type": "GeoCoordinates",
+                    "latitude": "0.0",
+                    "longitude": "0.0"
+                },
+                "sameAs": ["https://old-twitter.example"]
+            }
+            </script>
         `;
         delete window.SKYVIEW_CONFIG;
     });
@@ -50,5 +71,18 @@ describe('config branding', () => {
         expect(document.querySelector('[data-contact-email]').textContent).toBe(window.SKYVIEW_CONFIG.contact.email);
         expect(document.querySelector('[data-contact-phone]').textContent).toBe(window.SKYVIEW_CONFIG.contact.phone);
         expect(document.querySelector('[data-social-link="instagram"]').getAttribute('href')).toBe(window.SKYVIEW_CONFIG.contact.social.instagram);
+
+        const jsonLd = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent);
+        expect(jsonLd.address.addressLocality).toBe(window.SKYVIEW_CONFIG.contact.address.locality);
+        expect(jsonLd.address.addressRegion).toBe(window.SKYVIEW_CONFIG.contact.address.region);
+        expect(jsonLd.address.addressCountry).toBe(window.SKYVIEW_CONFIG.contact.address.country);
+        expect(jsonLd.geo.latitude).toBe(window.SKYVIEW_CONFIG.contact.geo.latitude);
+        expect(jsonLd.geo.longitude).toBe(window.SKYVIEW_CONFIG.contact.geo.longitude);
+        expect(jsonLd.sameAs).toEqual([
+            window.SKYVIEW_CONFIG.contact.social.facebook,
+            window.SKYVIEW_CONFIG.contact.social.twitter,
+            window.SKYVIEW_CONFIG.contact.social.instagram,
+            window.SKYVIEW_CONFIG.contact.social.youtube
+        ]);
     });
 });

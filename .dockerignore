@@ -3,6 +3,9 @@
 coverage
 docs
 node_modules
+platform/node_modules
+platform/dist
+dist
 playwright-report
 test-results
 tests
@@ -12,3 +15,6 @@ playwright.config.ts
 eslint.config.mjs
 stylelint.config.mjs
 scripts/convert-to-webp.js
+.env
+.env.*
+!.env.example
