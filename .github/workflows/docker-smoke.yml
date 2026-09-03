@@ -36,6 +36,12 @@ jobs:
           docker logs skyview-smoke
           exit 1
 
+      - name: Check /app/ SPA fallback and deep route
+        run: |
+          curl -fsS http://127.0.0.1:8080/app/ >/dev/null
+          curl -fsS http://127.0.0.1:8080/app/some/deep/route >/dev/null
+          echo "SPA fallback and deep route responded"
+
       - name: Stop container
         if: always()
         run: docker rm -f skyview-smoke

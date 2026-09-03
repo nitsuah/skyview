@@ -1,15 +1,22 @@
+# NOTE: relative paths (build context, volume sources) below are resolved
+# relative to *this file's directory* by Docker Compose, not the directory
+# you invoke `docker compose` from. Since the documented invocation is
+# `docker compose -f config/docker-compose.yml ...` run from the repo root,
+# every relative path here is written as `..` to reach the repo root that
+# actually contains the Dockerfile, package.json, and source tree.
 services:
   web:
     build:
-      context: .
+      context: ..
+      dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - "8080:8080"
 
   unit:
-    image: node:20-alpine
+    image: node:22-alpine
     working_dir: /workspace
     environment:
       - npm_config_cache=/tmp/.npm
     volumes:
-      - .:/workspace
+      - ..:/workspace
     command: sh -lc "npm ci && npx vitest run --config config/vitest.config.ts --coverage"
