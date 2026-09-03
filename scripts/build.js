@@ -26,7 +26,7 @@ for (const dir of staticDirs) {
 }
 
 // Remove Node.js-only tooling scripts that must not be publicly served
-const toolingScripts = ['build.js', 'migrate.js', 'convert-to-webp.js']
+const toolingScripts = ['build.js', 'migrate.js', 'convert-to-webp.js', 'portal-token.js']
 for (const f of toolingScripts) {
   const p = resolve(dist, 'scripts', f)
   if (existsSync(p)) rmSync(p)

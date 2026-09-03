@@ -21,6 +21,17 @@ const DRONE_MARKUP = `
     </div>
 `;
 
+// How far the drone hovers from the raw pointer position (up-and-right of the
+// cursor, so it reads as "escorting" the pointer rather than sitting on it).
+const DRONE_OFFSET_X = 52;
+const DRONE_OFFSET_Y = -46;
+
+// Half-width/height of the drone's visual center within its `.cursor-drone`
+// box (56x42), used to anchor the spotlight beam on the drone body rather
+// than its top-left corner.
+const DRONE_CENTER_X = 28;
+const DRONE_CENTER_Y = 21;
+
 function shouldDisableDroneCursor() {
     if (typeof window === 'undefined') {
         return true;
@@ -52,10 +63,20 @@ export function initDroneCursor() {
     drone.innerHTML = DRONE_MARKUP;
     document.body.appendChild(drone);
 
+    // Transparent spotlight/laser line rendered from the drone body to the
+    // real pointer position, so the drone reads as "watching" the cursor
+    // even while it hovers offset from it.
+    const beam = document.createElement('div');
+    beam.className = 'cursor-drone__beam';
+    beam.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(beam);
+
     let currentX = window.innerWidth * 0.72;
     let currentY = Math.max(120, window.innerHeight * 0.2);
     let targetX = currentX;
     let targetY = currentY;
+    let pointerX = currentX;
+    let pointerY = currentY;
     let frameId = null;
 
     const requestFrame = window.requestAnimationFrame?.bind(window) || ((callback) => window.setTimeout(callback, 16));
@@ -73,6 +94,17 @@ export function initDroneCursor() {
         drone.style.transform = `translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0)`;
         drone.classList.add('is-visible');
 
+        const droneCenterX = currentX + DRONE_CENTER_X;
+        const droneCenterY = currentY + DRONE_CENTER_Y;
+        const beamDx = pointerX - droneCenterX;
+        const beamDy = pointerY - droneCenterY;
+        const beamLength = Math.hypot(beamDx, beamDy);
+        const beamAngle = Math.atan2(beamDy, beamDx) * (180 / Math.PI);
+
+        beam.style.width = `${beamLength.toFixed(2)}px`;
+        beam.style.transform = `translate3d(${droneCenterX.toFixed(2)}px, ${droneCenterY.toFixed(2)}px, 0) rotate(${beamAngle.toFixed(2)}deg)`;
+        beam.classList.add('is-visible');
+
         if (Math.abs(dx) > 0.3 || Math.abs(dy) > 0.3) {
             frameId = requestFrame(render);
             return;
@@ -82,8 +114,10 @@ export function initDroneCursor() {
     };
 
     const moveDrone = (event) => {
-        targetX = event.clientX + 18;
-        targetY = event.clientY - 20;
+        targetX = event.clientX + DRONE_OFFSET_X;
+        targetY = event.clientY + DRONE_OFFSET_Y;
+        pointerX = event.clientX;
+        pointerY = event.clientY;
 
         document.documentElement.style.setProperty('--pointer-x', `${event.clientX}px`);
         document.documentElement.style.setProperty('--pointer-y', `${event.clientY}px`);
@@ -95,7 +129,14 @@ export function initDroneCursor() {
 
     const boostDrone = () => drone.classList.add('cursor-drone--boost');
     const settleDrone = () => drone.classList.remove('cursor-drone--boost');
-    const hideDrone = () => drone.classList.remove('is-visible');
+    const hideDrone = () => {
+        if (frameId !== null) {
+            cancelFrame(frameId);
+            frameId = null;
+        }
+        drone.classList.remove('is-visible');
+        beam.classList.remove('is-visible');
+    };
 
     drone.style.transform = `translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0)`;
 
