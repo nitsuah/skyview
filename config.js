@@ -42,15 +42,38 @@ window.SKYVIEW_CONFIG = {
     },
     
     // Contact information
+    // PRODUCTION LAUNCH: every value below is a placeholder. This is the
+    // single place to enter real business identity data — updating these
+    // fields propagates to the visible contact info, meta tags, and the
+    // schema.org LocalBusiness structured data via applyContactIdentity()
+    // and updateStructuredData() below. See TASKS.md for the outstanding
+    // "populate production identity fields" item.
     contact: {
         email: 'contact@skyviewdynamics.com',
         phone: '+1 (555) 123-4567',
         phoneE164: '+15551234567',
         // Social media - Update with real URLs when ready
         social: {
+            facebook: 'https://facebook.com',
             twitter: 'https://twitter.com',
             instagram: 'https://instagram.com',
             youtube: 'https://youtube.com'
+        },
+        // Service-area address for the schema.org LocalBusiness listing.
+        // A full street address is optional for a mobile/service-area
+        // business — city + region + country is sufficient for SEO.
+        address: {
+            locality: 'Your City',
+            region: 'State',
+            country: 'US'
+        },
+        // Approximate service-area coordinates (decimal degrees) for the
+        // schema.org GeoCoordinates block. Used for local search relevance,
+        // not pinpoint navigation — an approximate service-area centroid
+        // is fine.
+        geo: {
+            latitude: '0.0',
+            longitude: '0.0'
         }
     },
     
@@ -167,6 +190,17 @@ function updateStructuredData(companyName) {
                 }
                 if (parsed.publisher && typeof parsed.publisher === 'object' && socialLinks.length) {
                     parsed.publisher.sameAs = socialLinks;
+                }
+                if (contact.address && parsed.address && typeof parsed.address === 'object') {
+                    if (contact.address.locality) parsed.address.addressLocality = contact.address.locality;
+                    if (contact.address.region) parsed.address.addressRegion = contact.address.region;
+                    if (contact.address.country) parsed.address.addressCountry = contact.address.country;
+                    if (contact.address.street) parsed.address.streetAddress = contact.address.street;
+                    if (contact.address.postalCode) parsed.address.postalCode = contact.address.postalCode;
+                }
+                if (contact.geo && parsed.geo && typeof parsed.geo === 'object') {
+                    if (contact.geo.latitude) parsed.geo.latitude = contact.geo.latitude;
+                    if (contact.geo.longitude) parsed.geo.longitude = contact.geo.longitude;
                 }
             }
 

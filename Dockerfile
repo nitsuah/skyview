@@ -1,18 +1,23 @@
-# Use a lightweight Nginx image to serve the static site
-FROM nginx:alpine
+# ---- Build stage --------------------------------------------------------
+# Runs the same build scripts/build.js uses on Netlify, so the Docker image
+# and the production deploy serve identical output — including the
+# marketplace platform SPA at /app, which previously was never built or
+# copied into this image (it only ran on Netlify's own build).
+FROM node:22-alpine AS build
+WORKDIR /workspace
 
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+RUN node scripts/build.js
+
+# ---- Serve stage ----------------------------------------------------------
+FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 
-# Copy only the assets required to serve the site.
-COPY index.html ./
-COPY pages ./pages
-COPY robots.txt ./
-COPY sitemap.xml ./
-COPY config.js ./
-COPY admin ./admin
-COPY assets ./assets
-COPY scripts ./scripts
-COPY styles ./styles
+COPY config/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /workspace/dist ./
 
 # Expose port 80
 EXPOSE 80

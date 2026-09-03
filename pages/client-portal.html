@@ -441,6 +441,32 @@
                 updateAttemptUI();
             }
 
+            // Server-side verification (HMAC-SHA256, PORTAL_SALT-keyed — see
+            // netlify/functions/api-portal.mjs). Client-side checks below
+            // (expiry parsing, rate limiting) are defense-in-depth UX only;
+            // the server call is the actual access decision and fails
+            // closed on any network error or non-2xx response.
+            function verifyAccessCode(code) {
+                return fetch('/api/portal/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code })
+                }).then(function (response) {
+                    if (response.status === 503) {
+                        return { valid: false, unavailable: true };
+                    }
+                    if (!response.ok) {
+                        return { valid: false };
+                    }
+                    return response.json().then(function (data) {
+                        return { valid: !!data.valid, clientId: data.clientId };
+                    });
+                }).catch(function () {
+                    // Network/parse failure — fail closed, do not grant access.
+                    return { valid: false, unavailable: true };
+                });
+            }
+
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
 
@@ -457,40 +483,47 @@
                     return;
                 }
 
+                if (isTokenExpired(accessCode)) {
+                    showError('This access link has expired. Please contact us to request a new one.');
+                    recordFailedAttempt();
+                    updateAttemptUI();
+                    return;
+                }
+
                 loginView.style.display = 'none';
                 loadingView.classList.add('show');
 
-                setTimeout(function () {
-                    if (isTokenExpired(accessCode)) {
-                        loadingView.classList.remove('show');
-                        loginView.style.display = 'block';
-                        showError('This access link has expired. Please contact us to request a new one.');
-                        recordFailedAttempt();
+                verifyAccessCode(accessCode).then(function (result) {
+                    loadingView.classList.remove('show');
+
+                    if (result.valid) {
+                        clearAttempts();
+                        window.location.href = '/pages/client-gallery.html?code=' + encodeURIComponent(accessCode);
+                        return;
+                    }
+
+                    loginView.style.display = 'block';
+
+                    if (result.unavailable) {
+                        showError('Portal verification is temporarily unavailable. Please try again shortly or contact us.');
                         updateAttemptUI();
                         return;
                     }
 
-                    if (accessCode.length >= 8) {
-                        clearAttempts();
-                        window.location.href = '/pages/client-gallery.html?code=' + encodeURIComponent(accessCode);
-                    } else {
-                        var state = recordFailedAttempt();
-                        loadingView.classList.remove('show');
-                        loginView.style.display = 'block';
-                        updateAttemptUI();
+                    var state = recordFailedAttempt();
+                    updateAttemptUI();
 
-                        if (isLockedOut()) {
-                            setLocked(true);
-                            var lockMins = getLockoutMinutesRemaining();
-                            showError('Too many failed attempts. Please wait ' + lockMins + ' minute' + (lockMins === 1 ? '' : 's') + ' before trying again.');
-                            showWarning('Account temporarily locked after ' + MAX_ATTEMPTS + ' failed attempts.');
-                        } else {
-                            var remaining = MAX_ATTEMPTS - state.count;
-                            showError('Invalid access code. Please check your email or contact us for help.' +
-                                (remaining > 0 ? ' (' + remaining + ' attempt' + (remaining === 1 ? '' : 's') + ' remaining)' : ''));
-                        }
+                    if (isLockedOut()) {
+                        setLocked(true);
+                        var lockMins = getLockoutMinutesRemaining();
+                        showError('Too many failed attempts. Please wait ' + lockMins + ' minute' + (lockMins === 1 ? '' : 's') + ' before trying again.');
+                        showWarning('Account temporarily locked after ' + MAX_ATTEMPTS + ' failed attempts.');
+                    } else {
+                        var remaining = MAX_ATTEMPTS - state.count;
+                        showError('Invalid access code. Please check your email or contact us for help.' +
+                            (remaining > 0 ? ' (' + remaining + ' attempt' + (remaining === 1 ? '' : 's') + ' remaining)' : ''));
                     }
-                }, 800 + Math.floor(Math.random() * 400));
+                });
             });
 
             // Auto-fill from URL param (email link flow)

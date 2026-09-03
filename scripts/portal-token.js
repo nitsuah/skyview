@@ -2,27 +2,18 @@
  * Client Portal Token Generator
  *
  * Usage (Node.js):
- *   node scripts/portal-token.js --client wedding-johnson --days 30
+ *   PORTAL_SALT=<secret> node scripts/portal-token.js --client wedding-johnson --days 30
  *
- * Format: base64(clientId).expiry_unix.checksum
- * The portal validates that the expiry has not passed before granting access.
- * For a real backend, replace the checksum with an HMAC-SHA256 using a server secret.
+ * Format: base64url(clientId).expiry_unix.HMAC-SHA256(clientB64.expiry, PORTAL_SALT)
+ * The token is verified server-side by netlify/functions/api-portal.mjs, which
+ * checks the signature and expiry before granting portal access — see
+ * netlify/functions/utils/portal.js for the shared implementation.
+ *
+ * PORTAL_SALT has no fallback. Generating a token without it set is refused,
+ * matching the fail-closed behavior of the verification endpoint.
  */
 
-import { createHash } from 'crypto';
-
-const INTERNAL_SALT = process.env.PORTAL_SALT || 'skyview-portal-dev-salt-change-in-prod';
-
-function generateToken(clientId, expiryDays = 30) {
-    const expiryUnix = Math.floor(Date.now() / 1000) + expiryDays * 86400;
-    const clientB64 = Buffer.from(clientId).toString('base64url');
-    const checksum = createHash('sha256')
-        .update(`${clientB64}:${expiryUnix}:${INTERNAL_SALT}`)
-        .digest('hex')
-        .slice(0, 12);
-
-    return `${clientB64}.${expiryUnix}.${checksum}`;
-}
+import { generatePortalToken } from '../netlify/functions/utils/portal.js';
 
 function parseArgs(argv) {
     const args = {};
@@ -36,11 +27,19 @@ function parseArgs(argv) {
     return args;
 }
 
+const salt = process.env.PORTAL_SALT;
+if (!salt) {
+    console.error('ERROR: PORTAL_SALT environment variable is required — there is no dev fallback.');
+    console.error('Set it to a strong, random secret (the same value configured in Netlify) before running:');
+    console.error('  PORTAL_SALT=$(openssl rand -hex 32) node scripts/portal-token.js --client <id> --days 30');
+    process.exit(1);
+}
+
 const args = parseArgs(process.argv);
 const clientId = args.client || 'demo-client';
-const days = parseInt(args.days, 10) || 30;
+const days = Number.parseInt(args.days, 10) || 30;
 
-const token = generateToken(clientId, days);
+const token = generatePortalToken(clientId, days, salt);
 const expiryDate = new Date((Math.floor(Date.now() / 1000) + days * 86400) * 1000);
 
 console.log('');
@@ -50,7 +49,8 @@ console.log(`Expires: ${expiryDate.toDateString()} (${days} days)`);
 console.log(`Token:   ${token}`);
 console.log('');
 console.log('Portal URL:');
-console.log(`  https://skyviewdynamics.com/client-portal.html?code=${encodeURIComponent(token)}`);
+console.log(`  https://skyviewdynamics.com/pages/client-portal.html?code=${encodeURIComponent(token)}`);
 console.log('');
-console.log('NOTE: Set PORTAL_SALT env var to a secret value before generating production tokens.');
+console.log('NOTE: PORTAL_SALT must match the value set in the Netlify site environment');
+console.log('      variables — otherwise this token will fail server-side verification.');
 console.log('');
