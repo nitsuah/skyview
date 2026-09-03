@@ -21,7 +21,7 @@ jobs:
         run: docker build -t skyview-docker-smoke .
 
       - name: Start container
-        run: docker run -d --name skyview-smoke -p 8080:80 skyview-docker-smoke
+        run: docker run -d --name skyview-smoke -p 8080:8080 skyview-docker-smoke
 
       - name: Wait for app
         run: |

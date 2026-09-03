@@ -36,7 +36,8 @@ export function generatePortalToken(clientId, expiryDays, salt) {
         throw new Error('clientId is required to generate a portal token.');
     }
 
-    const expiryUnix = Math.floor(Date.now() / 1000) + Math.max(1, expiryDays || 30) * 86400;
+    const durationDays = Number.isFinite(expiryDays) ? Math.max(1, expiryDays || 30) : 30;
+    const expiryUnix = Math.floor(Date.now() / 1000 + durationDays * 86400);
     const clientB64 = Buffer.from(clientId).toString('base64url');
     const signature = sign(clientB64, expiryUnix, salt);
 
