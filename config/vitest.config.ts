@@ -8,6 +8,9 @@ export default defineConfig({
             include: ['scripts/**/*.js'],
             exclude: [
                 'scripts/convert-to-webp.js', // Node.js build script, not browser code
+                'scripts/build.js', // Node.js build script, not browser code
+                'scripts/migrate.js', // Node.js DB migration CLI, not browser code
+                'scripts/portal-token.js', // Node.js CLI; signing logic itself is covered via netlify/functions/utils/portal.js in tests/unit/portal-token.test.js
                 'scripts/conversion-tracking.js', // Better validated through integration flows
                 'scripts/drone-cursor.js', // Visual polish validated via browser behavior
                 'scripts/form.js', // Form flow covered in integration/e2e checks
