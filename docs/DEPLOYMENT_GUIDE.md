@@ -40,10 +40,13 @@ features: {
     clientPortal: false,    // ⏳ Keep disabled until production ready
     adminCMS: true,         // ✅ Enable for content management
     preview3D: false,       // ⏳ Future feature
-    analytics: true         // ✅ Enable after adding tracking ID
+    analytics: true,        // ✅ Enable after adding tracking ID
+    platform: false         // ⏳ Marketplace mode — see ROADMAP.md before enabling
 },
 
-calendlyUrl: 'https://calendly.com/YOUR-USERNAME/consultation'  // 🔴 UPDATE THIS!
+calendly: {
+    url: 'https://calendly.com/YOUR-USERNAME/consultation'  // 🔴 UPDATE THIS!
+}
 ```
 
 #### B. Analytics (index.html)
@@ -54,11 +57,11 @@ Uncomment and add your tracking ID:
 ```
 
 #### C. Contact Information
-Update in [index.html](index.html):
-- Email address
-- Phone number
-- Social media links
-- Business address (if applicable)
+Update the `contact` block in `config.js` — it's the single place to enter this data, and it propagates to the visible contact info, meta tags, and schema.org structured data automatically:
+- `email`, `phone` / `phoneE164`
+- `social.facebook` / `.twitter` / `.instagram` / `.youtube`
+- `address.locality` / `.region` / `.country` (and `.street` / `.postalCode` if applicable)
+- `geo.latitude` / `.longitude` (approximate service-area coordinates)
 
 ### 3. Run Tests 🧪
 ```bash
@@ -472,7 +475,6 @@ Send to:
 - 📖 docs/CONFIG.md - Feature flags guide
 - 📖 docs/WEBP_OPTIMIZATION.md - Image optimization
 - 📖 docs/PERFORMANCE_CHECKLIST.md - Performance guide
-- 📖 docs/MANUAL_SETUP.md - Configuration steps
 
 ### Resources
 - **Netlify Docs**: https://docs.netlify.com/

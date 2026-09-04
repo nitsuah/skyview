@@ -217,7 +217,6 @@ Before going live:
 ## 📚 Documentation Index
 
 - `DEPLOYMENT_GUIDE.md` - Detailed Netlify deployment
-- `MANUAL_SETUP.md` - All manual configuration steps
 - `CONFIG.md` - config.js reference
 - `WEBP_OPTIMIZATION.md` - Image optimization details
 - `EMAIL_NOTIFICATIONS.md` - Form notification setup
