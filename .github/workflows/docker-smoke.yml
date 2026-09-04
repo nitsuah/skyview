@@ -21,7 +21,7 @@ jobs:
         run: docker build -t skyview-docker-smoke .
 
       - name: Start container
-        run: docker run -d --name skyview-smoke -p 8080:80 skyview-docker-smoke
+        run: docker run -d --name skyview-smoke -p 8080:8080 skyview-docker-smoke
 
       - name: Wait for app
         run: |
@@ -35,6 +35,12 @@ jobs:
           echo "Skyview did not respond within timeout"
           docker logs skyview-smoke
           exit 1
+
+      - name: Check /app/ SPA fallback and deep route
+        run: |
+          curl -fsS http://127.0.0.1:8080/app/ >/dev/null
+          curl -fsS http://127.0.0.1:8080/app/some/deep/route >/dev/null
+          echo "SPA fallback and deep route responded"
 
       - name: Stop container
         if: always()

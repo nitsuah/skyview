@@ -19,10 +19,17 @@ WORKDIR /usr/share/nginx/html
 COPY config/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /workspace/dist ./
 
-# Expose port 80
-EXPOSE 80
+# Run as an unprivileged user on an unprivileged port (Checkov CKV_DOCKER_3).
+RUN chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/log/nginx /var/run \
+    && touch /var/run/nginx.pid \
+    && chown nginx:nginx /var/run/nginx.pid
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1/ || exit 1
+USER nginx
+
+# Expose port 8080 (unprivileged, so the container can run without root)
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]

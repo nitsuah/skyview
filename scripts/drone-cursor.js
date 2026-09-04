@@ -130,6 +130,10 @@ export function initDroneCursor() {
     const boostDrone = () => drone.classList.add('cursor-drone--boost');
     const settleDrone = () => drone.classList.remove('cursor-drone--boost');
     const hideDrone = () => {
+        if (frameId !== null) {
+            cancelFrame(frameId);
+            frameId = null;
+        }
         drone.classList.remove('is-visible');
         beam.classList.remove('is-visible');
     };

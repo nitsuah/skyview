@@ -42,16 +42,36 @@ describe('drone cursor', () => {
 
         initDroneCursor();
 
+        const pointerX = 300;
+        const pointerY = 300;
         window.dispatchEvent(new MouseEvent('pointermove', {
-            clientX: 300,
-            clientY: 300
+            clientX: pointerX,
+            clientY: pointerY
         }));
 
         const beam = document.querySelector('.cursor-drone__beam');
         expect(beam).toBeTruthy();
         expect(beam.classList.contains('is-visible')).toBe(true);
-        // Beam should stretch from the drone toward the pointer.
-        expect(parseFloat(beam.style.width)).toBeGreaterThan(0);
-        expect(beam.style.transform).toContain('rotate(');
+
+        // The rAF mock runs synchronously and recursively until the easing
+        // loop converges (within 0.3px), so the drone settles near its target.
+        // Compute the expected beam geometry from the same constants, allowing
+        // a small tolerance for the convergence threshold.
+        const DRONE_OFFSET_X = 52;
+        const DRONE_OFFSET_Y = -46;
+        const DRONE_CENTER_X = 28;
+        const DRONE_CENTER_Y = 21;
+
+        const droneCenterX = pointerX + DRONE_OFFSET_X + DRONE_CENTER_X;
+        const droneCenterY = pointerY + DRONE_OFFSET_Y + DRONE_CENTER_Y;
+        const beamDx = pointerX - droneCenterX;
+        const beamDy = pointerY - droneCenterY;
+        const expectedLength = Math.hypot(beamDx, beamDy);
+        const expectedAngle = Math.atan2(beamDy, beamDx) * (180 / Math.PI);
+
+        expect(parseFloat(beam.style.width)).toBeCloseTo(expectedLength, 0);
+
+        const actualAngle = parseFloat(beam.style.transform.match(/rotate\(([-\d.]+)deg\)/)[1]);
+        expect(actualAngle).toBeCloseTo(expectedAngle, 0);
     });
 });
