@@ -36,7 +36,7 @@ A stunning, high-tech website for professional drone services featuring a minima
 
 ## 🚀 Quick Start
 
-**📘 New Owner?** Start with **[OWNER_GUIDE.md](OWNER_GUIDE.md)** - your complete 30-minute launch guide!
+**📘 New Owner?** Start with **[OWNER_GUIDE.md](docs/OWNER_GUIDE.md)** - your complete 30-minute launch guide!
 
 **🛠️ Developer?** See **[Getting Started Guide](docs/GETTING_STARTED.md)** for technical setup.
 
@@ -136,8 +136,7 @@ npm run optimize:images  # Convert images to WebP
 
 ### Start Here
 - 📖 **[Getting Started Guide](docs/GETTING_STARTED.md)** - **Start here!** Complete setup walkthrough
-- 📖 [Quick Start](QUICKSTART.md) - 5-minute local setup
-- 📖 [Manual Setup Checklist](docs/MANUAL_SETUP.md) - All configuration steps
+- 📘 [Owner's Guide](docs/OWNER_GUIDE.md) - 30-minute non-technical launch guide
 
 ### Deployment & Management
 - 🚀 [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - Netlify deployment
@@ -149,7 +148,6 @@ npm run optimize:images  # Convert images to WebP
 ### Content Management
 - 📝 [CMS Editing Guide](docs/CMS_GUIDE.md) - How to update gallery content via Decap CMS
 - 🖼️ [WebP Optimization](docs/WEBP_OPTIMIZATION.md) - Image optimization guide
-- 🎬 [WebP Implementation](docs/WEBP_IMPLEMENTATION.md) - Technical details
 - 🔒 [Client Portal](docs/CLIENT_PORTAL.md) - Client file delivery system
 - 📁 [Asset Management](docs/ASSET_MANAGEMENT.md) - Organizing media files
 
@@ -160,7 +158,7 @@ npm run optimize:images  # Convert images to WebP
 ### Project Overview
 - 📋 [Roadmap](ROADMAP.md) - Project phases and progress
 - ✅ [Tasks](TASKS.md) - Todo list
-- 📊 [Project Status](PROJECT_STATUS.md) - Complete overview
+- 📈 [Metrics](METRICS.md) - Test coverage and performance baseline
 
 ## ⚙️ Configuration
 
@@ -187,7 +185,7 @@ features: {
 3. Run `npm run optimize:images`
 4. Deploy to Netlify
 
-See [MANUAL_SETUP.md](docs/MANUAL_SETUP.md) for detailed steps.
+See [Configuration Reference](docs/CONFIG.md) for detailed steps.
 
 ## 🚀 Deployment
 

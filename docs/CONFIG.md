@@ -11,15 +11,19 @@ The Skyview website uses a simple configuration file (`config.js`) to control wh
 ```javascript
 window.SKYVIEW_CONFIG = {
     features: {
-        testimonials: false,    // ← Change to true when you have reviews
-        contactForm: false,     // ← Change to true when ready for leads
-        calendly: true,         // ← Already enabled (ready to use!)
-        clientPortal: false,    // ← Enable when ready to deliver files
-        adminCMS: true,         // ← Enable when Netlify Identity is set up
-        analytics: false        // ← Enable when analytics is configured
+        testimonials: false,       // ← Change to true when you have reviews
+        contactForm: true,         // ← Already enabled (ready to use!)
+        calendly: true,            // ← Already enabled (ready to use!)
+        clientPortal: false,       // ← Enable when ready to deliver files
+        adminCMS: true,            // ← Enable when Netlify Identity is set up
+        analytics: false,          // ← Enable when analytics is configured
+        analyticsDebugPanel: false,// ← Persistent conversion metrics panel (dev/debug)
+        platform: false            // ← Marketplace mode; see ROADMAP.md before enabling
     }
 }
 ```
+
+Current live defaults are always in `config.js` itself — treat the snippet above as illustrative, not authoritative.
 
 **That's it!** Change `false` to `true` to enable, `true` to `false` to disable.
 
@@ -204,21 +208,39 @@ Then set up your chosen provider account and update the domain.
 
 ### Contact Information
 
-Update your real contact details:
+This is the **single place** to enter real business identity data. It
+propagates to the visible contact info (`[data-contact-email]` /
+`[data-contact-phone]` elements), meta tags, and the schema.org
+`LocalBusiness` structured data automatically (`applyContactIdentity()` and
+`updateStructuredData()` in `config.js`) — no other file needs to change.
 
 ```javascript
 contact: {
     email: 'your@email.com',
     phone: '+1 (555) 123-4567',
+    phoneE164: '+15551234567',
     social: {
+        facebook: 'https://facebook.com/yourpage',
         twitter: 'https://twitter.com/yourusername',
         instagram: 'https://instagram.com/yourusername',
         youtube: 'https://youtube.com/yourchannel'
+    },
+    address: {
+        locality: 'Your City',
+        region: 'State',
+        country: 'US'
+        // street / postalCode optional — a service-area business doesn't need a full street address
+    },
+    geo: {
+        latitude: '0.0',   // approximate service-area coordinates, not pinpoint navigation
+        longitude: '0.0'
     }
 }
 ```
 
-These are used in the "Coming Soon" message when the contact form is disabled.
+As of the 2026-09 cycle, every value above is still a placeholder on the
+live site — see TASKS.md "Complete the launch checklist with verified
+production identity data" for exactly what's needed from the business owner.
 
 ---
 
