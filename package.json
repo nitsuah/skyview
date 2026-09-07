@@ -38,7 +38,7 @@
     "@netlify/blobs": "^11.0.1",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.9",
-    "netlify-cli": "^27.4.2",
+    "netlify-cli": "^27.4.3",
     "resend": "^6.25.0",
     "stripe": "^22.6.0"
   },
