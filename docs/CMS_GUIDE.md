@@ -12,7 +12,7 @@ SkyView uses [Decap CMS](https://decapcms.org/) (formerly Netlify CMS) with a Gi
 - **Netlify Identity** must be enabled and you must have accepted an invitation.
 - **Git Gateway** must be enabled under Netlify → Site settings → Identity → Services.
 
-If you have not completed these steps, follow [GETTING_STARTED.md](GETTING_STARTED.md) (Step 3) or [MANUAL_SETUP.md](MANUAL_SETUP.md) first.
+If you have not completed these steps, follow [GETTING_STARTED.md](GETTING_STARTED.md) (Step 3) first.
 
 ---
 
@@ -118,5 +118,4 @@ Video is natively supported — no YouTube or Vimeo embed required. Add videos t
 
 - [Decap CMS Documentation](https://decapcms.org/docs/intro/)
 - [Asset Management Guide](ASSET_MANAGEMENT.md) — full gallery JSON field reference
-- [MANUAL_SETUP.md](MANUAL_SETUP.md) — initial Netlify Identity and Git Gateway setup
-- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) — Netlify deployment reference
+- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) — Netlify deployment reference (includes Identity + Git Gateway setup)

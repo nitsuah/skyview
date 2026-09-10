@@ -8,13 +8,13 @@
 
 ```bash
 # Development
-npm run serve                    # Start dev server (port 8080)
+npm run dev                      # Start Netlify dev server (port 8888)
 npm run optimize:images          # Convert images to WebP
 
 # Testing
 npm test                         # Run E2E tests
-npx vitest run                   # Run unit tests
-npx vitest --coverage           # Run with coverage
+npm run test:unit                # Run unit tests
+npm run test:unit -- --coverage  # Run with coverage
 
 # Lighthouse Score
 # F12 → Lighthouse tab → Generate report

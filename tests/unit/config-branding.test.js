@@ -41,11 +41,6 @@ describe('config branding', () => {
                     "addressRegion": "Old State",
                     "addressCountry": "US"
                 },
-                "geo": {
-                    "@type": "GeoCoordinates",
-                    "latitude": "0.0",
-                    "longitude": "0.0"
-                },
                 "sameAs": ["https://old-twitter.example"]
             }
             </script>
@@ -76,13 +71,57 @@ describe('config branding', () => {
         expect(jsonLd.address.addressLocality).toBe(window.SKYVIEW_CONFIG.contact.address.locality);
         expect(jsonLd.address.addressRegion).toBe(window.SKYVIEW_CONFIG.contact.address.region);
         expect(jsonLd.address.addressCountry).toBe(window.SKYVIEW_CONFIG.contact.address.country);
-        expect(jsonLd.geo.latitude).toBe(window.SKYVIEW_CONFIG.contact.geo.latitude);
-        expect(jsonLd.geo.longitude).toBe(window.SKYVIEW_CONFIG.contact.geo.longitude);
         expect(jsonLd.sameAs).toEqual([
             window.SKYVIEW_CONFIG.contact.social.facebook,
             window.SKYVIEW_CONFIG.contact.social.twitter,
             window.SKYVIEW_CONFIG.contact.social.instagram,
             window.SKYVIEW_CONFIG.contact.social.youtube
         ]);
+    });
+
+    it('does not publish placeholder (0,0) coordinates in structured data', async () => {
+        // contact.geo is still '0.0'/'0.0' in the shipped config (see
+        // docs/CONFIG.md) — publishing that verbatim would claim a real
+        // location in the Gulf of Guinea. updateStructuredData() must leave
+        // "geo" out of the JSON-LD entirely until real coordinates are set,
+        // matching the static index.html template (which also omits it).
+        await import('../../config.js?test=' + Date.now());
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        expect(window.SKYVIEW_CONFIG.contact.geo.latitude).toBe('0.0');
+        expect(window.SKYVIEW_CONFIG.contact.geo.longitude).toBe('0.0');
+
+        const jsonLd = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent);
+        expect(jsonLd.geo).toBeUndefined();
+    });
+
+    it('publishes structured-data geo coordinates once phone/phoneE164 fallback and real geo are both configured', async () => {
+        // Exercise the phone -> phoneE164 fallback in the visible contact
+        // element too, since both use the same config object.
+        document.body.querySelector('[data-contact-phone]').remove();
+        document.body.querySelector('main').insertAdjacentHTML(
+            'beforeend',
+            '<span data-contact-phone></span>',
+        );
+
+        await import('../../config.js?test=' + Date.now());
+        // Simulate a fully-configured deployment by overwriting the
+        // placeholders the way a real site's config.js would ship them,
+        // then re-run the same DOMContentLoaded handler the module already
+        // registered.
+        window.SKYVIEW_CONFIG.contact.phone = '';
+        window.SKYVIEW_CONFIG.contact.phoneE164 = '+15551234567';
+        window.SKYVIEW_CONFIG.contact.geo.latitude = '33.7490';
+        window.SKYVIEW_CONFIG.contact.geo.longitude = '-84.3880';
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        expect(document.querySelector('[data-contact-phone]').textContent).toBe('+15551234567');
+
+        const jsonLd = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent);
+        expect(jsonLd.geo).toEqual({
+            '@type': 'GeoCoordinates',
+            latitude: '33.7490',
+            longitude: '-84.3880',
+        });
     });
 });
