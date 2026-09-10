@@ -241,6 +241,18 @@ contact: {
 As of the 2026-09 cycle, every value above is still a placeholder on the
 live site — see TASKS.md "Complete the launch checklist with verified
 production identity data" for exactly what's needed from the business owner.
+`contact.phone` and `contact.phoneE164` serve different purposes: `phone` is
+the human-readable string shown in visible contact elements
+(`[data-contact-phone]`), while `phoneE164` feeds `telephone` in the
+schema.org structured data, which requires E.164 format. Both fields fall
+back to the other if only one is set, so a config with just one filled in
+still populates both surfaces — but for correct display formatting, set
+`phone` explicitly rather than relying on the raw E.164 fallback.
+`contact.geo`'s placeholder `'0.0'` values are deliberately **not**
+published to the JSON-LD `geo` block — `updateStructuredData()` omits `geo`
+entirely until both `latitude` and `longitude` are set to real, non-`'0.0'`
+values, since publishing `(0, 0)` (a real ocean location) would be worse than
+omitting the optional field.
 
 ---
 

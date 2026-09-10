@@ -24,8 +24,8 @@
 
 - [ ] Build secure client delivery backend (file delivery half).
   - Priority: P2
-  - Context: the login gate is now server-verified (see Done above). What's still a client-side prototype: `client-gallery.html`'s file listing does not verify the `code` param against the server before showing/serving files.
-  - Acceptance Criteria: `client-gallery.html` calls a server endpoint (e.g. extending `netlify/functions/api-portal.mjs`) to re-verify the code and fetch the client's actual file manifest; time-bound signed download links; access logging.
+  - Context: the login gate is now server-verified (see Done above). What's still a client-side prototype: `client-gallery.html`'s file listing does not verify the `code` param against the server before showing/serving files. Separately, CodeRabbit flagged (PR #121, 2026-09-10, CWE-598) that the access token travels in the URL query string end-to-end (email link -> login page -> gallery redirect), which can leak into browser history and HTTP request/referrer logs; exploitability rated "Difficult" but real, and worth fixing alongside this work rather than as a second pass through the same auth surface. Not rushed now — the gallery is still mocked/hardcoded, so no real client files are actually exposed via this vector yet.
+  - Acceptance Criteria: `client-gallery.html` calls a server endpoint (e.g. extending `netlify/functions/api-portal.mjs`) to re-verify the code and fetch the client's actual file manifest; time-bound signed download links; access logging. While rebuilding this flow, stop passing the raw access token as a URL query param after the initial login submission — deliver it via URL fragment (never sent to the server or logged) or exchange it for a short-lived session token at login, then use that session (not the original code) for the gallery-to-server calls. Update the e2e test so it doesn't assert a `code=` query param on the gallery URL.
 
 - [ ] Activate marketplace platform in production (Calendly cutover). See ROADMAP.md "Marketplace Platform / Calendly Cutover" for full context.
   - Priority: P2

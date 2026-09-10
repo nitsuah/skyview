@@ -17,7 +17,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, code of conduct, and how 
 ## 🔗 Quick Links
 - [Live Site](https://skyviewd.netlify.app) / [Custom Domain](https://skyview.nitsuah.io)
 - [Deployment Guide](docs/DEPLOYMENT_GUIDE.md)
-- [Owner Guide](OWNER_GUIDE.md)
+- [Owner Guide](docs/OWNER_GUIDE.md)
 - [Getting Started](docs/GETTING_STARTED.md)
 - [Metrics](METRICS.md)
 - [Features](FEATURES.md)

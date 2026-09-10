@@ -198,9 +198,22 @@ function updateStructuredData(companyName) {
                     if (contact.address.street) parsed.address.streetAddress = contact.address.street;
                     if (contact.address.postalCode) parsed.address.postalCode = contact.address.postalCode;
                 }
-                if (contact.geo && parsed.geo && typeof parsed.geo === 'object') {
-                    if (contact.geo.latitude) parsed.geo.latitude = contact.geo.latitude;
-                    if (contact.geo.longitude) parsed.geo.longitude = contact.geo.longitude;
+                // '0.0' is the unconfigured placeholder value and is truthy
+                // as a string, so a plain truthy check would publish (0,0) —
+                // a real location in the Gulf of Guinea — in the JSON-LD
+                // until real coordinates are set. The static template omits
+                // "geo" entirely for the same reason, so this only adds it
+                // once real coordinates exist.
+                if (
+                    contact.geo &&
+                    contact.geo.latitude && contact.geo.latitude !== '0.0' &&
+                    contact.geo.longitude && contact.geo.longitude !== '0.0'
+                ) {
+                    parsed.geo = {
+                        '@type': 'GeoCoordinates',
+                        latitude: contact.geo.latitude,
+                        longitude: contact.geo.longitude,
+                    };
                 }
             }
 
@@ -272,7 +285,11 @@ function applyContactIdentity() {
     });
 
     document.querySelectorAll('[data-contact-phone]').forEach((element) => {
-        element.textContent = contact.phone || '';
+        // Fall back to phoneE164 if the human-readable `phone` isn't set —
+        // matches updateStructuredData()'s telephone fallback below, so a
+        // config with only phoneE164 filled in doesn't leave the visible
+        // header/footer phone number blank.
+        element.textContent = contact.phone || contact.phoneE164 || '';
     });
 
     Object.entries(contact.social || {}).forEach(([network, url]) => {
