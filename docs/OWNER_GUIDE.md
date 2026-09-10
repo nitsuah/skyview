@@ -67,7 +67,6 @@ Edit `config.js` file:
 - 📘 **[Getting Started](docs/GETTING_STARTED.md)** ← **Read this first!**
 
 **Setup & Configuration:**
-- [Manual Setup Checklist](docs/MANUAL_SETUP.md) - All config tasks
 - [Configuration Reference](docs/CONFIG.md) - What each setting does
 - [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - Publishing to web
 
@@ -197,6 +196,5 @@ Good luck! 🚁
 
 ---
 
-**Project built by:** GitHub Copilot  
-**Last updated:** December 13, 2025  
+**Last updated:** 2026-09-02
 **Status:** Production Ready ✅
