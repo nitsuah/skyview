@@ -11,7 +11,7 @@ describe('parallax integration', () => {
         `;
         
         // Mock scroll position
-        window.scrollY = 0;
+        vi.stubGlobal('scrollY', 0);
     });
 
     it('should initialize parallax effect', () => {

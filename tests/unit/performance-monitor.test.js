@@ -152,17 +152,24 @@ describe('performance-monitor', () => {
     });
 
     it('should handle missing performance API gracefully', async () => {
-        // Remove performance API
-        const originalPerf = global.performance;
-        delete global.performance;
-        
+        // Import first, with the real performance API in place -- vitest's
+        // own module-transform machinery calls performance.now() internally
+        // during a dynamic import, so stubbing performance away beforehand
+        // throws inside vitest's own instrumentation rather than the code
+        // under test.
         const { initPerformanceMonitoring } = await import('../../scripts/performance-monitor.js?v=' + Date.now());
-        
+
+        // Now remove performance API just for the function call.
+        // vi.stubGlobal keeps `performance` resolvable (value undefined,
+        // auto-restored by vi.unstubAllGlobals) unlike `delete
+        // global.performance`, which makes the identifier unresolvable and
+        // throws a ReferenceError as soon as anything touches it.
+        vi.stubGlobal('performance', undefined);
+
         // Should not throw
         expect(() => initPerformanceMonitoring()).not.toThrow();
-        
-        // Restore
-        global.performance = originalPerf;
+
+        vi.unstubAllGlobals();
     });
 
     it('should not run in production (non-localhost)', async () => {

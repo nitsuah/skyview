@@ -10,14 +10,14 @@ describe('UI Effects', () => {
         beforeEach(() => {
             document.body.innerHTML = '<video class="hero-video"></video>';
             heroVideo = document.querySelector('.hero-video');
-            window.pageYOffset = 0;
+            vi.stubGlobal('pageYOffset', 0);
         });
 
         it('should update transform on scroll', () => {
             initParallax();
 
             // Scroll down
-            window.pageYOffset = 100;
+            vi.stubGlobal('pageYOffset', 100);
             window.dispatchEvent(new Event('scroll'));
 
             // Logic: - (50 + 100 * 0.3 * 0.05)% = -(50 + 1.5)% = -51.5%
@@ -45,7 +45,7 @@ describe('UI Effects', () => {
             header = document.querySelector('.header');
             element = document.querySelector('.service-card');
 
-            window.pageYOffset = 0;
+            vi.stubGlobal('pageYOffset', 0);
             window.innerHeight = 1000;
             Element.prototype.getBoundingClientRect = vi.fn().mockReturnValue({
                 top: 500,
@@ -56,7 +56,7 @@ describe('UI Effects', () => {
         it('should change header style on scroll', () => {
             initScrollEffects();
 
-            window.pageYOffset = 200;
+            vi.stubGlobal('pageYOffset', 200);
             window.dispatchEvent(new Event('scroll'));
 
             expect(header.classList.contains('scrolled')).toBe(true);
@@ -66,11 +66,11 @@ describe('UI Effects', () => {
             initScrollEffects();
 
             // Set initial state
-            window.pageYOffset = 600;
+            vi.stubGlobal('pageYOffset', 600);
             window.dispatchEvent(new Event('scroll'));
 
             // Scroll down more
-            window.pageYOffset = 700;
+            vi.stubGlobal('pageYOffset', 700);
             window.dispatchEvent(new Event('scroll'));
 
             expect(header.classList.contains('header-hidden')).toBe(true);
