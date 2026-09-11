@@ -161,11 +161,11 @@ const picture = createPictureElement(item);
 npm run optimize:images   # Convert all JPG/PNG to WebP
 
 # Development Server
-npm run serve            # Start on port 8080
+npm run dev               # Start Netlify dev server (port 8888)
 
 # Testing
-npm test                 # Playwright E2E tests
-npx vitest run           # Unit tests
+npm test                  # Playwright E2E tests
+npm run test:unit         # Unit tests
 ```
 
 ---
