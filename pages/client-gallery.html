@@ -225,6 +225,24 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .client-gallery-item-thumb {
+            width: 100%;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            background: rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .gallery-empty-state,
+        .gallery-loading-state {
+            color: rgba(255, 255, 255, 0.6);
+            padding: 2rem 0;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -236,7 +254,7 @@
                 <h1 id="projectName">Your Project Gallery</h1>
                 <p id="projectDate">Delivered: December 2025</p>
             </div>
-            <a href="/pages/client-portal.html" class="logout-button">← Back to Portal</a>
+            <a href="/pages/client-portal.html" id="logoutLink" class="logout-button">← Back to Portal</a>
         </div>
     </header>
 
@@ -260,128 +278,218 @@
                 <button class="filter-button" data-filter="raw">RAW Files</button>
             </div>
 
-            <!-- Gallery Grid -->
+            <!-- Gallery Grid — populated by JS from GET /api/portal/files
+                 once the session token is re-verified server-side. -->
             <div class="client-gallery-grid" id="clientGallery">
-                <!-- Sample Items - In production, these would be dynamically loaded -->
-                
-                <!-- Video Item -->
-                <div class="client-gallery-item" data-type="video">
-                    <div style="position: relative;">
-                        <video poster="assets/gallery/event-1.jpg">
-                            <source src="/assets/gallery/event-1.mp4" type="video/mp4">
-                        </video>
-                        <div class="play-icon"></div>
-                    </div>
-                    <div class="client-gallery-item-info">
-                        <div class="client-gallery-item-title">Aerial Overview - 4K</div>
-                        <div class="client-gallery-item-meta">Video • 1920x1080 • 45 seconds</div>
-                        <div class="item-actions">
-                            <a href="#" class="action-button" onclick="previewFile(event, 'video')">👁️ View</a>
-                            <a href="#" class="action-button" onclick="downloadFile(event, 'aerial-overview-4k.mp4')">⬇️ Download</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Photo Item -->
-                <div class="client-gallery-item" data-type="photo">
-                    <img src="/assets/gallery/real-estate-1.jpg" alt="Property Shot" loading="lazy">
-                    <div class="client-gallery-item-info">
-                        <div class="client-gallery-item-title">Property Exterior</div>
-                        <div class="client-gallery-item-meta">Photo • 6000x4000 • JPG</div>
-                        <div class="item-actions">
-                            <a href="#" class="action-button" onclick="previewFile(event, 'photo')">👁️ View</a>
-                            <a href="#" class="action-button" onclick="downloadFile(event, 'property-exterior.jpg')">⬇️ Download</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Photo Item -->
-                <div class="client-gallery-item" data-type="photo">
-                    <img src="/assets/gallery/real-estate-2.jpg" alt="Sunset Shot" loading="lazy">
-                    <div class="client-gallery-item-info">
-                        <div class="client-gallery-item-title">Golden Hour Shot</div>
-                        <div class="client-gallery-item-meta">Photo • 6000x4000 • JPG</div>
-                        <div class="item-actions">
-                            <a href="#" class="action-button" onclick="previewFile(event, 'photo')">👁️ View</a>
-                            <a href="#" class="action-button" onclick="downloadFile(event, 'golden-hour.jpg')">⬇️ Download</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- RAW Item -->
-                <div class="client-gallery-item" data-type="raw">
-                    <img src="/assets/gallery/real-estate-3.jpg" alt="RAW File" loading="lazy">
-                    <div class="client-gallery-item-info">
-                        <div class="client-gallery-item-title">Wide Angle RAW</div>
-                        <div class="client-gallery-item-meta">RAW • 6000x4000 • DNG</div>
-                        <div class="item-actions">
-                            <a href="#" class="action-button" onclick="downloadFile(event, 'wide-angle.dng')">⬇️ Download</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- More items would be dynamically generated -->
+                <div class="gallery-loading-state">Loading your files…</div>
             </div>
         </div>
     </section>
 
     <script>
-        // Gallery filtering
-        const filterButtons = document.querySelectorAll('.filter-button');
-        const galleryItems = document.querySelectorAll('.client-gallery-item');
+        (function () {
+            'use strict';
 
-        filterButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Update active state
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
+            var SESSION_STORAGE_KEY = 'skyview:portal-session:v1';
 
-                const filter = button.dataset.filter;
+            var galleryContainer = document.getElementById('clientGallery');
+            var projectNameEl = document.getElementById('projectName');
+            var projectDateEl = document.getElementById('projectDate');
+            var filterButtons = document.querySelectorAll('.filter-button');
+            var downloadAllBtn = document.getElementById('downloadAll');
+            var logoutLink = document.getElementById('logoutLink');
 
-                // Filter items
-                galleryItems.forEach(item => {
-                    if (filter === 'all' || item.dataset.type === filter) {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
+            function clearSession() {
+                try { sessionStorage.removeItem(SESSION_STORAGE_KEY); } catch (e) { }
+            }
+
+            function redirectToLogin() {
+                clearSession();
+                window.location.href = '/pages/client-portal.html';
+            }
+
+            // Session tokens arrive here via URL fragment (never sent to the
+            // server or logged), not a query param — see pages/client-portal.html.
+            // A same-tab refresh is served from sessionStorage instead of
+            // re-hitting the login flow, still without ever touching the URL.
+            function getSessionToken() {
+                if (window.location.hash) {
+                    var match = /(?:^#|[?&])session=([^&]+)/.exec(window.location.hash);
+                    if (match) {
+                        var token = decodeURIComponent(match[1]);
+                        try { sessionStorage.setItem(SESSION_STORAGE_KEY, token); } catch (e) { }
+                        // Scrub the token out of the visible URL/history immediately.
+                        history.replaceState(null, '', window.location.pathname + window.location.search);
+                        return token;
                     }
+                }
+                try {
+                    return sessionStorage.getItem(SESSION_STORAGE_KEY);
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            var sessionToken = getSessionToken();
+            if (!sessionToken) {
+                redirectToLogin();
+                return;
+            }
+
+            function authHeaders() {
+                return { Authorization: 'Bearer ' + sessionToken };
+            }
+
+            function typeIcon(type) {
+                if (type === 'video') return '▶️';
+                if (type === 'raw') return '🗂️';
+                return '🖼️';
+            }
+
+            function applyFilter(filter) {
+                galleryContainer.querySelectorAll('.client-gallery-item').forEach(function (item) {
+                    item.style.display = (filter === 'all' || item.dataset.type === filter) ? 'block' : 'none';
+                });
+            }
+
+            function currentFilter() {
+                var active = document.querySelector('.filter-button.active');
+                return active ? active.dataset.filter : 'all';
+            }
+
+            function openFile(fileId, download) {
+                fetch('/api/portal/download?file=' + encodeURIComponent(fileId), { headers: authHeaders() })
+                    .then(function (response) {
+                        if (response.status === 401 || response.status === 403) {
+                            redirectToLogin();
+                            return null;
+                        }
+                        if (!response.ok) throw new Error('download_link_unavailable');
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        if (!data) return;
+                        if (download) {
+                            var link = document.createElement('a');
+                            link.href = data.url;
+                            link.download = data.fileName || '';
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                        } else {
+                            window.open(data.url, '_blank', 'noopener');
+                        }
+                    })
+                    .catch(function () {
+                        alert('Could not generate a download link. Please refresh and try again.');
+                    });
+            }
+
+            function renderManifest(manifest) {
+                projectNameEl.textContent = manifest.projectName || 'Your Project Gallery';
+                projectDateEl.textContent = manifest.deliveredAt ? ('Delivered: ' + manifest.deliveredAt) : '';
+
+                var files = manifest.files || [];
+                galleryContainer.innerHTML = '';
+
+                if (files.length === 0) {
+                    galleryContainer.innerHTML = '<div class="gallery-empty-state">No files have been delivered yet.</div>';
+                    return;
+                }
+
+                files.forEach(function (file) {
+                    var item = document.createElement('div');
+                    item.className = 'client-gallery-item';
+                    item.dataset.type = file.type;
+
+                    var thumb = document.createElement('div');
+                    thumb.className = 'client-gallery-item-thumb';
+                    thumb.textContent = typeIcon(file.type);
+
+                    var info = document.createElement('div');
+                    info.className = 'client-gallery-item-info';
+
+                    var title = document.createElement('div');
+                    title.className = 'client-gallery-item-title';
+                    title.textContent = file.title;
+
+                    var meta = document.createElement('div');
+                    meta.className = 'client-gallery-item-meta';
+                    meta.textContent = file.meta || '';
+
+                    var actions = document.createElement('div');
+                    actions.className = 'item-actions';
+
+                    var viewBtn = document.createElement('a');
+                    viewBtn.href = '#';
+                    viewBtn.className = 'action-button';
+                    viewBtn.textContent = '👁️ View';
+                    viewBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        openFile(file.id, false);
+                    });
+
+                    var downloadBtn = document.createElement('a');
+                    downloadBtn.href = '#';
+                    downloadBtn.className = 'action-button';
+                    downloadBtn.textContent = '⬇️ Download';
+                    downloadBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        openFile(file.id, true);
+                    });
+
+                    actions.appendChild(viewBtn);
+                    actions.appendChild(downloadBtn);
+                    info.appendChild(title);
+                    info.appendChild(meta);
+                    info.appendChild(actions);
+                    item.appendChild(thumb);
+                    item.appendChild(info);
+                    galleryContainer.appendChild(item);
+                });
+
+                applyFilter(currentFilter());
+            }
+
+            function loadManifest() {
+                fetch('/api/portal/files', { headers: authHeaders() })
+                    .then(function (response) {
+                        if (response.status === 401 || response.status === 403) {
+                            redirectToLogin();
+                            return null;
+                        }
+                        if (!response.ok) throw new Error('manifest_unavailable');
+                        return response.json();
+                    })
+                    .then(function (manifest) {
+                        if (manifest) renderManifest(manifest);
+                    })
+                    .catch(function () {
+                        galleryContainer.innerHTML = '<div class="gallery-empty-state">Could not load your files. Please try again shortly.</div>';
+                    });
+            }
+
+            filterButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    filterButtons.forEach(function (btn) { btn.classList.remove('active'); });
+                    button.classList.add('active');
+                    applyFilter(button.dataset.filter);
                 });
             });
-        });
 
-        // Download all files
-        document.getElementById('downloadAll').addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('In production, this would download a ZIP file with all assets. This requires backend setup (e.g., Netlify Functions + AWS S3).');
-        });
+            downloadAllBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                alert('Bulk ZIP download isn\'t available yet — please download files individually below.');
+            });
 
-        // Preview file
-        function previewFile(event, type) {
-            event.preventDefault();
-            alert(`In production, this would open a lightbox/modal to preview the ${type}.`);
-        }
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function () {
+                    clearSession();
+                });
+            }
 
-        // Download individual file
-        function downloadFile(event, filename) {
-            event.preventDefault();
-            alert(`In production, this would download: ${filename}`);
-            // In real implementation:
-            // window.location.href = `/api/download?file=${filename}&code=${accessCode}`;
-        }
-
-        // Load project info from URL params
-        const urlParams = new URLSearchParams(window.location.search);
-        const accessCode = urlParams.get('code');
-
-        if (!accessCode) {
-            // Redirect to portal login if no access code
-            window.location.href = '/pages/client-portal.html';
-        }
-
-        // In production, fetch project details from API/database
-        // For now, display placeholder
-        document.getElementById('projectName').textContent = 'Real Estate Shoot - Property Name';
-        document.getElementById('projectDate').textContent = 'Delivered: December 10, 2025';
+            loadManifest();
+        })();
     </script>
 </body>
 

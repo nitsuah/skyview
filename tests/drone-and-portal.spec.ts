@@ -44,14 +44,38 @@ test.describe('client portal — server-side token verification (mocked backend)
     // against both a success and a fail-closed (503) response, which is as
     // much of the end-to-end flow as is testable outside `netlify dev`.
 
-    test('valid code (per mocked server) redirects to the gallery', async ({ page }) => {
+    test('valid code (per mocked server) redirects to the gallery via a session token in the URL fragment', async ({ page }) => {
+        const fakeSessionToken = `sess.ZTJlLXRlc3QtY2xpZW50.9999999999.${'b'.repeat(64)}`;
+
         await page.route('**/api/portal/verify', async (route) => {
             const body = route.request().postDataJSON();
             expect(body.code).toBeTruthy();
             await route.fulfill({
                 status: 200,
                 contentType: 'application/json',
-                body: JSON.stringify({ valid: true, clientId: 'e2e-test-client', expiresAt: 9999999999 })
+                body: JSON.stringify({
+                    valid: true,
+                    clientId: 'e2e-test-client',
+                    expiresAt: 9999999999,
+                    sessionToken: fakeSessionToken,
+                    sessionExpiresAt: 9999999999
+                })
+            });
+        });
+
+        // The gallery re-verifies the session server-side before showing any
+        // files — mock that call too so the redirect target actually renders.
+        await page.route('**/api/portal/files', async (route) => {
+            expect(route.request().headers().authorization).toBe(`Bearer ${fakeSessionToken}`);
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    clientId: 'e2e-test-client',
+                    projectName: 'E2E Test Project',
+                    deliveredAt: '2025-12-10',
+                    files: [{ id: 'sample-file', title: 'Sample File', type: 'photo', meta: 'Photo · JPG' }]
+                })
             });
         });
 
@@ -59,8 +83,19 @@ test.describe('client portal — server-side token verification (mocked backend)
         const fakeCode = `dGVzdA.${futureExpiry}.${'a'.repeat(64)}`;
 
         await page.goto(`/pages/client-portal.html?code=${encodeURIComponent(fakeCode)}`);
-        await page.waitForURL(/client-gallery\.html\?code=/, { timeout: 5000 });
+        await page.waitForURL(/client-gallery\.html/, { timeout: 5000 });
+
+        // The CWE-598 fix: the access token/session must never ride in the
+        // query string on this redirect — it travels via URL fragment (which
+        // this assertion catches immediately after redirect, before the page
+        // script strips it via history.replaceState) and is then scrubbed
+        // from the visible URL entirely.
         expect(page.url()).toContain('client-gallery.html');
+        expect(page.url()).not.toContain('code=');
+
+        await expect(page.getByText('Sample File')).toBeVisible({ timeout: 5000 });
+        // Confirms the fragment was scrubbed from the address bar after read.
+        expect(page.url()).not.toContain('session=');
     });
 
     test('fails closed with a clear message when the server is unavailable (503)', async ({ page }) => {

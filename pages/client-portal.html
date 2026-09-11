@@ -459,7 +459,7 @@
                         return { valid: false };
                     }
                     return response.json().then(function (data) {
-                        return { valid: !!data.valid, clientId: data.clientId };
+                        return { valid: !!data.valid, clientId: data.clientId, sessionToken: data.sessionToken };
                     });
                 }).catch(function () {
                     // Network/parse failure — fail closed, do not grant access.
@@ -498,7 +498,22 @@
 
                     if (result.valid) {
                         clearAttempts();
-                        window.location.href = '/pages/client-gallery.html?code=' + encodeURIComponent(accessCode);
+
+                        if (!result.sessionToken) {
+                            // Defensive fallback only — the server always issues a
+                            // session token on a valid code. Never fall back to
+                            // sending the raw access code onward.
+                            loginView.style.display = 'block';
+                            showError('Unable to start your session. Please try again.');
+                            updateAttemptUI();
+                            return;
+                        }
+
+                        // Deliver the short-lived session token via a URL fragment,
+                        // not a query param: fragments are never sent to the server
+                        // and never appear in server/referrer logs, unlike the old
+                        // ?code=<access-code> redirect (CWE-598, PR #121 review).
+                        window.location.href = '/pages/client-gallery.html#session=' + encodeURIComponent(result.sessionToken);
                         return;
                     }
 

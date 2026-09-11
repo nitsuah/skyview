@@ -1,13 +1,14 @@
 
 # Tasks
 
-**Last Updated:** 2026-09-02
+**Last Updated:** 2026-09-11
 
 > **Delivery split:** public FE covers the marketing site and funnel. `/admin` is a separate CMS surface. Secure client portal/download auth is a separate backend workstream.
 
 ## Done (2026-09 cycle)
 
-- [x] Server-side client-portal token validation — HMAC-SHA256, mandatory `PORTAL_SALT`, fail-closed. See `netlify/functions/api-portal.mjs`, `netlify/functions/utils/portal.js`. Was the top half of "Build secure client delivery backend" below; the remaining half (signed file delivery for `client-gallery.html`) stays open as its own P2 item.
+- [x] Server-side client-portal token validation — HMAC-SHA256, mandatory `PORTAL_SALT`, fail-closed. See `netlify/functions/api-portal.mjs`, `netlify/functions/utils/portal.js`. Was the top half of "Build secure client delivery backend"; the remaining half (signed file delivery for `client-gallery.html`) is the entry directly below.
+- [x] Build secure client delivery backend (file delivery half). `netlify/functions/utils/portal.js` gained `generateSessionToken`/`verifySessionToken` (1-hour, domain-separated `sess.` tokens, HMAC-SHA256/PORTAL_SALT, fail-closed) and `generateSignedDownloadToken`/`verifySignedDownloadToken` (5-minute, single-file-scoped `dl.` tokens) plus `logPortalAccess()`. `api-portal.mjs` now exchanges a valid access code for a session token in `/verify`, and adds `/files` (session-gated manifest fetch, `netlify/functions/utils/portal-manifest.js`), `/download` (mints a signed link), and `/file` (verifies the signed link, 302s to the real asset). CWE-598 fix (PR #121, CodeRabbit, 2026-09-10): `client-portal.html` now redirects to the gallery via URL fragment (`#session=<token>`), never a query param, and the gallery reads it once, scrubs it from the address bar via `history.replaceState`, and caches it in `sessionStorage` for the tab; the original 30-day access code is never reused after login. `client-gallery.html` fully rebuilt to fetch the manifest and download links from the server instead of hardcoded/mock data. Unit tests added in `tests/unit/portal-token.test.js`; `tests/drone-and-portal.spec.ts` updated to mock `/api/portal/files` and assert no `code=`/`session=` ever appears in the gallery URL. Still open: the manifest itself is a single shared demo manifest, not a real per-client storage backend, and bulk ZIP download remains a placeholder — see `docs/CLIENT_PORTAL.md`.
 - [x] Drone cursor hover offset (up-and-right of pointer) + transparent spotlight/laser beam from drone to cursor — `scripts/drone-cursor.js`, `styles/style.css`.
 - [x] Marketplace platform SPA now built and served by the Docker preview (`Dockerfile`, `config/nginx.conf`) — previously only the Netlify build produced `/app`.
 - [x] Identity data config plumbing — `config.js` `contact.address`, `contact.geo`, and `contact.social.facebook` added and wired into the schema.org JSON-LD via `updateStructuredData()`, so populating real values is a single-place edit. See P1 item below for what's still needed from the client.
@@ -22,11 +23,6 @@
   - Acceptance Criteria: production identity fields populated in `config.js`; no placeholder values remain in the rendered page or schema.org JSON-LD; `/admin` invite-only; separation documented.
 
 ## Todo
-
-- [ ] Build secure client delivery backend (file delivery half).
-  - Priority: P2
-  - Context: the login gate is now server-verified (see Done above). What's still a client-side prototype: `client-gallery.html`'s file listing does not verify the `code` param against the server before showing/serving files. Separately, CodeRabbit flagged (PR #121, 2026-09-10, CWE-598) that the access token travels in the URL query string end-to-end (email link -> login page -> gallery redirect), which can leak into browser history and HTTP request/referrer logs; exploitability rated "Difficult" but real, and worth fixing alongside this work rather than as a second pass through the same auth surface. Not rushed now — the gallery is still mocked/hardcoded, so no real client files are actually exposed via this vector yet.
-  - Acceptance Criteria: `client-gallery.html` calls a server endpoint (e.g. extending `netlify/functions/api-portal.mjs`) to re-verify the code and fetch the client's actual file manifest; time-bound signed download links; access logging. While rebuilding this flow, stop passing the raw access token as a URL query param after the initial login submission — deliver it via URL fragment (never sent to the server or logged) or exchange it for a short-lived session token at login, then use that session (not the original code) for the gallery-to-server calls. Update the e2e test so it doesn't assert a `code=` query param on the gallery URL.
 
 - [ ] Activate marketplace platform in production (Calendly cutover). See ROADMAP.md "Marketplace Platform / Calendly Cutover" for full context.
   - Priority: P2

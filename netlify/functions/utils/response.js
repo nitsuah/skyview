@@ -16,6 +16,9 @@ export const error = (message, status = 400) =>
 export const cors = () =>
   new Response(null, { status: 204, headers: CORS_HEADERS })
 
+export const redirect = (url, status = 302) =>
+  new Response(null, { status, headers: { ...CORS_HEADERS, Location: url } })
+
 export const unauthorized = () => error('Unauthorized', 401)
 export const forbidden    = () => error('Forbidden', 403)
 export const notFound     = () => error('Not found', 404)
