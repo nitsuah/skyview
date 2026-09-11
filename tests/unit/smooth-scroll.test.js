@@ -11,7 +11,7 @@ describe('smooth scroll', () => {
 
         // Mock scrollTo
         window.scrollTo = vi.fn();
-        window.pageYOffset = 0;
+        vi.stubGlobal('pageYOffset', 0);
 
         // Mock getBoundingClientRect
         Element.prototype.getBoundingClientRect = vi.fn().mockReturnValue({ top: 500 });

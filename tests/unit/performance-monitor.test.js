@@ -152,17 +152,35 @@ describe('performance-monitor', () => {
     });
 
     it('should handle missing performance API gracefully', async () => {
-        // Remove performance API
-        const originalPerf = global.performance;
-        delete global.performance;
-        
+        // Import first, with the real performance API in place -- vitest's
+        // own module-transform machinery calls performance.now() internally
+        // during a dynamic import, so stubbing performance away beforehand
+        // throws inside vitest's own instrumentation rather than the code
+        // under test.
         const { initPerformanceMonitoring } = await import('../../scripts/performance-monitor.js?v=' + Date.now());
-        
-        // Should not throw
-        expect(() => initPerformanceMonitoring()).not.toThrow();
-        
-        // Restore
-        global.performance = originalPerf;
+
+        // initPerformanceMonitoring() itself only schedules a 100ms
+        // setTimeout (see performance-monitor.js's logAllMetrics) -- the
+        // actual window.performance reads happen inside that deferred
+        // callback, not synchronously. So `performance` must still be
+        // stubbed away when the timer fires, not just during the initial
+        // call, or this test never exercises the missing-API path at all.
+        // Fake timers let us fire that callback deterministically within
+        // the test instead of racing a real 100ms delay.
+        vi.useFakeTimers();
+        try {
+            // vi.stubGlobal keeps `performance` resolvable (value undefined,
+            // auto-restored by vi.unstubAllGlobals) unlike `delete
+            // global.performance`, which makes the identifier unresolvable
+            // and throws a ReferenceError as soon as anything touches it.
+            vi.stubGlobal('performance', undefined);
+
+            expect(() => initPerformanceMonitoring()).not.toThrow();
+            expect(() => vi.advanceTimersByTime(100)).not.toThrow();
+        } finally {
+            vi.unstubAllGlobals();
+            vi.useRealTimers();
+        }
     });
 
     it('should not run in production (non-localhost)', async () => {

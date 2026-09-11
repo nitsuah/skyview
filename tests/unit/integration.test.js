@@ -10,8 +10,9 @@ describe('parallax integration', () => {
             </div>
         `;
         
-        // Mock scroll position
-        window.scrollY = 0;
+        // Mock scroll position -- parallax.js reads window.pageYOffset, not
+        // window.scrollY (see scripts/parallax.js:16).
+        vi.stubGlobal('pageYOffset', 0);
     });
 
     it('should initialize parallax effect', () => {
