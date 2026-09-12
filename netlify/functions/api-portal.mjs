@@ -141,6 +141,17 @@ async function createDownloadLink(req, url) {
 }
 
 async function serveFile(req, url) {
+  // NOTE: today's demo manifest (portal-manifest.js) points at files under
+  // /assets/gallery, which is the site's own public marketing gallery --
+  // already served statically with no auth at all. The signed-token check
+  // below genuinely gates whether the CLIENT gets this redirect URL, but
+  // it does not (and cannot) gate the underlying /assets/gallery/<file>
+  // path itself, which stays reachable directly. This is fine for demo
+  // content (nothing sensitive is exposed either way) but must NOT be the
+  // pattern for real per-client files: those need to live outside any
+  // statically-published directory and be read + returned as bytes here
+  // (or served from a private bucket), not redirected to a public path.
+  // See docs/CLIENT_PORTAL.md.
   const salt = process.env.PORTAL_SALT;
   if (!salt) return error('Client portal is not available', 503);
 

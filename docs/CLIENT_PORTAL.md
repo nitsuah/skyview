@@ -71,7 +71,17 @@ The Skyview Client Portal provides a secure, professional way for clients to acc
   store (Netlify Blobs, S3, etc.) is future work — but it's now served
   from the backend after re-verification instead of being hardcoded into
   the page, and it points at real files under `/assets/gallery` instead of
-  placeholder filenames that never existed.
+  placeholder filenames that never existed. **Important caveat:** those
+  demo files are the site's own public marketing images, already served
+  statically at that same `/assets/gallery/*` path with no auth at all —
+  so today's flow demonstrates the session/signed-link *plumbing* end to
+  end, but doesn't yet demonstrate real access control, since the
+  underlying bytes were never gated in the first place. A real per-client
+  store must not repeat this: those files need to live outside any
+  statically-published directory (`dist/assets` today) entirely, with
+  `serveFile` in `netlify/functions/api-portal.mjs` reading and returning
+  the bytes directly (or issuing a presigned URL to a private bucket)
+  instead of redirecting to a public path.
 
 ### 3. Downloads
 

@@ -316,7 +316,16 @@
                 if (window.location.hash) {
                     var match = /(?:^#|[?&])session=([^&]+)/.exec(window.location.hash);
                     if (match) {
-                        var token = decodeURIComponent(match[1]);
+                        var token;
+                        try {
+                            token = decodeURIComponent(match[1]);
+                        } catch (e) {
+                            // Malformed percent-encoding (e.g. a bare "%").
+                            // Scrub the bad fragment and fall through to the
+                            // sessionStorage/redirect-to-login path below.
+                            history.replaceState(null, '', window.location.pathname + window.location.search);
+                            return null;
+                        }
                         try { sessionStorage.setItem(SESSION_STORAGE_KEY, token); } catch (e) { }
                         // Scrub the token out of the visible URL/history immediately.
                         history.replaceState(null, '', window.location.pathname + window.location.search);
