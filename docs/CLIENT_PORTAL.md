@@ -5,7 +5,7 @@
 The Skyview Client Portal provides a secure, professional way for clients to access and download their completed project files. This system includes:
 
 - **Client Portal Login** (`pages/client-portal.html`) - Access code authentication, verified server-side
-- **Client Gallery** (`pages/client-gallery.html`) - Project-specific file viewing and downloading (still a prototype — see Status below)
+- **Client Gallery** (`pages/client-gallery.html`) - Project-specific file viewing and downloading, session-verified server-side (see Status below)
 
 ## Features
 
@@ -49,21 +49,54 @@ The Skyview Client Portal provides a secure, professional way for clients to acc
   it never falls back to a weaker or no-op check.
 - Client-side rate limiting (5 attempts / 15-minute lockout via
   `localStorage`) remains as a UX layer on top of the server check.
+- **Token no longer travels in the URL after login (CWE-598 fix, PR #121
+  review):** on a valid code, `/api/portal/verify` exchanges it for a
+  short-lived (1 hour) session token. The login page redirects to the
+  gallery via a URL fragment (`#session=<token>`) — fragments are never
+  sent to the server or captured in server/referrer logs, unlike the old
+  `?code=<access-code>` query param. The gallery reads the fragment once,
+  stores the session in `sessionStorage` for the tab's lifetime, and
+  immediately scrubs it from the visible URL via `history.replaceState`.
+  The original access code is never reused after login.
 
-### 2. File Viewing — still a prototype
+### 2. File Viewing — server-verified
 
-- `pages/client-gallery.html` reads the `code` query param and shows a
-  **mock, hardcoded** set of deliverables. It does **not** re-verify the
-  code against the server or fetch a real per-client file manifest yet.
-- This is intentionally the still-open half of "build secure client
-  delivery backend" — see TASKS.md (P2). The login gate above is the part
-  that's server-verified; the gallery's file listing is not.
+- `pages/client-gallery.html` no longer trusts client-side state. On load
+  it calls `GET /api/portal/files` with `Authorization: Bearer <session
+  token>`; the server re-verifies the session (`verifySessionToken` in
+  `netlify/functions/utils/portal.js`) and returns the client's file
+  manifest, or a 401 that sends the client back to login.
+- The manifest itself (`netlify/functions/utils/portal-manifest.js`) is
+  still a single demo manifest shared by every client — a real per-client
+  store (Netlify Blobs, S3, etc.) is future work — but it's now served
+  from the backend after re-verification instead of being hardcoded into
+  the page, and it points at real files under `/assets/gallery` instead of
+  placeholder filenames that never existed. **Important caveat:** those
+  demo files are the site's own public marketing images, already served
+  statically at that same `/assets/gallery/*` path with no auth at all —
+  so today's flow demonstrates the session/signed-link *plumbing* end to
+  end, but doesn't yet demonstrate real access control, since the
+  underlying bytes were never gated in the first place. A real per-client
+  store must not repeat this: those files need to live outside any
+  statically-published directory (`dist/assets` today) entirely, with
+  `serveFile` in `netlify/functions/api-portal.mjs` reading and returning
+  the bytes directly (or issuing a presigned URL to a private bucket)
+  instead of redirecting to a public path.
 
 ### 3. Downloads
 
-- Individual file "downloads" and "Download All" are currently UI-only in
-  the prototype gallery (no real file is served). Wiring this to actual
-  signed, time-bound download links is the remaining P2 work.
+- Individual files are served via **time-bound signed download links**:
+  `GET /api/portal/download?file=<id>` (session-authenticated) mints a
+  single-file, 5-minute-TTL signed token (`generateSignedDownloadToken`),
+  and `GET /api/portal/file?token=<signed>` verifies it and 302-redirects
+  to the real asset. This is the same presigned-URL pattern as S3 —
+  short-lived and scoped to one file, so a leaked link has minimal blast
+  radius (unlike the original access code).
+- "Download All" (bulk ZIP) is still a placeholder — bundling isn't part
+  of this fix; files download individually.
+- Every login attempt, manifest fetch, download-link request, and file
+  serve is access-logged via `logPortalAccess()` (structured JSON to
+  Netlify's function log viewer).
 
 ---
 
@@ -72,18 +105,13 @@ The Skyview Client Portal provides a secure, professional way for clients to acc
 | Piece | Status |
 |---|---|
 | Access-code login gate | ✅ Server-verified (HMAC-SHA256, fail-closed) |
+| Token-in-URL (CWE-598) | ✅ Fixed — session token via URL fragment, original code never reused after login |
 | Rate limiting on login | ✅ Client-side (localStorage), acceptable as a UX layer given the server check |
-| Per-client file manifest | ❌ Still hardcoded/mock in `client-gallery.html` |
-| Signed download links | ❌ Not implemented |
-| Access logging | ❌ Not implemented |
-
-To finish the remaining piece (see TASKS.md P2 "Build secure client delivery backend (file delivery half)"):
-1. Extend `netlify/functions/api-portal.mjs` (or add a new function) to look
-   up the client's actual file manifest once a code is verified.
-2. Generate time-bound signed URLs for the real files (Netlify Blobs, S3,
-   or Cloudinary, depending on where media is hosted — see
-   `docs/ASSET_MANAGEMENT.md`).
-3. Add access logging so you can see when a client last viewed their files.
+| Per-client file manifest | ✅ Server-verified fetch; manifest content itself is still a shared demo manifest, not per-client storage |
+| Signed download links | ✅ Time-bound (5 min), single-file-scoped |
+| Access logging | ✅ Structured console logging via `logPortalAccess()` |
+| Bulk ZIP download | ❌ Not implemented (placeholder message) |
+| Real per-client storage backend | ❌ Not implemented — see `docs/ASSET_MANAGEMENT.md` for options (Netlify Blobs / S3 / Cloudinary) |
 
 If that's more than you need right now, the lower-effort alternatives below
 are still reasonable stopgaps for actually getting files to clients.
@@ -154,11 +182,17 @@ Follow us: [Instagram] [YouTube]
 - ✅ Time-bound expiry enforced both client- and server-side
 - ✅ Rate limiting on login attempts (client-side)
 
-### Still Open (file delivery half — see Status table above)
+### Shipped (file delivery half)
 
-- ❌ Files are not yet gated by a real per-client manifest — `client-gallery.html` shows mock data regardless of which valid code was used
-- ❌ No pre-signed, time-bound download URLs for actual files yet
-- ❌ No access logging
+- ✅ Access token no longer travels in the URL query string after login (CWE-598) — session token via URL fragment, scrubbed from the visible URL after read
+- ✅ `client-gallery.html` re-verifies the session server-side before showing or serving any files
+- ✅ Time-bound (5 min), single-file-scoped signed download links
+- ✅ Access logging for login, manifest fetch, and download/file-serve events
+
+### Still Open
+
+- ❌ The file manifest itself is a single shared demo manifest, not a real per-client store (Netlify Blobs / S3 / Cloudinary — see `docs/ASSET_MANAGEMENT.md`)
+- ❌ Bulk ZIP download ("Download All") is still a placeholder
 
 ---
 
@@ -166,7 +200,7 @@ Follow us: [Instagram] [YouTube]
 
 1. Generate a token: `PORTAL_SALT=test-salt node scripts/portal-token.js --client test-client --days 1`
 2. Set `PORTAL_SALT=test-salt` in your Netlify dev environment (`netlify dev`, not the static Docker preview — that image doesn't run Netlify Functions)
-3. Open `pages/client-portal.html?code=<token>` — it should verify and redirect to the (still-mock) gallery
+3. Open `pages/client-portal.html?code=<token>` — it should verify and redirect to the gallery (session token via URL fragment), which then fetches the demo manifest server-side
 4. Try an expired or tampered code — it should be rejected with a generic "invalid or expired" message
 5. Try it with `PORTAL_SALT` unset — the login should fail closed (temporarily-unavailable message, not silently pass)
 
