@@ -29,7 +29,7 @@ export default defineConfig({
       // Serves the built platform SPA (login/register/password-reset live
       // here) at its production base path so tests/auth.spec.ts and
       // tests/password-reset.spec.ts can exercise real client-side routing.
-      command: 'npm run build && npm run preview -- --port 3001 --strictPort --host 127.0.0.1',
+      command: 'npm ci && npm run build && npm run preview -- --port 3001 --strictPort --host 127.0.0.1',
       cwd: 'platform',
       url: 'http://127.0.0.1:3001/app/',
       reuseExistingServer: !process.env.CI,
