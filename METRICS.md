@@ -158,7 +158,7 @@ Performance monitoring is built-in (development mode):
 
 **Notes**:
 - The published coverage value is the aggregate Vitest/V8 statement percentage.
-- Docker is the preferred validation path on this repo because it does not require a local Node toolchain; this pass was run natively (no Docker available) and surfaced the happy-dom test failures noted above, which Docker's prior runs may have masked with an older resolved happy-dom version or may reproduce identically — worth confirming.
+- Docker is the preferred validation path on this repo because it does not require a local Node toolchain; this pass was run natively (no Docker available). All 123 tests passed — the happy-dom `scrollY`/`pageYOffset` failures reported on 2026-09-11 did not reproduce and appear resolved.
 
 ---
 
