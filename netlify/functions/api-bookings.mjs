@@ -3,6 +3,7 @@ import { requireAuth } from './utils/auth.js'
 import { json, error, cors, unauthorized, forbidden, notFound } from './utils/response.js'
 import { stripe } from './utils/stripe.js'
 import { sendBookingConfirmedEmail, sendBookingDeclinedEmail, sendBookingCompletedEmail } from './utils/email.js'
+import { checkOperatorAvailability } from './utils/scheduling.js'
 
 export const config = { path: '/api/bookings*' }
 
@@ -98,6 +99,9 @@ async function createBooking(req) {
   `
   if (!opProfile) return error('Operator is not available', 409)
 
+  const availability = await checkOperatorAvailability(operator_id, scheduled_at, duration_hours)
+  if (!availability.ok) return error(availability.reason, 409)
+
   const fee    = Math.round(total_cents * PLATFORM_FEE)
   const payout = total_cents - fee
 
@@ -161,6 +165,14 @@ async function confirmBooking(req, id) {
   const [booking] = await sql`SELECT * FROM bookings WHERE id = ${id}`
   if (!booking) return notFound()
   if (booking.operator_id !== user.id) return forbidden()
+
+  // Re-check for a conflict with another booking this operator already confirmed
+  // since this one was created — two pending requests can overlap; only one
+  // may be accepted. checkOperatorAvailability only compares against
+  // OTHER bookings, so this one (still 'pending' at this point) never
+  // conflicts with itself.
+  const availability = await checkOperatorAvailability(booking.operator_id, booking.scheduled_at, booking.duration_hours, booking.id)
+  if (!availability.ok) return error(availability.reason, 409)
 
   const [updated] = await sql`
     UPDATE bookings SET status = 'confirmed', confirmed_at = NOW()

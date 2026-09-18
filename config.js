@@ -19,25 +19,39 @@ window.SKYVIEW_CONFIG = {
         // Contact form - enabled for launch inquiries and conversion baseline tracking
         contactForm: true,
         
-        // Calendly booking widget - Enable when Calendly account is configured
+        // Calendly booking widget - superseded by the native platform booking flow
+        // below (features.platform). Left wired up as a fallback: if platform is
+        // ever turned back off, this still renders. See features.platform.
         calendly: true,
-        
+
         // Client portal - Enable when ready to offer client file delivery
         clientPortal: false,
-        
+
         // Admin CMS - Enable when Netlify Identity is configured
         adminCMS: true,
-        
+
         // 3D Preview - Enable when 3D viewer is implemented
         preview3D: false,
-        
+
         // Analytics - Enable when analytics provider is set up
         analytics: false,
 
         // Local conversion dashboard - enable for a persistent preview metrics panel outside localhost if desired
         analyticsDebugPanel: false,
 
-        // Marketplace platform — enable after running db:migrate and setting env vars in Netlify
+        // Marketplace platform — clients post jobs, verified operators accept or
+        // decline based on their own declared availability (see
+        // operator_availability / operator_blocked_dates, migration 006).
+        // Replaces the Calendly consultation widget below with a native
+        // "find an operator" flow once enabled. The frontend/backend for this
+        // is now fully built (see ROADMAP.md "Marketplace Platform / Calendly
+        // Cutover"), but the flag defaults to false on purpose, matching this
+        // repo's own documented caution: flipping it to true reaches production
+        // requires `node scripts/migrate.js` already run against the production
+        // DATABASE_URL (through migration 006) and STRIPE_SECRET_KEY /
+        // STRIPE_WEBHOOK_SECRET / RESEND_API_KEY / JWT_SECRET / PORTAL_SALT set
+        // in Netlify — flip this to true only once those are confirmed done,
+        // or the booking section breaks instead of getting fixed.
         platform: false
     },
     

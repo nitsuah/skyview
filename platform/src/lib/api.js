@@ -37,7 +37,9 @@ export const api = {
     updateProfile:   (id, data)    => request(`/operators/${id}`,         { method: 'PUT',  body: JSON.stringify(data) }),
     verify:          (id, action)  => request(`/operators/${id}/verify`,  { method: 'POST', body: JSON.stringify({ action }) }),
     connect:         (id)          => request(`/operators/${id}/connect`,  { method: 'POST' }),
-    getConnectStatus:(id)          => request(`/operators/${id}/connect`)
+    getConnectStatus:(id)          => request(`/operators/${id}/connect`),
+    getAvailability: (id)          => request(`/operators/${id}/availability`),
+    updateAvailability: (id, data) => request(`/operators/${id}/availability`, { method: 'PUT', body: JSON.stringify(data) })
   },
   bookings: {
     list:     ()      => request('/bookings'),
