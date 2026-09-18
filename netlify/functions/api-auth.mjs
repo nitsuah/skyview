@@ -4,6 +4,7 @@ import { sql } from './utils/db.js'
 import { signToken, hashPassword, checkPassword, requireAuth } from './utils/auth.js'
 import { sendVerificationEmail, sendPasswordResetEmail } from './utils/email.js'
 import { json, error, cors, unauthorized, CORS_HEADERS } from './utils/response.js'
+import { googleRedirect, googleCallback } from './api-auth-google.mjs'
 
 export const config = { path: '/api/auth/*' }
 
@@ -21,6 +22,8 @@ export default async (req, context) => {
   if (req.method === 'POST' && route === '/reset-password')          return resetPassword(req)
   if (req.method === 'POST' && route === '/resend-verification')     return resendVerification(req)
   if (req.method === 'POST' && route === '/logout')                  return logout()
+  if (req.method === 'GET'  && route === '/google')          return googleRedirect(req, url)
+  if (req.method === 'GET'  && route === '/google/callback') return googleCallback(req, url)
 
   return error('Not found', 404)
 }

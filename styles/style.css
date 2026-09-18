@@ -783,6 +783,11 @@ button {
     letter-spacing: 0.1em;
     margin-bottom: 0.75rem;
     color: var(--color-text-primary);
+    /* Reserve room for a two-line title (e.g. "MAPPING & SURVEY") so the
+       description/list below start at the same height across every card
+       in the row, regardless of which titles happen to wrap. 3.2em = two
+       lines at this element's inherited line-height of 1.6. */
+    min-height: 3.2em;
 }
 
 .service-description {
