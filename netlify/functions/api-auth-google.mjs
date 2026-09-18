@@ -1,26 +1,21 @@
 import { randomBytes } from 'crypto'
 import { sql } from './utils/db.js'
 import { signToken } from './utils/auth.js'
-import { CORS_HEADERS } from './utils/response.js'
 
-export const config = { path: '/api/auth/google*' }
+// No `config.path` / default export here on purpose: this used to be its own
+// Netlify function matching '/api/auth/google*', which overlapped with
+// api-auth.mjs's '/api/auth/*'. Two functions claiming overlapping paths
+// left Netlify routing '/api/auth/google' into api-auth.mjs instead (whose
+// router has no '/google' case, so it fell through to a 404). api-auth.mjs
+// now imports and dispatches these handlers directly so only one function
+// owns '/api/auth/*'.
 
 const BASE     = () => process.env.DEPLOY_PRIME_URL || process.env.URL || 'https://skyviewd.netlify.app'
 const CALLBACK = () => `${BASE()}/api/auth/google/callback`
 const isHttps  = () => BASE().startsWith('https')
 const secureFl = () => isHttps() ? '; Secure' : ''
 
-export default async (req) => {
-  const url   = new URL(req.url)
-  const route = url.pathname.replace('/api/auth/google', '')
-
-  if (req.method === 'GET' && (route === '' || route === '/')) return googleRedirect(req, url)
-  if (req.method === 'GET' && route === '/callback')           return googleCallback(req, url)
-
-  return new Response('Not found', { status: 404 })
-}
-
-function googleRedirect(req, url) {
+export function googleRedirect(req, url) {
   if (!process.env.GOOGLE_CLIENT_ID)
     return new Response('Google OAuth is not configured', { status: 503 })
 
@@ -45,7 +40,7 @@ function googleRedirect(req, url) {
   return new Response(null, { status: 302, headers })
 }
 
-async function googleCallback(req, url) {
+export async function googleCallback(req, url) {
   const base  = BASE()
   const code  = url.searchParams.get('code')
   const state = url.searchParams.get('state')
