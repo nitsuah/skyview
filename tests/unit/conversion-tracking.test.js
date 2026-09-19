@@ -47,7 +47,6 @@ describe('conversion-tracking', () => {
     });
 
     it('renders a lightweight local conversion dashboard for reporting visibility', async () => {
-        window.history.replaceState({}, '', '/?metrics=1');
         const { initConversionTracking } = await import('../../scripts/conversion-tracking.js?test=' + Date.now());
 
         initConversionTracking();
@@ -57,6 +56,52 @@ describe('conversion-tracking', () => {
         expect(dashboard).toBeTruthy();
         expect(dashboard.querySelector('[data-event-name="landing_view"]').textContent).toContain('1');
         expect(dashboard.querySelector('[data-event-name="booking_cta_click"]').textContent).toContain('1');
+    });
+
+    describe('on a real host the dashboard is owner-only', () => {
+        const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+        const load = async () => {
+            const mod = await import('../../scripts/conversion-tracking.js?test=' + Date.now());
+            mod.initConversionTracking();
+            await flush();
+            await flush();
+        };
+
+        beforeEach(() => {
+            window.happyDOM.setURL('https://skyviewd.netlify.app/?metrics=1');
+            window.SKYVIEW_CONFIG.features.analyticsDebugPanel = true; // the old public opt-ins must no longer work
+        });
+
+        afterEach(() => {
+            window.happyDOM.setURL('http://localhost:3000/');
+            vi.unstubAllGlobals();
+        });
+
+        it('is not shown to anonymous visitors, even with ?metrics=1', async () => {
+            vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 401 }));
+            await load();
+            expect(document.querySelector('.conversion-dashboard')).toBeNull();
+        });
+
+        it('is not shown to a signed-in client', async () => {
+            vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ role: 'client' }) }));
+            await load();
+            expect(document.querySelector('.conversion-dashboard')).toBeNull();
+        });
+
+        it('is not shown when the auth check fails', async () => {
+            vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+            await load();
+            expect(document.querySelector('.conversion-dashboard')).toBeNull();
+        });
+
+        it('is shown once the session is confirmed to be an admin', async () => {
+            const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ role: 'admin' }) });
+            vi.stubGlobal('fetch', fetchMock);
+            await load();
+            expect(fetchMock).toHaveBeenCalledWith('/api/auth/me', expect.any(Object));
+            expect(document.querySelector('.conversion-dashboard')).toBeTruthy();
+        });
     });
 
     it('sanitizes contact-submit metadata so no PII is persisted', async () => {

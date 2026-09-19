@@ -17,7 +17,7 @@ beforeAll(async () => {
   // touches sql, so a dummy value is fine — no real DB connection is made.
   process.env.DATABASE_URL ??= 'postgres://user:pass@localhost:5432/db';
   ({ default: handleAuthRequest } = await import('../../netlify/functions/api-auth.mjs'));
-});
+}, 30_000); // importing the handler pulls in bcrypt/jose/resend, which is slow under load
 
 describe('api-auth.mjs owns /api/auth/google (no competing function)', () => {
   it('GET /api/auth/google is NOT a 404 when Google OAuth is unconfigured', async () => {

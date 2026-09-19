@@ -174,7 +174,6 @@ features: {
     adminCMS: true,         // Admin dashboard
     preview3D: false,       // 3D preview (future)
     analytics: false,       // Analytics tracking
-    analyticsDebugPanel: false, // Persistent conversion metrics panel
     platform: false        // Marketplace mode (replaces Calendly with operator CTA)
 }
 ```

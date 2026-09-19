@@ -17,7 +17,7 @@
 
 ## Funnel Reporting
 
-- **Local Dashboard** — in-browser conversion dashboard with step-by-step drop-off percentages
+- **Local Dashboard** — in-browser conversion dashboard with step-by-step drop-off percentages (owner-only: shown on `localhost`, and on real hosts only to a logged-in admin)
 - **CSV / JSON Export** — `exportMetricsCSV()` and `exportMetricsJSON()` for offline analysis
 
 ## Admin & CMS

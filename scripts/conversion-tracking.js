@@ -69,16 +69,53 @@ function formatUpdatedAt(updatedAt) {
     });
 }
 
+// The dashboard is owner tooling, not part of the public page. It shows on a
+// developer's own machine, and on a real host only after the visitor's session
+// is confirmed to be an admin (see revealDashboardForAdmin). It deliberately
+// has no URL parameter or config flag that makes it public.
+let adminVerified = false;
+
+function isLocalPreview() {
+    return ['localhost', '127.0.0.1'].includes(window.location?.hostname);
+}
+
 function shouldShowDashboard() {
     if (typeof window === 'undefined') {
         return false;
     }
 
-    const params = new URLSearchParams(window.location?.search || '');
-    const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location?.hostname);
-    const featureEnabled = window.SKYVIEW_CONFIG?.features?.analyticsDebugPanel === true;
+    return isLocalPreview() || adminVerified;
+}
 
-    return isLocalPreview || featureEnabled || params.get('metrics') === '1';
+async function isAdminSession() {
+    try {
+        const token = window.localStorage?.getItem('skyview_token');
+        const res = await fetch('/api/auth/me', {
+            credentials: 'same-origin',
+            headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        if (!res.ok) {
+            return false;
+        }
+        const user = await res.json();
+        return user?.role === 'admin';
+    } catch {
+        return false;
+    }
+}
+
+function revealDashboardForAdmin() {
+    if (typeof window === 'undefined' || isLocalPreview() || typeof fetch !== 'function') {
+        return Promise.resolve(false);
+    }
+
+    return isAdminSession().then((isAdmin) => {
+        adminVerified = isAdmin;
+        if (isAdmin) {
+            renderConversionDashboard();
+        }
+        return isAdmin;
+    });
 }
 
 export function getFunnelDropOff(metrics = getConversionMetrics()) {
@@ -386,5 +423,6 @@ export function initConversionTracking(root = document) {
     }
 
     renderConversionDashboard(metrics);
+    revealDashboardForAdmin();
     return metrics;
 }

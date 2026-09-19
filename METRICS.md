@@ -33,7 +33,7 @@ Authoritative validation sources: `docker compose run --rm unit`, Docker Playwri
 | **Image Optimization**          | 30-40% smaller (WebP) | Optimized | 🟢 |
 | **Mobile Responsiveness**       | ✅ Responsive | Pass | 🟢 |
 | **Contact Form**                | ✅ Working | Functional | 🟢 |
-| **Conversion Reporting**        | Local preview dashboard for landing, work-sample, booking, and contact signals on `localhost` / `?metrics=1` | Visible | 🟢 |
+| **Conversion Reporting**        | Local preview dashboard for landing, work-sample, booking, and contact signals on `localhost` and, on real hosts, only for a logged-in admin | Visible | 🟢 |
 | **Gallery Load Time**           | 5 curated items hydrate cleanly | < 2s | 🟢 |
 
 > *The local Lighthouse Best Practices score is suppressed by the non-HTTPS localhost preview and third-party booking/auth integrations; it is still the correct baseline artifact for launch tracking.

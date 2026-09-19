@@ -29,10 +29,7 @@ window.SKYVIEW_CONFIG = {
         preview3D: false,
 
         // Analytics - Enable when analytics provider is set up
-        analytics: false,
-
-        // Local conversion dashboard - enable for a persistent preview metrics panel outside localhost if desired
-        analyticsDebugPanel: false
+        analytics: false
 
         // NOTE: scheduling lives in the marketplace platform (/app): clients post
         // a job and operators accept dates against their declared availability

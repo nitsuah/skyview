@@ -17,7 +17,6 @@ window.SKYVIEW_CONFIG = {
         clientPortal: false,       // ← Enable when ready to deliver files
         adminCMS: true,            // ← Enable when Netlify Identity is set up
         analytics: false,          // ← Enable when analytics is configured
-        analyticsDebugPanel: false,// ← Persistent conversion metrics panel (dev/debug)
         platform: false            // ← Marketplace mode; see ROADMAP.md before enabling
     }
 }
