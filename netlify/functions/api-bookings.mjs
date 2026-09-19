@@ -113,14 +113,23 @@ async function createBooking(req) {
   `
   if (!jobUpdate) return error('This job is no longer available', 409)
 
-  const [booking] = await sql`
-    INSERT INTO bookings
-      (job_id, client_id, operator_id, scheduled_at, duration_hours, total_cents, platform_fee_cents, operator_payout_cents)
-    VALUES
-      (${job_id}, ${user.id}, ${operator_id}, ${scheduled_at ?? null}, ${duration_hours ?? null},
-       ${total_cents}, ${fee}, ${payout})
-    RETURNING *
-  `
+  let booking
+  try {
+    ;[booking] = await sql`
+      INSERT INTO bookings
+        (job_id, client_id, operator_id, scheduled_at, duration_hours, total_cents, platform_fee_cents, operator_payout_cents)
+      VALUES
+        (${job_id}, ${user.id}, ${operator_id}, ${scheduled_at ?? null}, ${duration_hours ?? null},
+         ${total_cents}, ${fee}, ${payout})
+      RETURNING *
+    `
+  } catch (err) {
+    // 23P01 = bookings_no_operator_overlap (migration 006): a concurrent request
+    // took this operator's slot after checkOperatorAvailability() ran.
+    await sql`UPDATE jobs SET status = 'open', assigned_operator_id = NULL WHERE id = ${job_id}`
+    if (err?.code === '23P01') return error('This operator already has a booking that overlaps this time', 409)
+    throw err
+  }
 
   let stripe_client_secret = null
   if (stripe) {

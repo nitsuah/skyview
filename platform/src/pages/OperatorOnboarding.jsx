@@ -43,6 +43,8 @@ export default function OperatorOnboarding() {
   const [newBlockedDate, setNewBlockedDate]     = useState('')
   const [newBlockedReason, setNewBlockedReason] = useState('')
   const [savingAvailability, setSavingAvailability] = useState(false)
+  const [availabilityStatus, setAvailabilityStatus] = useState('loading') // 'loading' | 'ready' | 'error'
+  const [extraWindows, setExtraWindows] = useState([])     // additional same-day windows the form can't edit
 
   // Hydrate form from stored profile so edits don't overwrite existing data with blanks
   useEffect(() => {
@@ -68,15 +70,32 @@ export default function OperatorOnboarding() {
       .catch(() => {}) // No profile row yet — first-time onboarding, keep empty defaults
       .finally(() => setLoading(false))
 
+    loadAvailability()
+  }, [user?.id])
+
+  // Saving availability REPLACES the stored calendar, so the form must never be
+  // saveable until the stored calendar has actually loaded — otherwise a slow or
+  // failed request would let empty defaults overwrite a real schedule.
+  const loadAvailability = () => {
+    setAvailabilityStatus('loading')
     api.operators.getAvailability(user.id)
       .then(({ weekly, blocked }) => {
+        // The form edits one window per day; any additional same-day windows are
+        // kept aside and re-sent on save so they aren't silently deleted.
         const byDay = {}
-        for (const w of weekly) byDay[w.day_of_week] = { start_time: w.start_time.slice(0, 5), end_time: w.end_time.slice(0, 5) }
+        const extras = []
+        for (const w of weekly) {
+          const win = { start_time: w.start_time.slice(0, 5), end_time: w.end_time.slice(0, 5) }
+          if (byDay[w.day_of_week]) extras.push({ day_of_week: w.day_of_week, ...win })
+          else byDay[w.day_of_week] = win
+        }
         setWeeklyEnabled(byDay)
+        setExtraWindows(extras)
         setBlockedDates(blocked.map(b => ({ date: String(b.blocked_date).slice(0, 10), reason: b.reason ?? '' })))
+        setAvailabilityStatus('ready')
       })
-      .catch(() => {}) // Availability endpoint is best-effort here — onboarding still works without it
-  }, [user?.id])
+      .catch(() => setAvailabilityStatus('error'))
+  }
 
   const set = (k, v) => setProfile(p => ({ ...p, [k]: v }))
 
@@ -158,9 +177,12 @@ export default function OperatorOnboarding() {
   const saveAvailability = async () => {
     setSavingAvailability(true); setError('')
     try {
-      const weekly = Object.entries(weeklyEnabled).map(([day, t]) => ({
-        day_of_week: Number(day), start_time: t.start_time, end_time: t.end_time
-      }))
+      const weekly = [
+        ...Object.entries(weeklyEnabled).map(([day, t]) => ({
+          day_of_week: Number(day), start_time: t.start_time, end_time: t.end_time
+        })),
+        ...extraWindows.filter(w => weeklyEnabled[w.day_of_week]),
+      ]
       if (weekly.some(w => w.end_time <= w.start_time)) {
         setError('End time must be after start time for every enabled day')
         return
@@ -328,6 +350,18 @@ export default function OperatorOnboarding() {
           <p className="text-muted mb-2" style={{ fontSize: 13.5 }}>
             Set the hours you're generally available. Clients booking you are checked against this automatically — no day set means no restriction (you'll be asked to confirm or decline every request instead).
           </p>
+          {availabilityStatus === 'error' && (
+            <div className="alert alert-error mb-2">
+              Couldn't load your saved availability, so saving is disabled to avoid overwriting it.{' '}
+              <button type="button" className="btn btn-ghost btn-sm" onClick={loadAvailability}>Retry</button>
+            </div>
+          )}
+          {availabilityStatus === 'loading' && <p className="text-muted" style={{ fontSize: 13 }}>Loading your saved availability…</p>}
+          {extraWindows.some(w => weeklyEnabled[w.day_of_week]) && (
+            <p className="text-muted mb-2" style={{ fontSize: 12.5 }}>
+              You have additional saved time windows on some days; they're kept as-is when you save.
+            </p>
+          )}
           <div className="form-group">
             {DAYS.map(d => {
               const enabled = weeklyEnabled[d.value]
@@ -370,7 +404,8 @@ export default function OperatorOnboarding() {
           </div>
           <div className="divider" />
           <div className="flex gap-2">
-            <button className="btn btn-primary" onClick={saveAvailability} disabled={savingAvailability}>
+            <button className="btn btn-primary" onClick={saveAvailability}
+              disabled={savingAvailability || availabilityStatus !== 'ready'}>
               {savingAvailability ? 'Saving…' : 'Next: Certification →'}
             </button>
             <button className="btn btn-ghost" onClick={() => setStep(2)}>← Back</button>

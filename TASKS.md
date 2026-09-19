@@ -40,9 +40,8 @@
 
 - [ ] Native scheduling hardening (follow-ups to the availability work; none block the cutover).
   - Priority: P2
-  - Overlap check and booking insert are not atomic: two clients booking the same operator/time at the same instant can both pass `checkOperatorAvailability` (the confirm-time recheck catches it before acceptance, but a DB-level exclusion constraint on `(operator_id, tstzrange)` would close it fully).
+  - Already done in PR #139 after review: DB exclusion constraint against overlapping active bookings (`bookings_no_operator_overlap`), atomic (transactional) availability replace, and blocked-date reasons hidden from the public endpoint.
   - Availability is interpreted in UTC and windows must fit within one UTC day. Operators need a stored timezone (and cross-midnight windows) before this is correct outside a single timezone.
-  - `updateAvailability` is delete-then-insert without a transaction; a failure mid-way can leave an operator with no availability (which reads as "unrestricted").
   - The public operator profile does not yet display availability, and the operator dashboard doesn't flag pending requests that conflict with each other.
   - No test exercises the real handlers against a database: the Neon HTTP driver can't talk to plain local Postgres, so SQL was verified via `pg` and JS logic via mocks. Add a Neon-branch (or driver-compatible proxy) integration test.
 

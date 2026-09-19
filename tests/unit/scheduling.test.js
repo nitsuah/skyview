@@ -39,6 +39,34 @@ describe('checkOperatorAvailability', () => {
     expect(sqlMock).not.toHaveBeenCalled();
   });
 
+  it.each([['Infinity'], [Infinity], ['1e400'], [1e12], ['abc'], [-1]])(
+    'rejects a non-finite or out-of-range duration (%s) without querying',
+    async (duration) => {
+      const result = await checkOperatorAvailability('op1', '2027-01-04T09:00:00Z', duration);
+      expect(result.ok).toBe(false);
+      expect(sqlMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it('checks every UTC date the booking touches against blocked dates', async () => {
+    queueResult([]);                       // no overlap
+    queueResult([{ id: 'blocked-row' }]);   // the 5th is blocked
+    // 23:00 on the 4th + 3h runs into the 5th
+    const result = await checkOperatorAvailability('op1', '2027-01-04T23:00:00Z', 3);
+    expect(result.ok).toBe(false);
+    // second sql call is the blocked-date query: [operatorId, firstDate, lastDate]
+    const blockedCallValues = sqlMock.mock.calls[1].slice(1);
+    expect(blockedCallValues).toEqual(['op1', '2027-01-04', '2027-01-05']);
+  });
+
+  it('does not treat a booking ending exactly at midnight as touching the next day', async () => {
+    queueResult([]);
+    queueResult([]);
+    queueResult([]);
+    await checkOperatorAvailability('op1', '2027-01-04T22:00:00Z', 2);
+    expect(sqlMock.mock.calls[1].slice(1)).toEqual(['op1', '2027-01-04', '2027-01-04']);
+  });
+
   it('rejects when the operator already has an overlapping booking', async () => {
     queueResult([{ id: 'existing-booking' }]); // overlap query finds a match
     const result = await checkOperatorAvailability('op1', '2027-01-04T09:00:00Z', 2);

@@ -32,7 +32,16 @@ export default function OperatorProfile() {
   // reject (409) an actual conflict even if this check is stale or wrong.
   const availabilityHint = (() => {
     if (!availability || !scheduleDate) return null
-    if (availability.blocked.some(b => b.blocked_date?.slice(0, 10) === scheduleDate)) {
+    const hours = parseFloat(durationHours)
+    const startMs = Date.parse(`${scheduleDate}T${scheduleTime || '00:00'}:00Z`)
+    if (Number.isNaN(startMs)) return null
+    // Same interval the server checks: [start, start + duration), in UTC.
+    const endMs = startMs + (scheduleTime && hours > 0 ? hours * 3600000 : 1)
+    const lastDate = new Date(endMs - 1).toISOString().slice(0, 10)
+    if (availability.blocked.some(b => {
+      const d = b.blocked_date?.slice(0, 10)
+      return d >= scheduleDate && d <= lastDate
+    })) {
       return { ok: false, text: 'This operator has marked that date unavailable.' }
     }
     if (availability.weekly.length === 0) return null
@@ -42,10 +51,13 @@ export default function OperatorProfile() {
       return { ok: false, text: `This operator hasn't listed ${DAY_NAMES[dow]} as available.` }
     }
     if (!scheduleTime) return null
-    const fits = dayWindows.some(w => scheduleTime >= w.start_time.slice(0, 5) && scheduleTime <= w.end_time.slice(0, 5))
+    const toMin = t => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5))
+    const startMin = toMin(scheduleTime)
+    const endMin = startMin + (hours > 0 ? hours * 60 : 0)
+    const fits = dayWindows.some(w => startMin >= toMin(w.start_time) && endMin <= toMin(w.end_time))
     return fits
-      ? { ok: true, text: 'Within this operator\'s declared availability.' }
-      : { ok: false, text: `This operator is only available ${DAY_NAMES[dow]} ${dayWindows.map(w => `${w.start_time.slice(0, 5)}–${w.end_time.slice(0, 5)}`).join(', ')}.` }
+      ? { ok: true, text: "Within this operator's declared availability." }
+      : { ok: false, text: `This operator is only available ${DAY_NAMES[dow]} ${dayWindows.map(w => `${w.start_time.slice(0, 5)}–${w.end_time.slice(0, 5)}`).join(', ')}, and the whole booking has to fit inside one window.` }
   })()
 
   useEffect(() => {
@@ -81,10 +93,10 @@ export default function OperatorProfile() {
   const selectJob = (jobId, jobList = jobs) => {
     setSelectedJob(jobId)
     const job = jobList.find(j => j.id === jobId)
-    if (job?.preferred_date) setScheduleDate(String(job.preferred_date).slice(0, 10))
-    if (job?.preferred_time && PREFERRED_TIME_DEFAULTS[job.preferred_time]) {
-      setScheduleTime(PREFERRED_TIME_DEFAULTS[job.preferred_time])
-    }
+    // Reset first so switching to a job with no preference doesn't carry the
+    // previous job's date/time into this booking request.
+    setScheduleDate(job?.preferred_date ? String(job.preferred_date).slice(0, 10) : '')
+    setScheduleTime(PREFERRED_TIME_DEFAULTS[job?.preferred_time] ?? '')
   }
 
   const submitBooking = async (e) => {

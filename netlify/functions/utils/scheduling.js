@@ -1,6 +1,8 @@
 import { sql } from './db.js'
 
 const DEFAULT_DURATION_HOURS = 2
+// bookings.duration_hours is NUMERIC(4,2), so anything above 99.99 would fail at INSERT.
+const MAX_DURATION_HOURS = 99.99
 
 // Checks a proposed booking time against an operator's existing bookings and
 // declared availability. Returns { ok: true } or { ok: false, reason }.
@@ -20,8 +22,11 @@ export async function checkOperatorAvailability(operatorId, scheduledAt, duratio
   if (Number.isNaN(start.getTime())) return { ok: false, reason: 'scheduled_at is not a valid date' }
 
   const hours = durationHours != null ? Number(durationHours) : DEFAULT_DURATION_HOURS
-  if (!(hours > 0)) return { ok: false, reason: 'duration_hours must be a positive number' }
+  if (!Number.isFinite(hours) || hours <= 0 || hours > MAX_DURATION_HOURS)
+    return { ok: false, reason: `duration_hours must be a positive number no greater than ${MAX_DURATION_HOURS}` }
   const end = new Date(start.getTime() + hours * 60 * 60 * 1000)
+  if (Number.isNaN(end.getTime()))
+    return { ok: false, reason: 'duration_hours produces an invalid booking end time' }
 
   // Two explicit branches — Neon's HTTP driver does not support conditionally
   // omitting a clause inside one template, and excludeBookingId is only
@@ -47,9 +52,13 @@ export async function checkOperatorAvailability(operatorId, scheduledAt, duratio
       `
   if (overlap) return { ok: false, reason: 'This operator already has a booking that overlaps this time' }
 
-  const dateStr = start.toISOString().slice(0, 10)
+  // Every UTC date the half-open interval [start, end) touches — a booking that
+  // starts late on the 4th and runs into the 5th must respect a block on the 5th.
+  const firstDate = start.toISOString().slice(0, 10)
+  const lastDate = new Date(end.getTime() - 1).toISOString().slice(0, 10)
   const [blocked] = await sql`
-    SELECT id FROM operator_blocked_dates WHERE operator_id = ${operatorId} AND blocked_date = ${dateStr}
+    SELECT id FROM operator_blocked_dates
+    WHERE operator_id = ${operatorId} AND blocked_date BETWEEN ${firstDate} AND ${lastDate}
   `
   if (blocked) return { ok: false, reason: 'This operator is unavailable on the requested date' }
 
