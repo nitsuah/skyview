@@ -22,14 +22,28 @@ test('displays service cards', async ({ page }) => {
     await expect(cinemaCard).toBeVisible();
 });
 
-test('contact form has netlify attributes', async ({ page }) => {
+test('the contact form is gone; people are sent to the platform instead', async ({ page }) => {
     await page.goto('/');
-    const form = page.locator('form[name="contact"]');
-    await expect(form).toHaveAttribute('data-netlify', 'true');
+    await expect(page.locator('form[name="contact"]')).toHaveCount(0);
+    await expect(page.locator('#contact')).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'CONTACT', exact: true })).toHaveCount(0);
+    // No contact details on the homepage either — they live on the privacy page.
+    await expect(page.getByText('contact@skyviewdynamics.com')).toHaveCount(0);
+    await expect(page.getByText('Get In Touch')).toHaveCount(0);
 
-    // Check hidden input
-    const hiddenInput = form.locator('input[name="form-name"]');
-    await expect(hiddenInput).toHaveValue('contact');
+    const bookNow = page.getByRole('link', { name: 'BOOK NOW' });
+    await expect(bookNow).toHaveAttribute('href', '/app');
+    await expect(page.getByRole('link', { name: 'PLATFORM', exact: true })).toHaveCount(0);
+});
+
+test('the privacy page carries just the contact email and phone', async ({ page }) => {
+    await page.goto('/pages/privacy.html');
+    const box = page.locator('.contact-box');
+    await expect(box.getByRole('link', { name: 'contact@skyviewdynamics.com' })).toHaveAttribute('href', 'mailto:contact@skyviewdynamics.com');
+    await expect(box.getByRole('link', { name: '+1 (555) 123-4567' })).toHaveAttribute('href', 'tel:+15551234567');
+    // None of the old homepage contact boilerplate came along.
+    await expect(page.getByText('Response within 1 business day')).toHaveCount(0);
+    await expect(page.getByText('Get In Touch')).toHaveCount(0);
 });
 
 test('gallery interaction', async ({ page }) => {

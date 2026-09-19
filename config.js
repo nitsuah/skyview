@@ -16,9 +16,6 @@ window.SKYVIEW_CONFIG = {
         // Testimonials section - Enable when you have real client reviews
         testimonials: false,
         
-        // Contact form - enabled for launch inquiries and conversion baseline tracking
-        contactForm: true,
-        
         // Client portal - Enable when ready to offer client file delivery
         clientPortal: false,
 
@@ -267,6 +264,9 @@ function applyContactIdentity() {
 
     document.querySelectorAll('[data-contact-email]').forEach((element) => {
         element.textContent = contact.email || '';
+        if (element.tagName === 'A' && contact.email) {
+            element.setAttribute('href', 'mailto:' + contact.email);
+        }
     });
 
     document.querySelectorAll('[data-contact-phone]').forEach((element) => {
@@ -275,6 +275,10 @@ function applyContactIdentity() {
         // config with only phoneE164 filled in doesn't leave the visible
         // header/footer phone number blank.
         element.textContent = contact.phone || contact.phoneE164 || '';
+        const dialable = contact.phoneE164 || (contact.phone || '').replace(/[^d+]/g, '');
+        if (element.tagName === 'A' && dialable) {
+            element.setAttribute('href', 'tel:' + dialable);
+        }
     });
 
     Object.entries(contact.social || {}).forEach(([network, url]) => {
@@ -305,18 +309,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (testimonialsNavLink) {
             testimonialsNavLink.parentElement.style.display = 'none';
-        }
-    }
-    
-    // Hide entire contact section if disabled
-    if (!config.contactForm) {
-        const contactSection = document.getElementById('contact');
-        const contactNavLink = document.querySelector('a[href="#contact"]');
-        if (contactSection) {
-            contactSection.style.display = 'none';
-        }
-        if (contactNavLink) {
-            contactNavLink.parentElement.style.display = 'none';
         }
     }
     

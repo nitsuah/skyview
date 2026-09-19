@@ -48,6 +48,7 @@
   - `tests/site.spec.ts` "gallery interaction" times out intermittently under heavy parallel load (passes alone and with `--workers=2`); CI uses 1 worker, so low risk, but worth de-flaking.
   - Platform form labels (`Login.jsx`, `ResetPassword.jsx`, etc.) aren't associated with their inputs (no `htmlFor`/`id`), so `getByLabel` fails and screen readers lose the label; e2e specs currently select by placeholder. Fix the markup, then switch tests to `getByLabel`.
   - `vite preview` logs `/api/notifications` proxy errors during e2e (the `Layout` bell polls an unmocked endpoint); mock it in the specs to quiet the noise.
+  - Dead code left after the contact form was removed (2026-09-19; people are sent to the platform, contact email/phone live only on `pages/privacy.html`): the `.contact-*` styles in `styles/style.css`, `scripts/form.js` (no-ops without the form), the `contact_submit` step in the admin funnel panel (`scripts/conversion-tracking.js` + tests), and the now-unlinked `pages/thank-you.html` and its `netlify.toml` redirect. Also: the privacy page's phone number is still the `+1 (555) 123-4567` placeholder (see the production-identity item).
   - Add a tablet-width check for the Services cards (only desktop and 375px mobile were measured).
   - CodeRabbit was rate-limited on the native-scheduling PR (#139), so that PR never received an automated review; run one on `main` once capacity resets.
 
