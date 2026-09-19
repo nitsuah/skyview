@@ -85,7 +85,12 @@ async function createBooking(req) {
   const body = await req.json().catch(() => null)
   if (!body) return error('Invalid JSON')
 
-  const { job_id, operator_id, scheduled_at, duration_hours, total_cents } = body
+  const { job_id, operator_id, total_cents } = body
+  // Blank strings mean "not provided": normalize once so the availability check
+  // and the INSERT always see the same values (an empty scheduled_at would
+  // otherwise skip the check and then fail as an invalid timestamp at INSERT).
+  const scheduled_at   = body.scheduled_at === '' ? null : (body.scheduled_at ?? null)
+  const duration_hours = body.duration_hours === '' ? null : (body.duration_hours ?? null)
   if (!job_id || !operator_id || !total_cents)
     return error('job_id, operator_id, and total_cents are required')
   if (!Number.isInteger(total_cents) || total_cents <= 0 || total_cents > 2_147_483_647)

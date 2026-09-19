@@ -15,15 +15,33 @@ const MAX_DURATION_HOURS = 99.99
 // - Windows are treated as same-UTC-day only; a booking that would cross UTC
 //   midnight is rejected rather than partially validated, which is fine for
 //   typical multi-hour shoots.
+// null/undefined means "not provided" (the default applies). Anything provided
+// must be storable in bookings.duration_hours NUMERIC(4,2): finite, > 0,
+// <= 99.99, and no finer than 2 decimals (Postgres would silently round 0.001
+// to 0.00 rather than reject it).
+export function validateDurationHours(durationHours) {
+  if (durationHours == null) return { ok: true, hours: DEFAULT_DURATION_HOURS }
+  const hours = typeof durationHours === 'number' ? durationHours : Number(String(durationHours).trim() || NaN)
+  if (!Number.isFinite(hours) || hours <= 0 || hours > MAX_DURATION_HOURS)
+    return { ok: false, reason: `duration_hours must be a positive number no greater than ${MAX_DURATION_HOURS}` }
+  if (Math.abs(hours * 100 - Math.round(hours * 100)) > 1e-9)
+    return { ok: false, reason: 'duration_hours can have at most 2 decimal places' }
+  return { ok: true, hours }
+}
+
 export async function checkOperatorAvailability(operatorId, scheduledAt, durationHours, excludeBookingId = null) {
+  // Validate the duration even when no time is proposed yet — it is stored
+  // either way, and a bad value would otherwise fail at INSERT after the job
+  // has already been marked booked.
+  const duration = validateDurationHours(durationHours)
+  if (!duration.ok) return duration
+
   if (!scheduledAt) return { ok: true }
 
   const start = new Date(scheduledAt)
   if (Number.isNaN(start.getTime())) return { ok: false, reason: 'scheduled_at is not a valid date' }
 
-  const hours = durationHours != null ? Number(durationHours) : DEFAULT_DURATION_HOURS
-  if (!Number.isFinite(hours) || hours <= 0 || hours > MAX_DURATION_HOURS)
-    return { ok: false, reason: `duration_hours must be a positive number no greater than ${MAX_DURATION_HOURS}` }
+  const hours = duration.hours
   const end = new Date(start.getTime() + hours * 60 * 60 * 1000)
   if (Number.isNaN(end.getTime()))
     return { ok: false, reason: 'duration_hours produces an invalid booking end time' }

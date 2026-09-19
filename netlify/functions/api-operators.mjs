@@ -274,6 +274,12 @@ async function verifyOperator(req, id) {
 
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+// DATE_RE alone accepts 2027-02-31, which Postgres rejects at INSERT; round-trip
+// through a UTC Date so impossible calendar dates are a 400, not a database error.
+const isRealDate = (s) => {
+  const d = new Date(`${s}T00:00:00Z`)
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s
+}
 
 async function getAvailability(req, id) {
   // Blocked-date reasons are free-form text the operator typed for themselves
@@ -322,8 +328,8 @@ async function updateAvailability(req, id) {
       return error('end_time must be after start_time for every weekly entry')
   }
   for (const b of blocked) {
-    if (typeof b.date !== 'string' || !DATE_RE.test(b.date))
-      return error('Each blocked date needs a valid date (YYYY-MM-DD)')
+    if (typeof b.date !== 'string' || !DATE_RE.test(b.date) || !isRealDate(b.date))
+      return error('Each blocked date needs a real calendar date (YYYY-MM-DD)')
     if (b.reason != null && (typeof b.reason !== 'string' || b.reason.length > 200))
       return error('Blocked-date reason must be a string of 200 characters or fewer')
   }

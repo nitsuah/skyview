@@ -73,6 +73,15 @@ describe('PUT availability validation', () => {
     expect(sqlMock).not.toHaveBeenCalled();
   });
 
+  it.each(['2027-02-31', '2027-13-01', '2027-00-10', '2027-04-31', '2026-02-29'])(
+    'rejects the impossible blocked date %s with a 400 before touching the database',
+    async (date) => {
+      const res = await handler(put({ weekly: [], blocked: [{ date }] }));
+      expect(res.status).toBe(400);
+      expect(sqlMock.transaction).not.toHaveBeenCalled();
+    },
+  );
+
   it('rejects an end time that is not after the start time', async () => {
     const res = await handler(put({ weekly: [{ day_of_week: 1, start_time: '17:00', end_time: '09:00' }], blocked: [] }));
     expect(res.status).toBe(400);

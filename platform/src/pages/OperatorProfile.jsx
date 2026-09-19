@@ -28,11 +28,23 @@ export default function OperatorProfile() {
   const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
   const PREFERRED_TIME_DEFAULTS = { morning: '09:00', afternoon: '13:00', evening: '17:00' }
 
+  // Mirrors the server's rule (bookings.duration_hours is NUMERIC(4,2)): blank is
+  // allowed (defaults to 2h), otherwise finite, > 0, <= 99.99, max 2 decimals.
+  const durationError = (() => {
+    const raw = String(durationHours).trim()
+    if (raw === '') return null
+    const n = Number(raw)
+    if (!Number.isFinite(n) || n <= 0 || n > 99.99) return 'Duration must be between 0.01 and 99.99 hours.'
+    if (Math.abs(n * 100 - Math.round(n * 100)) > 1e-9) return 'Duration can have at most 2 decimal places.'
+    return null
+  })()
+
   // Client-side hint only — the server is the source of truth and will
   // reject (409) an actual conflict even if this check is stale or wrong.
   const availabilityHint = (() => {
     if (!availability || !scheduleDate) return null
-    const hours = parseFloat(durationHours)
+    if (durationError) return { ok: false, text: durationError }
+    const hours = String(durationHours).trim() === '' ? 2 : Number(durationHours)
     const startMs = Date.parse(`${scheduleDate}T${scheduleTime || '00:00'}:00Z`)
     if (Number.isNaN(startMs)) return null
     // Same interval the server checks: [start, start + duration), in UTC.
@@ -104,6 +116,7 @@ export default function OperatorProfile() {
     if (!selectedJob)   { setBookError('Select a job'); return }
     if (!totalDollars || parseFloat(totalDollars) <= 0) { setBookError('Enter a valid total amount'); return }
     if (scheduleDate && !scheduleTime) { setBookError('Pick a time for the proposed date'); return }
+    if (durationError) { setBookError(durationError); return }
     setBookSaving(true); setBookError('')
     try {
       await api.bookings.create({
@@ -111,7 +124,7 @@ export default function OperatorProfile() {
         operator_id: id,
         total_cents: Math.round(parseFloat(totalDollars) * 100),
         scheduled_at: scheduleDate && scheduleTime ? `${scheduleDate}T${scheduleTime}:00Z` : null,
-        duration_hours: durationHours ? parseFloat(durationHours) : null
+        duration_hours: String(durationHours).trim() === '' ? null : Number(durationHours)
       })
       setBookDone(true)
     } catch (err) {
@@ -212,8 +225,9 @@ export default function OperatorProfile() {
                   </div>
                   <div className="form-group">
                     <label>Duration (hours)</label>
-                    <input type="number" min={0.5} step={0.5} value={durationHours}
+                    <input type="number" step="any" className="duration-input" value={durationHours}
                       onChange={e => setDurationHours(e.target.value)} />
+                    {durationError && <small style={{ color: 'var(--red, #ef4444)' }}>{durationError}</small>}
                   </div>
                   <div className="form-group">
                     <label>Agreed total (USD)</label>

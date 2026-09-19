@@ -239,7 +239,7 @@ test.describe('Booking modal schedule handling', () => {
     // 2h from 16:30 ends 18:30, past the 17:00 close.
     await expect(page.getByText(/only available Mon 09:00–17:00/)).toBeVisible();
 
-    await page.locator('input[type="number"][min="0.5"]').fill('0.5');
+    await page.locator('.duration-input').fill('0.5');
     await expect(page.getByText("Within this operator's declared availability.")).toBeVisible();
   });
 
@@ -247,9 +247,28 @@ test.describe('Booking modal schedule handling', () => {
     await mockClient(page, [{ id: 'job-1', title: 'A', status: 'open' }]);
     await page.locator('input[type="date"]').fill('2027-02-01');
     await page.locator('input[type="time"]').fill('23:00');
-    await page.locator('input[type="number"][min="0.5"]').fill('3'); // runs into the blocked Feb 2
+    await page.locator('.duration-input').fill('3'); // runs into the blocked Feb 2
     await expect(page.getByText('This operator has marked that date unavailable.')).toBeVisible();
   });
+
+  for (const [label, value] of [['above the 99.99 maximum', '100'], ['finer than 2 decimals', '1.999'], ['huge', '1e12']]) {
+    test(`a duration ${label} is blocked before any request is sent`, async ({ page }) => {
+      let bookingRequests = 0;
+      await page.route('**/api/bookings', (route) => { bookingRequests += 1; return route.fulfill({ status: 201, body: '{}' }); });
+      await mockClient(page, [{ id: 'job-1', title: 'A', status: 'open' }]);
+
+      await page.locator('input[type="date"]').fill('2027-02-01');
+      await page.locator('input[type="time"]').fill('10:00');
+      await page.locator('.duration-input').fill(value);
+      await page.locator('.currency-input').fill('300');
+      // Must not throw while rendering (a huge value used to make toISOString() blow up).
+      await expect(page.getByText(/Duration (must|can)/).first()).toBeVisible();
+
+      await page.getByRole('button', { name: /send booking request/i }).click();
+      await expect(page.locator('.alert-error')).toContainText(/Duration (must|can)/);
+      expect(bookingRequests).toBe(0);
+    });
+  }
 
   test('switching to a job without preferences clears the previous job\'s date and time', async ({ page }) => {
     await mockClient(page, [

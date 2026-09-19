@@ -48,6 +48,27 @@ describe('checkOperatorAvailability', () => {
     },
   );
 
+  it('validates the duration even when no time is proposed (it is stored either way)', async () => {
+    const tooLong = await checkOperatorAvailability('op1', null, 100);
+    expect(tooLong.ok).toBe(false);
+    expect(sqlMock).not.toHaveBeenCalled();
+    expect(await checkOperatorAvailability('op1', null, 2)).toEqual({ ok: true });
+    expect(await checkOperatorAvailability('op1', null, null)).toEqual({ ok: true });
+  });
+
+  it.each([[0.001], ['2.005'], [1.999]])(
+    'rejects a duration with more than 2 decimal places (%s), which NUMERIC(4,2) would silently round',
+    async (duration) => {
+      expect((await checkOperatorAvailability('op1', null, duration)).ok).toBe(false);
+      expect((await checkOperatorAvailability('op1', '2027-01-04T09:00:00Z', duration)).ok).toBe(false);
+      expect(sqlMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([[0.25], [2.5], ['1.75'], [99.99], [0.01]])('accepts a storable duration (%s)', async (duration) => {
+    expect(await checkOperatorAvailability('op1', null, duration)).toEqual({ ok: true });
+  });
+
   it('checks every UTC date the booking touches against blocked dates', async () => {
     queueResult([]);                       // no overlap
     queueResult([{ id: 'blocked-row' }]);   // the 5th is blocked
