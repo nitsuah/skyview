@@ -15,6 +15,28 @@ const MAX_DURATION_HOURS = 99.99
 // - Windows are treated as same-UTC-day only; a booking that would cross UTC
 //   midnight is rejected rather than partially validated, which is fine for
 //   typical multi-hour shoots.
+// new Date('2027-02-30T09:00:00Z') silently becomes March 2, so the availability
+// checks would run against a different day than the original string that gets
+// INSERTed. Accept only a real ISO-8601 timestamp (a Date object, as read back
+// from the database, is always fine) and reject overflow dates.
+const TIMESTAMP_RE = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(Z|[+-]\d{2}(?::?\d{2})?)$/
+function parseTimestamp(value) {
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
+  if (typeof value !== 'string') return null
+  const m = TIMESTAMP_RE.exec(value.trim())
+  if (!m) return null
+  const [, y, mo, d, h, mi, s = '0'] = m
+  const wall = new Date(Date.UTC(+y, +mo - 1, +d, +h, +mi, +s))
+  const sameFields = wall.getUTCFullYear() === +y && wall.getUTCMonth() === +mo - 1 && wall.getUTCDate() === +d &&
+    wall.getUTCHours() === +h && wall.getUTCMinutes() === +mi && wall.getUTCSeconds() === +s
+  if (!sameFields) return null
+  const iso = value.trim().replace(' ', 'T')
+    .replace(/([+-]\d{2})(\d{2})$/, '$1:$2')   // +0530 -> +05:30
+    .replace(/([+-]\d{2})$/, '$1:00')          // +00   -> +00:00 (Postgres text form)
+  const parsed = new Date(iso)
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
 // null/undefined means "not provided" (the default applies). Anything provided
 // must be storable in bookings.duration_hours NUMERIC(4,2): finite, > 0,
 // <= 99.99, and no finer than 2 decimals (Postgres would silently round 0.001
@@ -38,8 +60,8 @@ export async function checkOperatorAvailability(operatorId, scheduledAt, duratio
 
   if (!scheduledAt) return { ok: true }
 
-  const start = new Date(scheduledAt)
-  if (Number.isNaN(start.getTime())) return { ok: false, reason: 'scheduled_at is not a valid date' }
+  const start = parseTimestamp(scheduledAt)
+  if (!start) return { ok: false, reason: 'scheduled_at is not a valid date' }
 
   const hours = duration.hours
   const end = new Date(start.getTime() + hours * 60 * 60 * 1000)

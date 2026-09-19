@@ -33,6 +33,23 @@ describe('checkOperatorAvailability', () => {
     expect(sqlMock).not.toHaveBeenCalled();
   });
 
+  it.each([['2027-02-30T09:00:00Z'], ['2027-02-29T09:00:00Z'], ['2027-04-31T09:00:00Z'], ['2027-13-01T09:00:00Z'], ['2027-01-04T25:00:00Z'], ['2027-01-04T09:61:00Z'], ['2027-01-04 09:00'], ['tomorrow'], [12345]])(
+    'rejects the impossible or non-ISO scheduled_at %s without querying',
+    async (value) => {
+      const result = await checkOperatorAvailability('op1', value, 2);
+      expect(result.ok).toBe(false);
+      expect(sqlMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([['2028-02-29T09:00:00Z'], ['2027-01-04T09:00:00.000Z'], ['2027-01-04T09:00Z'], ['2027-01-04 09:00:00+00'], ['2027-01-04T09:00:00+05:30'], [new Date('2027-01-04T09:00:00Z')]])(
+    'accepts the valid timestamp %s',
+    async (value) => {
+      queueResult([]); queueResult([]); queueResult([]);
+      expect((await checkOperatorAvailability('op1', value, 2)).ok).toBe(true);
+    },
+  );
+
   it('rejects a non-positive duration without querying', async () => {
     const result = await checkOperatorAvailability('op1', '2027-01-04T09:00:00Z', 0);
     expect(result.ok).toBe(false);

@@ -317,6 +317,10 @@ async function updateAvailability(req, id) {
   if (weekly.length > 50) return error('Too many weekly availability windows (max 50)')
   if (blocked.length > 200) return error('Too many blocked dates (max 200)')
 
+  const isEntry = (x) => x !== null && typeof x === 'object' && !Array.isArray(x)
+  if (!weekly.every(isEntry) || !blocked.every(isEntry))
+    return error('Every weekly and blocked entry must be an object')
+
   for (const w of weekly) {
     if (!Number.isInteger(w.day_of_week) || w.day_of_week < 0 || w.day_of_week > 6)
       return error('Each weekly entry needs day_of_week between 0 (Sunday) and 6 (Saturday)')

@@ -55,9 +55,9 @@ Authoritative validation sources: `docker compose run --rm unit`, Docker Playwri
 | Services Showcase           | ✅ Complete | Pricing and descriptions |
 | Dynamic Gallery             | ✅ Complete | Photos + videos with lightbox |
 | Contact Form                | ✅ Complete | Netlify Forms integration |
-| Calendly Booking            | ✅ Complete | Inline widget ready |
+| Booking / Scheduling        | 🟡 Code complete | Static "find an operator" CTA into the marketplace; operator availability + conflict checks built. Calendly removed. Needs the production backend live (see TASKS.md) |
 | Client Portal               | ✅ Complete | Password-protected delivery |
-| Testimonials                | ✅ Complete | Reviews with ratings |
+| Testimonials                | ⏳ Planned | Section removed from the page until real client reviews exist (see ROADMAP.md) |
 | Privacy Policy              | ✅ Complete | GDPR-compliant |
 | Admin CMS                   | ✅ Complete | Decap CMS configured |
 | WebP Optimization           | ✅ Complete | Automatic conversion |

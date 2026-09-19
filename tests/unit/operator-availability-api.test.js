@@ -78,9 +78,23 @@ describe('PUT availability validation', () => {
     async (date) => {
       const res = await handler(put({ weekly: [], blocked: [{ date }] }));
       expect(res.status).toBe(400);
+      expect(sqlMock).not.toHaveBeenCalled();
       expect(sqlMock.transaction).not.toHaveBeenCalled();
     },
   );
+
+  it.each([
+    ['null weekly entry', { weekly: [null], blocked: [] }],
+    ['null blocked entry', { weekly: [], blocked: [null] }],
+    ['string entry', { weekly: ['monday'], blocked: [] }],
+    ['array entry', { weekly: [], blocked: [[]] }],
+    ['number entry', { weekly: [], blocked: [42] }],
+  ])('returns a 400 (not a 500) for a %s, before touching the database', async (_label, body) => {
+    const res = await handler(put(body));
+    expect(res.status).toBe(400);
+    expect(sqlMock).not.toHaveBeenCalled();
+    expect(sqlMock.transaction).not.toHaveBeenCalled();
+  });
 
   it('rejects an end time that is not after the start time', async () => {
     const res = await handler(put({ weekly: [{ day_of_week: 1, start_time: '17:00', end_time: '09:00' }], blocked: [] }));
