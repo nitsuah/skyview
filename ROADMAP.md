@@ -32,6 +32,9 @@ The two-sided marketplace platform (Netlify Functions + Neon DB + Stripe Connect
   - Acceptance Criteria: `db:migrate` run against production Neon DB (through migration 006); Stripe/Resend/JWT/PORTAL_SALT env vars set in Netlify; `config.js` `features.platform` flipped to `true`; Calendly script tag, CSP entries (`assets.calendly.com`, `frame-src https://calendly.com`), and `features.calendly` removed once the platform CTA — including operator scheduling — is confirmed working end-to-end in production.
   - This is an operational/business decision (two-sided marketplace vs. simple booking), not a rushed code change — see note above. The code side of this is now done; what's left is entirely environment/ops.
 
+- [ ] **Production verification of auth + OAuth (open after the 2026-09 auth pass).** The `/api/auth/google` 404 (two Netlify functions claiming overlapping paths) is fixed and regression-tested, but a real Google sign-in, real reset email, and the Netlify env vars were never verified live. See TASKS.md "Verify production auth/env end-to-end".
+- [ ] **Native scheduling hardening (P2).** DB-level double-booking guard, per-operator timezones and cross-midnight windows, transactional availability updates, availability shown on public operator profiles, and a real-database integration test. See TASKS.md "Native scheduling hardening".
+
 ## Q4 2026 (Planned)
 
 - [ ] Multi-segment campaign personalization — expand `scripts/campaign.js` to support service spotlight targeting and additional hero copy variants.

@@ -30,7 +30,32 @@
   - Acceptance Criteria: `db:migrate` run against production Neon DB (now includes migration 006, operator availability); Stripe/Resend/JWT/PORTAL_SALT env vars set in Netlify; `features.platform: true` in `config.js`; Calendly script/CSP removed once verified working end-to-end.
   - Code side is done (native scheduling shipped this cycle, see Done above) — what's left is entirely environment/ops, not a code change.
 
+- [ ] Verify production auth/env end-to-end (left open by the 2026-09 auth + scheduling pass; nothing here could be checked without Netlify/Google/Resend access).
+  - Priority: P1
+  - Acceptance Criteria: (a) confirm `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`DATABASE_URL`/`JWT_SECRET`/`RESEND_API_KEY` are set in Netlify; (b) Google Cloud Console has `https://skyviewd.netlify.app/api/auth/google/callback` as an authorized redirect URI; (c) a human completes one real "Continue with Google" sign-in on production (the routing 404 is fixed and unit-tested, but the OAuth round trip itself was never exercised); (d) a real password-reset email is sent, received, and its link works (confirm the `noreply@skyviewdynamics.com` sender domain is verified in Resend).
+
+- [ ] Publish the Calendly account, or keep Calendly disabled until the cutover.
+  - Priority: P1 while `features.platform` is `false` (Calendly is the live booking CTA)
+  - `calendly.com/skyviewdynamics` and `/consultation` both 404 from Calendly's servers, so the "Schedule a consultation" widget is currently broken for visitors. Either publish the event at that URL, or flip `features.calendly: false` (hides the section and nav link) until the marketplace cutover above lands.
+
+- [ ] Native scheduling hardening (follow-ups to the availability work; none block the cutover).
+  - Priority: P2
+  - Overlap check and booking insert are not atomic: two clients booking the same operator/time at the same instant can both pass `checkOperatorAvailability` (the confirm-time recheck catches it before acceptance, but a DB-level exclusion constraint on `(operator_id, tstzrange)` would close it fully).
+  - Availability is interpreted in UTC and windows must fit within one UTC day. Operators need a stored timezone (and cross-midnight windows) before this is correct outside a single timezone.
+  - `updateAvailability` is delete-then-insert without a transaction; a failure mid-way can leave an operator with no availability (which reads as "unrestricted").
+  - The public operator profile does not yet display availability, and the operator dashboard doesn't flag pending requests that conflict with each other.
+  - No test exercises the real handlers against a database: the Neon HTTP driver can't talk to plain local Postgres, so SQL was verified via `pg` and JS logic via mocks. Add a Neon-branch (or driver-compatible proxy) integration test.
+
 ## Maintenance
+
+- [ ] Test and tooling debt surfaced by the 2026-09 auth + scheduling pass.
+  - Priority: P3
+  - `npm run lint:js` is broken: `eslint` is not in `package.json`, so linting has never run in CI (stylelint likewise unverified).
+  - `tests/site.spec.ts` "gallery interaction" times out intermittently under heavy parallel load (passes alone and with `--workers=2`); CI uses 1 worker, so low risk, but worth de-flaking.
+  - Platform form labels (`Login.jsx`, `ResetPassword.jsx`, etc.) aren't associated with their inputs (no `htmlFor`/`id`), so `getByLabel` fails and screen readers lose the label; e2e specs currently select by placeholder. Fix the markup, then switch tests to `getByLabel`.
+  - `vite preview` logs `/api/notifications` proxy errors during e2e (the `Layout` bell polls an unmocked endpoint); mock it in the specs to quiet the noise.
+  - Add a tablet-width check for the Services cards (only desktop and 375px mobile were measured).
+  - CodeRabbit was rate-limited on the native-scheduling PR (#139), so that PR never received an automated review; run one on `main` once capacity resets.
 
 - [ ] Activate analytics provider (Plausible or Netlify Analytics) and set conversion goals.
   - Priority: P2
