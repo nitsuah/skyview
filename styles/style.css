@@ -1076,18 +1076,6 @@ button {
     line-height: 1.6;
 }
 
-.calendly-inline-widget {
-    position: relative;
-    min-width: 320px;
-    height: 700px;
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.32);
-    border: 1px solid rgba(124, 242, 255, 0.24);
-    outline: 1px solid rgba(255, 255, 255, 0.04);
-    background: rgba(8, 16, 28, 0.72);
-}
-
 /* ===================================
    TESTIMONIALS SECTION
    =================================== */
@@ -1851,10 +1839,6 @@ button {
         bottom: 20px;
     }
 
-    .calendly-inline-widget {
-        height: 600px;
-    }
-
     .booking-subtitle {
         font-size: 1rem;
         padding: 0 var(--spacing-sm);
@@ -1916,10 +1900,6 @@ button {
     .scroll-arrow {
         width: 24px;
         height: 40px;
-    }
-
-    .calendly-inline-widget {
-        height: 550px;
     }
 
     .booking-subtitle {

@@ -1,54 +1,53 @@
 import { test, expect } from '@playwright/test';
-import { readFileSync } from 'fs';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
 const PLATFORM_BASE = 'http://127.0.0.1:3001';
 
-// features.platform defaults to false in config.js on purpose (see the
-// comment there and ROADMAP.md "Marketplace Platform / Calendly Cutover") —
-// it needs a production DB migration + env vars first. These tests verify
-// the swap-to-native-scheduling code path itself works correctly once that
-// flag is turned on, by serving a patched config.js with platform forced
-// true, rather than asserting it's what ships today.
-function withPlatformEnabled(route) {
-  const original = readFileSync(resolve(__dirname, '..', 'config.js'), 'utf8');
-  const patched = original.replace('platform: false', 'platform: true');
-  if (patched === original) throw new Error('config.js no longer contains "platform: false" — update this test');
-  return route.fulfill({ status: 200, contentType: 'application/javascript', body: patched });
-}
+// The marketing page's scheduling entry point is static HTML that sends people
+// into the platform — no Calendly, no JS-toggled sections. These run with
+// JavaScript DISABLED to prove nothing here depends on a script loading
+// (a stale cached module used to leave JS-hidden sections visible).
+test.describe('Marketing site sends scheduling into the platform', () => {
+  test.use({ javaScriptEnabled: false });
 
-test.describe('Marketing site uses native platform scheduling, not Calendly', () => {
-  test('booking section shows the platform CTA instead of the Calendly widget', async ({ page }) => {
-    await page.route('**/config.js*', withPlatformEnabled);
-    await page.goto('/');
-
-    const bookingSection = page.locator('#booking');
-    await expect(bookingSection.getByRole('heading', { name: 'FIND A DRONE OPERATOR' })).toBeVisible();
-    await expect(bookingSection.getByRole('link', { name: 'POST A JOB' })).toHaveAttribute('href', '/app/register?role=client');
-    await expect(bookingSection.getByRole('link', { name: /list as an operator/i })).toHaveAttribute('href', '/app/register?role=operator');
-
-    // The Calendly widget element is still in the DOM (config.js just hides
-    // it) — assert it's actually hidden, not merely absent from a selector.
-    const calendlyWidget = page.locator('.calendly-inline-widget');
-    await expect(calendlyWidget).toBeHidden();
+  // These pages close immediately, aborting the hero video mid-stream, which
+  // crashes the plain http-server used for e2e (ERR_HTTP_HEADERS_SENT) and
+  // takes every later test down with it. None of this needs the video.
+  test.beforeEach(async ({ page }) => {
+    await page.route(/\.(mp4|mov|webm)(\?.*)?$/, (route) => route.abort());
   });
 
-  test('with the flag off (today\'s shipped default), Calendly still renders unchanged', async ({ page }) => {
+  test('booking section is a static platform CTA with no Calendly', async ({ page }) => {
     await page.goto('/');
-    const bookingSection = page.locator('#booking');
-    await expect(bookingSection.locator('.calendly-inline-widget')).toBeVisible();
-    await expect(bookingSection.getByRole('heading', { name: 'FIND A DRONE OPERATOR' })).toHaveCount(0);
+
+    const booking = page.locator('#booking');
+    await expect(booking.getByRole('heading', { name: 'FIND A DRONE OPERATOR' })).toBeVisible();
+    await expect(booking.getByRole('link', { name: 'POST A JOB' })).toHaveAttribute('href', '/app/register?role=client');
+    await expect(booking.getByRole('link', { name: /list as an operator/i })).toHaveAttribute('href', '/app/register?role=operator');
+
+    await expect(page.locator('.calendly-inline-widget')).toHaveCount(0);
+    expect(await page.content()).not.toMatch(/calendly/i);
   });
 
-  test('hero CTA points into the platform instead of #booking', async ({ page }) => {
-    await page.route('**/config.js*', withPlatformEnabled);
+  test('hero CTA goes to the platform', async ({ page }) => {
     await page.goto('/');
     const heroCta = page.locator('.hero-content .cta-button:not(.cta-button-secondary)');
     await expect(heroCta).toHaveAttribute('href', '/app/register');
     await expect(heroCta.locator('.cta-text')).toHaveText('FIND AN OPERATOR');
   });
+
+  test('testimonials and the unfinished 3D preview are not in the page at all', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#testimonials')).toHaveCount(0);
+    await expect(page.locator('#preview3d')).toHaveCount(0);
+    await expect(page.getByText('INTERACTIVE 3D PREVIEW')).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'REVIEWS' })).toHaveCount(0);
+  });
+});
+
+test('the gallery still loads with JavaScript on', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.gallery-item').first()).toBeVisible();
+  await expect(page.getByText('Loading Gallery...')).toHaveCount(0);
 });
 
 test.describe('Operator availability setup', () => {

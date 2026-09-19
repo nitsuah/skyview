@@ -81,7 +81,6 @@
             <ul class="nav-links">
                 <li><a href="#services">SERVICES</a></li>
                 <li><a href="#gallery">GALLERY</a></li>
-                <li><a href="#testimonials">REVIEWS</a></li>
                 <li><a href="#booking">BOOKING</a></li>
                 <li><a href="#contact">CONTACT</a></li>
             </ul>
@@ -110,8 +109,8 @@
             <h1 class="hero-title">ELEVATE YOUR VISION <span>FROM ABOVE</span></h1>
             <p class="hero-subtitle">Cinematic aerials for real estate, events, and mapping.</p>
             <div class="hero-actions">
-                <a href="#booking" class="cta-button">
-                    <span class="cta-text">BOOK A CONSULTATION</span>
+                <a href="/app/register" class="cta-button">
+                    <span class="cta-text">FIND AN OPERATOR</span>
                     <span class="cta-glow"></span>
                 </a>
                 <a href="#gallery" class="cta-button cta-button-secondary">
@@ -216,103 +215,25 @@
                 <!-- Gallery items will be loaded dynamically via JS -->
                 <div class="loading-spinner">Loading Gallery...</div>
             </div>
-
-            <!-- 3D Preview Placeholder -->
-            <div class="preview-card" id="preview3d">
-                <div class="preview-icon">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </div>
-                <h3 class="preview-title">INTERACTIVE 3D PREVIEW</h3>
-                <p class="preview-description">Coming Soon: Explore our work in an immersive 3D environment</p>
-                <div class="preview-badge">COMING SOON</div>
-            </div>
         </div>
     </section>
 
-    <!-- Booking Section -->
+    <!-- Booking Section: scheduling happens inside the platform (post a job,
+         operators accept dates against their own availability). Static markup
+         so it doesn't depend on JavaScript. -->
     <section class="booking-section" id="booking">
         <div class="container">
-            <h2 class="section-title">SCHEDULE A CONSULTATION</h2>
-            <p class="booking-subtitle">Book a free 15-minute consultation to discuss your project and how we can help bring your vision to life.</p>
-            <!-- Calendly inline widget begin -->
-            <div class="calendly-inline-widget" data-url="https://calendly.com/skyviewdynamics/consultation?hide_gdpr_banner=1&primary_color=00d4ff&background_color=0b1120&text_color=f5fbff"></div>
-            <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
-            <!-- Calendly inline widget end -->
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section class="testimonials-section" id="testimonials">
-        <div class="container">
-            <h2 class="section-title">CLIENT TESTIMONIALS</h2>
-            <p class="section-subtitle">What Our Clients Say</p>
-            
-            <div class="testimonials-grid">
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                    </div>
-                    <p class="testimonial-text">
-                        "The aerial footage completely transformed our property listing. We received multiple offers within days of posting the video. Absolutely worth every penny!"
-                    </p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">JM</div>
-                        <div class="author-info">
-                            <div class="author-name">Jennifer Martinez</div>
-                            <div class="author-title">Real Estate Agent</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                    </div>
-                    <p class="testimonial-text">
-                        "Professional, punctual, and the results exceeded our expectations. The wedding video captured angles we never imagined possible. Truly magical!"
-                    </p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">SK</div>
-                        <div class="author-info">
-                            <div class="author-name">Sarah & Kevin</div>
-                            <div class="author-title">Wedding Clients</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                    </div>
-                    <p class="testimonial-text">
-                        "Fast turnaround, incredible quality, and easy to work with. The 3D mapping helped us identify issues we wouldn't have caught otherwise. Highly recommend!"
-                    </p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">RJ</div>
-                        <div class="author-info">
-                            <div class="author-name">Robert Johnson</div>
-                            <div class="author-title">Construction Manager</div>
-                        </div>
-                    </div>
+            <h2 class="section-title">FIND A DRONE OPERATOR</h2>
+            <p class="booking-subtitle">Browse verified, FAA Part 107-certified operators near you. Post a job with your preferred date and get matched with a pilot who's available.</p>
+            <div class="platform-cta">
+                <div class="platform-cta__actions">
+                    <a href="/app/register?role=client" class="cta-button platform-cta__btn">
+                        <span class="cta-text">POST A JOB</span>
+                        <span class="cta-icon">→</span>
+                    </a>
+                    <a href="/app/register?role=operator" class="platform-cta__secondary">
+                        List as an operator →
+                    </a>
                 </div>
             </div>
         </div>
