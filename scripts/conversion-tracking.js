@@ -69,16 +69,56 @@ function formatUpdatedAt(updatedAt) {
     });
 }
 
+// The dashboard is owner tooling, not part of the public page. It is hidden by
+// default everywhere. It shows for a confirmed admin session (see
+// revealDashboardForAdmin), or on localhost only when a developer adds
+// ?metrics=1. There is no URL parameter or config flag that shows it on a real host.
+let adminVerified = false;
+
+function isLocalPreview() {
+    return ['localhost', '127.0.0.1'].includes(window.location?.hostname);
+}
+
 function shouldShowDashboard() {
     if (typeof window === 'undefined') {
         return false;
     }
 
-    const params = new URLSearchParams(window.location?.search || '');
-    const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location?.hostname);
-    const featureEnabled = window.SKYVIEW_CONFIG?.features?.analyticsDebugPanel === true;
+    // Even on localhost it stays hidden unless explicitly requested with
+    // ?metrics=1 — that opt-in is honored ONLY on localhost, never on a real host.
+    const localOptIn = isLocalPreview() && new URLSearchParams(window.location?.search || '').get('metrics') === '1';
+    return localOptIn || adminVerified;
+}
 
-    return isLocalPreview || featureEnabled || params.get('metrics') === '1';
+async function isAdminSession() {
+    try {
+        const token = window.localStorage?.getItem('skyview_token');
+        const res = await fetch('/api/auth/me', {
+            credentials: 'same-origin',
+            headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        if (!res.ok) {
+            return false;
+        }
+        const user = await res.json();
+        return user?.role === 'admin';
+    } catch {
+        return false;
+    }
+}
+
+function revealDashboardForAdmin() {
+    if (typeof window === 'undefined' || isLocalPreview() || typeof fetch !== 'function') {
+        return Promise.resolve(false);
+    }
+
+    return isAdminSession().then((isAdmin) => {
+        adminVerified = isAdmin;
+        if (isAdmin) {
+            renderConversionDashboard();
+        }
+        return isAdmin;
+    });
 }
 
 export function getFunnelDropOff(metrics = getConversionMetrics()) {
@@ -386,5 +426,6 @@ export function initConversionTracking(root = document) {
     }
 
     renderConversionDashboard(metrics);
+    revealDashboardForAdmin();
     return metrics;
 }

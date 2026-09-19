@@ -116,7 +116,7 @@ async function migrate() {
     for (let i = 0; i < statements.length; i++) {
       const stmt = statements[i]
       try {
-        await sql(stmt)
+        await sql.query(stmt)
         applied++
       } catch (err) {
         // Skip only genuine "object already exists" errors using PG error codes

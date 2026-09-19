@@ -16,29 +16,21 @@ window.SKYVIEW_CONFIG = {
         // Testimonials section - Enable when you have real client reviews
         testimonials: false,
         
-        // Contact form - enabled for launch inquiries and conversion baseline tracking
-        contactForm: true,
-        
-        // Calendly booking widget - Enable when Calendly account is configured
-        calendly: true,
-        
         // Client portal - Enable when ready to offer client file delivery
         clientPortal: false,
-        
+
         // Admin CMS - Enable when Netlify Identity is configured
         adminCMS: true,
-        
+
         // 3D Preview - Enable when 3D viewer is implemented
         preview3D: false,
-        
+
         // Analytics - Enable when analytics provider is set up
-        analytics: false,
+        analytics: false
 
-        // Local conversion dashboard - enable for a persistent preview metrics panel outside localhost if desired
-        analyticsDebugPanel: false,
-
-        // Marketplace platform — enable after running db:migrate and setting env vars in Netlify
-        platform: false
+        // NOTE: scheduling lives in the marketplace platform (/app): clients post
+        // a job and operators accept dates against their declared availability
+        // (migration 006). The booking section in index.html links straight there.
     },
     
     // Contact information
@@ -77,16 +69,6 @@ window.SKYVIEW_CONFIG = {
         }
     },
     
-    // Calendly configuration
-    calendly: {
-        url: 'https://calendly.com/skyviewdynamics/consultation',
-        // Customization
-        primaryColor: '00d4ff',
-        backgroundColor: '0b1120',
-        textColor: 'f5fbff',
-        hideGdprBanner: true
-    },
-    
     // Analytics configuration
     analytics: {
         // Choose provider: 'plausible', 'netlify', 'goatcounter', 'none'
@@ -108,7 +90,7 @@ window.SKYVIEW_CONFIG = {
         heroCta: {
             id: 'hero-cta-q3-v1',
             variants: {
-                control: 'BOOK A CONSULTATION',
+                control: 'FIND AN OPERATOR',
                 treatment: 'SEE WHAT WE CAN DO'
             }
         }
@@ -282,6 +264,9 @@ function applyContactIdentity() {
 
     document.querySelectorAll('[data-contact-email]').forEach((element) => {
         element.textContent = contact.email || '';
+        if (element.tagName === 'A' && contact.email) {
+            element.setAttribute('href', 'mailto:' + contact.email);
+        }
     });
 
     document.querySelectorAll('[data-contact-phone]').forEach((element) => {
@@ -290,6 +275,10 @@ function applyContactIdentity() {
         // config with only phoneE164 filled in doesn't leave the visible
         // header/footer phone number blank.
         element.textContent = contact.phone || contact.phoneE164 || '';
+        const dialable = contact.phoneE164 || (contact.phone || '').replace(/[^d+]/g, '');
+        if (element.tagName === 'A' && dialable) {
+            element.setAttribute('href', 'tel:' + dialable);
+        }
     });
 
     Object.entries(contact.social || {}).forEach(([network, url]) => {
@@ -320,85 +309,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (testimonialsNavLink) {
             testimonialsNavLink.parentElement.style.display = 'none';
-        }
-    }
-    
-    // Hide entire contact section if disabled
-    if (!config.contactForm) {
-        const contactSection = document.getElementById('contact');
-        const contactNavLink = document.querySelector('a[href="#contact"]');
-        if (contactSection) {
-            contactSection.style.display = 'none';
-        }
-        if (contactNavLink) {
-            contactNavLink.parentElement.style.display = 'none';
-        }
-    }
-    
-    // Handle booking section: platform CTA replaces or supplements Calendly
-    if (config.platform) {
-        const bookingSection = document.getElementById('booking');
-        if (bookingSection) {
-            // Hide the Calendly widget and subtitle, replace with platform CTA
-            const calendlyWidget = bookingSection.querySelector('.calendly-inline-widget');
-            const calendlyScript = bookingSection.querySelector('script[src*="calendly"]');
-            const subtitle       = bookingSection.querySelector('.booking-subtitle');
-            if (calendlyWidget) calendlyWidget.style.display = 'none';
-            if (calendlyScript) calendlyScript.remove();
-            if (subtitle) subtitle.style.display = 'none';
-
-            const h2 = bookingSection.querySelector('h2');
-            if (h2) h2.textContent = 'FIND A DRONE OPERATOR';
-
-            const cta = document.createElement('div');
-            cta.className = 'platform-cta';
-            cta.innerHTML = `
-                <p class="platform-cta__sub">Browse verified, FAA Part 107-certified operators near you.<br>Post a job and get matched in minutes.</p>
-                <div class="platform-cta__actions">
-                    <a href="/app/register?role=client" class="cta-button platform-cta__btn">
-                        <span class="cta-text">POST A JOB</span>
-                        <span class="cta-icon">→</span>
-                    </a>
-                    <a href="/app/register?role=operator" class="platform-cta__secondary">
-                        List as an operator →
-                    </a>
-                </div>
-            `;
-            const bookingContainer = bookingSection.querySelector('.container') ?? bookingSection;
-            bookingContainer.appendChild(cta);
-        }
-    } else if (!config.calendly) {
-        const bookingSection = document.getElementById('booking');
-        const bookingNavLink = document.querySelector('a[href="#booking"]');
-        if (bookingSection) bookingSection.style.display = 'none';
-        if (bookingNavLink) bookingNavLink.parentElement.style.display = 'none';
-    }
-
-    // Update hero CTA button based on what's enabled
-    const heroCTA = document.querySelector('.hero-content .cta-button');
-    if (heroCTA) {
-        if (config.platform) {
-            heroCTA.setAttribute('href', '/app/register');
-            const ctaText = heroCTA.querySelector('.cta-text');
-            if (ctaText) ctaText.textContent = 'FIND AN OPERATOR';
-        } else if (config.calendly) {
-            heroCTA.setAttribute('href', '#booking');
-        } else if (config.contactForm) {
-            heroCTA.setAttribute('href', '#contact');
-        } else {
-            heroCTA.setAttribute('href', '#gallery');
-            const ctaText = heroCTA.querySelector('.cta-text');
-            if (ctaText) ctaText.textContent = 'VIEW OUR WORK';
-        }
-    }
-    
-    // Update Calendly URL if configured
-    if (config.calendly) {
-        const calendlyWidget = document.querySelector('.calendly-inline-widget');
-        if (calendlyWidget) {
-            const calendlyConfig = window.SKYVIEW_CONFIG.calendly;
-            const url = `${calendlyConfig.url}?hide_gdpr_banner=${calendlyConfig.hideGdprBanner ? '1' : '0'}&primary_color=${calendlyConfig.primaryColor}&background_color=${calendlyConfig.backgroundColor}&text_color=${calendlyConfig.textColor}`;
-            calendlyWidget.setAttribute('data-url', url);
         }
     }
     

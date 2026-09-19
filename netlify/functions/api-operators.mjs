@@ -22,6 +22,9 @@ export default async (req, context) => {
   } else if (action === 'connect') {
     if (req.method === 'POST') return connectOperator(req, id)
     if (req.method === 'GET')  return getConnectStatus(req, id)
+  } else if (action === 'availability') {
+    if (req.method === 'GET') return getAvailability(req, id)
+    if (req.method === 'PUT') return updateAvailability(req, id)
   } else {
     if (req.method === 'GET') return getOperator(req, id)
     if (req.method === 'PUT') return updateProfile(req, id)
@@ -267,4 +270,94 @@ async function verifyOperator(req, id) {
   }
 
   return json({ status: newStatus })
+}
+
+const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+// DATE_RE alone accepts 2027-02-31, which Postgres rejects at INSERT; round-trip
+// through a UTC Date so impossible calendar dates are a 400, not a database error.
+const isRealDate = (s) => {
+  const d = new Date(`${s}T00:00:00Z`)
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s
+}
+
+async function getAvailability(req, id) {
+  // Blocked-date reasons are free-form text the operator typed for themselves
+  // ("surgery", "family trip"); only the operator and admins may read them.
+  // Everyone else just learns that the date is unavailable.
+  const user = await requireAuth(req, sql)
+  const canSeeReasons = user?.role === 'admin' || (user?.role === 'operator' && user.id === id)
+
+  const [weekly, blocked] = await Promise.all([
+    sql`SELECT day_of_week, start_time, end_time FROM operator_availability WHERE operator_id = ${id} ORDER BY day_of_week, start_time`,
+    sql`SELECT blocked_date, reason FROM operator_blocked_dates WHERE operator_id = ${id} AND blocked_date >= CURRENT_DATE ORDER BY blocked_date`,
+  ])
+  return json({
+    weekly,
+    blocked: canSeeReasons ? blocked : blocked.map(({ blocked_date }) => ({ blocked_date })),
+  })
+}
+
+async function updateAvailability(req, id) {
+  const user = await requireAuth(req, sql)
+  if (!user) return unauthorized()
+  if (user.role !== 'admin' && (user.role !== 'operator' || user.id !== id)) return forbidden()
+
+  const body = await req.json().catch(() => null)
+  if (!body) return error('Invalid JSON')
+
+  // Replace-all semantics: a missing or wrong-shaped field must be rejected, not
+  // coerced to [], or a malformed request would silently wipe the calendar.
+  if (!Array.isArray(body.weekly) || !Array.isArray(body.blocked))
+    return error('weekly and blocked must both be arrays')
+
+  const weekly  = body.weekly
+  const blocked = body.blocked
+
+  if (weekly.length > 50) return error('Too many weekly availability windows (max 50)')
+  if (blocked.length > 200) return error('Too many blocked dates (max 200)')
+
+  const isEntry = (x) => x !== null && typeof x === 'object' && !Array.isArray(x)
+  if (!weekly.every(isEntry) || !blocked.every(isEntry))
+    return error('Every weekly and blocked entry must be an object')
+
+  for (const w of weekly) {
+    if (!Number.isInteger(w.day_of_week) || w.day_of_week < 0 || w.day_of_week > 6)
+      return error('Each weekly entry needs day_of_week between 0 (Sunday) and 6 (Saturday)')
+    if (typeof w.start_time !== 'string' || !TIME_RE.test(w.start_time))
+      return error('Each weekly entry needs a valid start_time (HH:MM)')
+    if (typeof w.end_time !== 'string' || !TIME_RE.test(w.end_time))
+      return error('Each weekly entry needs a valid end_time (HH:MM)')
+    if (w.end_time <= w.start_time)
+      return error('end_time must be after start_time for every weekly entry')
+  }
+  for (const b of blocked) {
+    if (typeof b.date !== 'string' || !DATE_RE.test(b.date) || !isRealDate(b.date))
+      return error('Each blocked date needs a real calendar date (YYYY-MM-DD)')
+    if (b.reason != null && (typeof b.reason !== 'string' || b.reason.length > 200))
+      return error('Blocked-date reason must be a string of 200 characters or fewer')
+  }
+
+  const [profile] = await sql`SELECT id FROM operator_profiles WHERE user_id = ${id}`
+  if (!profile) return notFound()
+
+  // Replace-all in ONE transaction: if any insert fails the deletes roll back,
+  // so an operator's existing calendar is never left erased or half-written
+  // (an empty calendar reads as "unrestricted"), and concurrent saves can't
+  // interleave their deletes and inserts.
+  await sql.transaction(txn => [
+    txn`DELETE FROM operator_availability WHERE operator_id = ${id}`,
+    txn`DELETE FROM operator_blocked_dates WHERE operator_id = ${id}`,
+    ...weekly.map(w => txn`
+      INSERT INTO operator_availability (operator_id, day_of_week, start_time, end_time)
+      VALUES (${id}, ${w.day_of_week}, ${w.start_time}, ${w.end_time})
+    `),
+    ...blocked.map(b => txn`
+      INSERT INTO operator_blocked_dates (operator_id, blocked_date, reason)
+      VALUES (${id}, ${b.date}, ${b.reason ?? null})
+      ON CONFLICT (operator_id, blocked_date) DO UPDATE SET reason = EXCLUDED.reason
+    `),
+  ])
+
+  return getAvailability(req, id)
 }

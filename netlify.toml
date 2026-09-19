@@ -67,9 +67,9 @@
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://assets.calendly.com https://plausible.io https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://assets.calendly.com; font-src https://fonts.gstatic.com; frame-src https://calendly.com; connect-src 'self' https://plausible.io https://api.netlify.com https://identity.netlify.com; img-src 'self' data: https:; media-src 'self';"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://plausible.io https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://plausible.io https://api.netlify.com https://identity.netlify.com; img-src 'self' data: https:; media-src 'self';"
 
-# Platform app — Stripe-compatible CSP, no Calendly
+# Platform app — Stripe-compatible CSP
 [[headers]]
   for = "/app/*"
   [headers.values]
@@ -106,12 +106,27 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Unversioned JS/CSS must revalidate. main.js imports its sibling modules
+# without version strings, so a browser holding ONE stale cached module (from
+# a year-long "immutable" entry) can break the whole module graph and leave
+# the page stuck on "Loading Gallery..." with JS-hidden sections showing.
 [[headers]]
   for = "/*.css"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/assets/gallery.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Vite content-hashes everything under /app/assets, so these are safe to cache forever.
+[[headers]]
+  for = "/app/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"

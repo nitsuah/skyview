@@ -20,15 +20,16 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'npx http-server . -p 3000',
+      command: 'node tests/support/static-server.mjs 3000',
       url: 'http://127.0.0.1:3000',
       reuseExistingServer: !process.env.CI,
       timeout: 120 * 1000,
     },
     {
-      // Serves the built platform SPA (login/register/password-reset live
-      // here) at its production base path so tests/auth.spec.ts and
-      // tests/password-reset.spec.ts can exercise real client-side routing.
+      // Serves the built platform SPA (login/register/password-reset,
+      // operator onboarding, booking) at its production base path so e2e
+      // specs can exercise real client-side routing. `npm ci` runs here
+      // because CI's job only installs the repo-root deps, never platform/'s.
       command: 'npm ci && npm run build && npm run preview -- --port 3001 --strictPort --host 127.0.0.1',
       cwd: 'platform',
       url: 'http://127.0.0.1:3001/app/',

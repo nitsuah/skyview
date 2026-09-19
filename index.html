@@ -81,11 +81,9 @@
             <ul class="nav-links">
                 <li><a href="#services">SERVICES</a></li>
                 <li><a href="#gallery">GALLERY</a></li>
-                <li><a href="#testimonials">REVIEWS</a></li>
                 <li><a href="#booking">BOOKING</a></li>
-                <li><a href="#contact">CONTACT</a></li>
             </ul>
-            <a href="/app" class="nav-portal-btn">PLATFORM</a>
+            <a href="/app" class="nav-portal-btn">BOOK NOW</a>
             <button class="mobile-menu-toggle" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
@@ -110,8 +108,8 @@
             <h1 class="hero-title">ELEVATE YOUR VISION <span>FROM ABOVE</span></h1>
             <p class="hero-subtitle">Cinematic aerials for real estate, events, and mapping.</p>
             <div class="hero-actions">
-                <a href="#booking" class="cta-button">
-                    <span class="cta-text">BOOK A CONSULTATION</span>
+                <a href="/app/register" class="cta-button">
+                    <span class="cta-text">FIND AN OPERATOR</span>
                     <span class="cta-glow"></span>
                 </a>
                 <a href="#gallery" class="cta-button cta-button-secondary">
@@ -216,173 +214,26 @@
                 <!-- Gallery items will be loaded dynamically via JS -->
                 <div class="loading-spinner">Loading Gallery...</div>
             </div>
-
-            <!-- 3D Preview Placeholder -->
-            <div class="preview-card" id="preview3d">
-                <div class="preview-icon">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </div>
-                <h3 class="preview-title">INTERACTIVE 3D PREVIEW</h3>
-                <p class="preview-description">Coming Soon: Explore our work in an immersive 3D environment</p>
-                <div class="preview-badge">COMING SOON</div>
-            </div>
         </div>
     </section>
 
-    <!-- Booking Section -->
+    <!-- Booking Section: scheduling happens inside the platform (post a job,
+         operators accept dates against their own availability). Static markup
+         so it doesn't depend on JavaScript. -->
     <section class="booking-section" id="booking">
         <div class="container">
-            <h2 class="section-title">SCHEDULE A CONSULTATION</h2>
-            <p class="booking-subtitle">Book a free 15-minute consultation to discuss your project and how we can help bring your vision to life.</p>
-            <!-- Calendly inline widget begin -->
-            <div class="calendly-inline-widget" data-url="https://calendly.com/skyviewdynamics/consultation?hide_gdpr_banner=1&primary_color=00d4ff&background_color=0b1120&text_color=f5fbff"></div>
-            <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
-            <!-- Calendly inline widget end -->
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section class="testimonials-section" id="testimonials">
-        <div class="container">
-            <h2 class="section-title">CLIENT TESTIMONIALS</h2>
-            <p class="section-subtitle">What Our Clients Say</p>
-            
-            <div class="testimonials-grid">
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                    </div>
-                    <p class="testimonial-text">
-                        "The aerial footage completely transformed our property listing. We received multiple offers within days of posting the video. Absolutely worth every penny!"
-                    </p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">JM</div>
-                        <div class="author-info">
-                            <div class="author-name">Jennifer Martinez</div>
-                            <div class="author-title">Real Estate Agent</div>
-                        </div>
-                    </div>
+            <h2 class="section-title">FIND A DRONE OPERATOR</h2>
+            <p class="booking-subtitle">Browse verified, FAA Part 107-certified operators near you. Post a job with your preferred date and get matched with a pilot who's available.</p>
+            <div class="platform-cta">
+                <div class="platform-cta__actions">
+                    <a href="/app/register?role=client" class="cta-button platform-cta__btn">
+                        <span class="cta-text">POST A JOB</span>
+                        <span class="cta-icon">→</span>
+                    </a>
+                    <a href="/app/register?role=operator" class="platform-cta__secondary">
+                        List as an operator →
+                    </a>
                 </div>
-
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                    </div>
-                    <p class="testimonial-text">
-                        "Professional, punctual, and the results exceeded our expectations. The wedding video captured angles we never imagined possible. Truly magical!"
-                    </p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">SK</div>
-                        <div class="author-info">
-                            <div class="author-name">Sarah & Kevin</div>
-                            <div class="author-title">Wedding Clients</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                    </div>
-                    <p class="testimonial-text">
-                        "Fast turnaround, incredible quality, and easy to work with. The 3D mapping helped us identify issues we wouldn't have caught otherwise. Highly recommend!"
-                    </p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">RJ</div>
-                        <div class="author-info">
-                            <div class="author-name">Robert Johnson</div>
-                            <div class="author-title">Construction Manager</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section class="contact-section" id="contact">
-        <div class="container">
-            <h2 class="section-title">CONTACT</h2>
-            <p class="section-subtitle">Tell us what you're filming, surveying, or launching—we'll help map the right aerial approach.</p>
-            <div class="contact-content">
-                <div class="contact-info">
-                    <h3>Get In Touch</h3>
-                    <p>Ready to elevate your project? Let's discuss how our drone services can bring your vision to
-                        life.</p>
-                    <div class="contact-pills">
-                        <span class="contact-pill">Response within 1 business day</span>
-                        <span class="contact-pill">Real estate • events • inspections</span>
-                    </div>
-                    <div class="contact-details">
-                        <div class="contact-item">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M3 8L10.89 13.26C11.54 13.67 12.46 13.67 13.11 13.26L21 8M5 19H19C20.1 19 21 18.1 21 17V7C21 5.9 20.1 5 19 5H5C3.9 5 3 5.9 3 7V17C3 18.1 3.9 19 5 19Z"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                            <span data-contact-email>contact@skyviewdynamics.com</span>
-                        </div>
-                        <div class="contact-item">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M22 16.92V19.92C22 20.51 21.54 21 20.97 21C10.05 21 2 12.95 2 2.03C2 1.46 2.49 1 3.08 1H6.08C6.62 1 7.08 1.42 7.11 1.96C7.17 2.92 7.35 3.86 7.64 4.76C7.76 5.12 7.66 5.53 7.38 5.82L5.73 7.47C7.21 10.37 9.63 12.79 12.53 14.27L14.18 12.62C14.47 12.34 14.88 12.24 15.24 12.36C16.14 12.65 17.08 12.83 18.04 12.89C18.58 12.92 19 13.38 19 13.92V16.92C19 17.51 18.51 18 17.92 18C17.88 18 17.84 18 17.8 17.99"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                            <span data-contact-phone>+1 (555) 123-4567</span>
-                        </div>
-                    </div>
-                </div>
-                <form id="contactForm" class="contact-form" name="contact" method="POST" data-netlify="true"
-                    netlify-honeypot="bot-field" action="/pages/thank-you.html">
-                    <input type="hidden" name="form-name" value="contact" />
-                    <p class="hidden" style="display:none">
-                        <label>Don’t fill this out if you're human: <input name="bot-field" /></label>
-                    </p>
-                    <div class="form-group">
-                        <input type="text" id="name" name="name" placeholder="Name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" id="email" name="email" placeholder="Email" required>
-                    </div>
-                    <div class="form-group">
-                        <select id="projectType" name="projectType" required>
-                            <option value="" disabled selected>Project Type</option>
-                            <option value="real_estate">Real Estate & Commercial</option>
-                            <option value="events">Events & Festivals</option>
-                            <option value="mapping">3D Mapping & Inspections</option>
-                            <option value="other">Other Inquiry</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <textarea id="message" name="message" placeholder="Tell us about your project..." rows="5"
-                            required></textarea>
-                    </div>
-                    <button type="submit" class="submit-button">
-                        <span class="submit-text">SEND MESSAGE</span>
-                        <span class="submit-glow"></span>
-                    </button>
-                </form>
             </div>
         </div>
     </section>
@@ -425,7 +276,6 @@
                 </div>
                 <div class="footer-info">
                     <p data-company-legal="copyright">&copy; 2026 SkyView Dynamics. All rights reserved.</p>
-                    <p><span data-contact-email>contact@skyviewdynamics.com</span> | <span data-contact-phone>+1 (555) 123-4567</span></p>
                     <p style="margin-top: 0.5rem;">
                         <a href="/pages/privacy.html" style="color: rgba(255, 255, 255, 0.6); text-decoration: none; transition: color 0.3s ease;">Privacy Policy</a>
                     </p>

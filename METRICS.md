@@ -33,7 +33,7 @@ Authoritative validation sources: `docker compose run --rm unit`, Docker Playwri
 | **Image Optimization**          | 30-40% smaller (WebP) | Optimized | 🟢 |
 | **Mobile Responsiveness**       | ✅ Responsive | Pass | 🟢 |
 | **Contact Form**                | ✅ Working | Functional | 🟢 |
-| **Conversion Reporting**        | Local preview dashboard for landing, work-sample, booking, and contact signals on `localhost` / `?metrics=1` | Visible | 🟢 |
+| **Conversion Reporting**        | Local preview dashboard for landing, work-sample, booking, and contact signals hidden by default; shown to a logged-in admin, or on `localhost` with `?metrics=1` | Visible | 🟢 |
 | **Gallery Load Time**           | 5 curated items hydrate cleanly | < 2s | 🟢 |
 
 > *The local Lighthouse Best Practices score is suppressed by the non-HTTPS localhost preview and third-party booking/auth integrations; it is still the correct baseline artifact for launch tracking.
@@ -55,9 +55,9 @@ Authoritative validation sources: `docker compose run --rm unit`, Docker Playwri
 | Services Showcase           | ✅ Complete | Pricing and descriptions |
 | Dynamic Gallery             | ✅ Complete | Photos + videos with lightbox |
 | Contact Form                | ✅ Complete | Netlify Forms integration |
-| Calendly Booking            | ✅ Complete | Inline widget ready |
+| Booking / Scheduling        | 🟡 Code complete | Static "find an operator" CTA into the marketplace; operator availability + conflict checks built. Calendly removed. Needs the production backend live (see TASKS.md) |
 | Client Portal               | ✅ Complete | Password-protected delivery |
-| Testimonials                | ✅ Complete | Reviews with ratings |
+| Testimonials                | ⏳ Planned | Section removed from the page until real client reviews exist (see ROADMAP.md) |
 | Privacy Policy              | ✅ Complete | GDPR-compliant |
 | Admin CMS                   | ✅ Complete | Decap CMS configured |
 | WebP Optimization           | ✅ Complete | Automatic conversion |

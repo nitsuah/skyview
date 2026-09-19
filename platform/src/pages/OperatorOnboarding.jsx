@@ -11,6 +11,12 @@ const SERVICES = [
   { value: 'inspection',     label: 'Inspection',     icon: '🔍' }
 ]
 
+const DAYS = [
+  { value: 0, label: 'Sun' }, { value: 1, label: 'Mon' }, { value: 2, label: 'Tue' },
+  { value: 3, label: 'Wed' }, { value: 4, label: 'Thu' }, { value: 5, label: 'Fri' },
+  { value: 6, label: 'Sat' }
+]
+
 export default function OperatorOnboarding() {
   const { user } = useAuth()
   const navigate  = useNavigate()
@@ -30,6 +36,15 @@ export default function OperatorOnboarding() {
   const [saving, setSaving]       = useState(false)
   const [uploading, setUploading] = useState(false)
   const [done, setDone]           = useState(false)
+
+  // Weekly availability: one entry per enabled day, { day_of_week, start_time, end_time }.
+  const [weeklyEnabled, setWeeklyEnabled] = useState({})   // { [day_of_week]: { start_time, end_time } }
+  const [blockedDates, setBlockedDates]   = useState([])   // [{ date, reason }]
+  const [newBlockedDate, setNewBlockedDate]     = useState('')
+  const [newBlockedReason, setNewBlockedReason] = useState('')
+  const [savingAvailability, setSavingAvailability] = useState(false)
+  const [availabilityStatus, setAvailabilityStatus] = useState('loading') // 'loading' | 'ready' | 'error'
+  const [extraWindows, setExtraWindows] = useState([])     // additional same-day windows the form can't edit
 
   // Hydrate form from stored profile so edits don't overwrite existing data with blanks
   useEffect(() => {
@@ -54,7 +69,33 @@ export default function OperatorOnboarding() {
       })
       .catch(() => {}) // No profile row yet — first-time onboarding, keep empty defaults
       .finally(() => setLoading(false))
+
+    loadAvailability()
   }, [user?.id])
+
+  // Saving availability REPLACES the stored calendar, so the form must never be
+  // saveable until the stored calendar has actually loaded — otherwise a slow or
+  // failed request would let empty defaults overwrite a real schedule.
+  const loadAvailability = () => {
+    setAvailabilityStatus('loading')
+    api.operators.getAvailability(user.id)
+      .then(({ weekly, blocked }) => {
+        // The form edits one window per day; any additional same-day windows are
+        // kept aside and re-sent on save so they aren't silently deleted.
+        const byDay = {}
+        const extras = []
+        for (const w of weekly) {
+          const win = { start_time: w.start_time.slice(0, 5), end_time: w.end_time.slice(0, 5) }
+          if (byDay[w.day_of_week]) extras.push({ day_of_week: w.day_of_week, ...win })
+          else byDay[w.day_of_week] = win
+        }
+        setWeeklyEnabled(byDay)
+        setExtraWindows(extras)
+        setBlockedDates(blocked.map(b => ({ date: String(b.blocked_date).slice(0, 10), reason: b.reason ?? '' })))
+        setAvailabilityStatus('ready')
+      })
+      .catch(() => setAvailabilityStatus('error'))
+  }
 
   const set = (k, v) => setProfile(p => ({ ...p, [k]: v }))
 
@@ -111,6 +152,50 @@ export default function OperatorOnboarding() {
     }
   }
 
+  const toggleDay = (day) => {
+    setWeeklyEnabled(w => {
+      const next = { ...w }
+      if (next[day]) delete next[day]
+      else next[day] = { start_time: '09:00', end_time: '17:00' }
+      return next
+    })
+  }
+
+  const setDayTime = (day, field, value) => {
+    setWeeklyEnabled(w => ({ ...w, [day]: { ...w[day], [field]: value } }))
+  }
+
+  const addBlockedDate = () => {
+    if (!newBlockedDate) return
+    if (blockedDates.some(b => b.date === newBlockedDate)) { setNewBlockedDate(''); return }
+    setBlockedDates(b => [...b, { date: newBlockedDate, reason: newBlockedReason }].sort((a, b) => a.date.localeCompare(b.date)))
+    setNewBlockedDate(''); setNewBlockedReason('')
+  }
+
+  const removeBlockedDate = (date) => setBlockedDates(b => b.filter(x => x.date !== date))
+
+  const saveAvailability = async () => {
+    setSavingAvailability(true); setError('')
+    try {
+      const weekly = [
+        ...Object.entries(weeklyEnabled).map(([day, t]) => ({
+          day_of_week: Number(day), start_time: t.start_time, end_time: t.end_time
+        })),
+        ...extraWindows.filter(w => weeklyEnabled[w.day_of_week]),
+      ]
+      if (weekly.some(w => w.end_time <= w.start_time)) {
+        setError('End time must be after start time for every enabled day')
+        return
+      }
+      await api.operators.updateAvailability(user.id, { weekly, blocked: blockedDates })
+      setStep(s => s + 1)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSavingAvailability(false)
+    }
+  }
+
   const uploadCert = async () => {
     if (!certFile) { setError('Please select your FAA certificate file'); return }
     if (!profile.faa_cert_number) { setError('FAA certificate number is required'); return }
@@ -149,11 +234,11 @@ export default function OperatorOnboarding() {
   return (
     <>
       <h1 className="page-title">Operator Setup</h1>
-      <p className="page-sub">Step {step} of 3 — {step === 1 ? 'Profile' : step === 2 ? 'Rates' : 'Certification'}</p>
+      <p className="page-sub">Step {step} of 4 — {step === 1 ? 'Profile' : step === 2 ? 'Rates' : step === 3 ? 'Availability' : 'Certification'}</p>
 
       {/* Step indicator */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
-        {[1,2,3].map(s => (
+        {[1,2,3,4].map(s => (
           <div key={s} style={{
             height: 3, flex: 1, borderRadius: 2,
             background: s <= step ? 'var(--accent)' : 'var(--border)'
@@ -243,16 +328,16 @@ export default function OperatorOnboarding() {
             Platform takes 15% on each booking. You receive 85% of each job's total. No monthly fee.
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label>Your booking / calendar link <span className="text-muted" style={{ fontWeight: 400 }}>(optional, Phase 1)</span></label>
+            <label>Your booking / calendar link <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
             <input type="url" value={profile.booking_url}
               placeholder="https://cal.com/yourname or your Calendly link"
               onChange={e => set('booking_url', e.target.value)} />
-            <small className="text-muted">Clients can use this to see your availability directly. Native scheduling coming in Phase 2.</small>
+            <small className="text-muted">Clients booking through SkyView are matched against the availability you set next — this link is just a backup for clients who ask for it directly.</small>
           </div>
           <div className="divider" />
           <div className="flex gap-2">
             <button className="btn btn-primary" onClick={saveProfile} disabled={saving}>
-              {saving ? 'Saving…' : 'Next: Certification →'}
+              {saving ? 'Saving…' : 'Next: Availability →'}
             </button>
             <button className="btn btn-ghost" onClick={() => setStep(1)}>← Back</button>
           </div>
@@ -260,6 +345,75 @@ export default function OperatorOnboarding() {
       )}
 
       {step === 3 && (
+        <div className="card" style={{ maxWidth: 600 }}>
+          <div className="section-title" style={{ marginBottom: '1.25rem' }}>Availability</div>
+          <p className="text-muted mb-2" style={{ fontSize: 13.5 }}>
+            Set the hours you're generally available. Clients booking you are checked against this automatically — no day set means no restriction (you'll be asked to confirm or decline every request instead).
+          </p>
+          {availabilityStatus === 'error' && (
+            <div className="alert alert-error mb-2">
+              Couldn't load your saved availability, so saving is disabled to avoid overwriting it.{' '}
+              <button type="button" className="btn btn-ghost btn-sm" onClick={loadAvailability}>Retry</button>
+            </div>
+          )}
+          {availabilityStatus === 'loading' && <p className="text-muted" style={{ fontSize: 13 }}>Loading your saved availability…</p>}
+          {extraWindows.some(w => weeklyEnabled[w.day_of_week]) && (
+            <p className="text-muted mb-2" style={{ fontSize: 12.5 }}>
+              You have additional saved time windows on some days; they're kept as-is when you save.
+            </p>
+          )}
+          <div className="form-group">
+            {DAYS.map(d => {
+              const enabled = weeklyEnabled[d.value]
+              return (
+                <div key={d.value} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.4rem 0' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', width: 70 }}>
+                    <input type="checkbox" checked={!!enabled} onChange={() => toggleDay(d.value)} />
+                    {d.label}
+                  </label>
+                  {enabled && (
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <input type="time" value={enabled.start_time} onChange={e => setDayTime(d.value, 'start_time', e.target.value)} />
+                      <span className="text-muted">to</span>
+                      <input type="time" value={enabled.end_time} onChange={e => setDayTime(d.value, 'end_time', e.target.value)} />
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+          <div className="divider" />
+          <div className="form-group">
+            <label>Blocked dates <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <input type="date" value={newBlockedDate} onChange={e => setNewBlockedDate(e.target.value)} />
+              <input type="text" placeholder="Reason (optional)" value={newBlockedReason}
+                onChange={e => setNewBlockedReason(e.target.value)} style={{ flex: 1 }} />
+              <button type="button" className="btn btn-ghost btn-sm" onClick={addBlockedDate}>Add</button>
+            </div>
+            {blockedDates.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                {blockedDates.map(b => (
+                  <div key={b.date} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
+                    <span>{new Date(`${b.date}T00:00:00Z`).toLocaleDateString(undefined, { timeZone: 'UTC' })}{b.reason ? ` — ${b.reason}` : ''}</span>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => removeBlockedDate(b.date)}>Remove</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="divider" />
+          <div className="flex gap-2">
+            <button className="btn btn-primary" onClick={saveAvailability}
+              disabled={savingAvailability || availabilityStatus !== 'ready'}>
+              {savingAvailability ? 'Saving…' : 'Next: Certification →'}
+            </button>
+            <button className="btn btn-ghost" onClick={() => setStep(2)}>← Back</button>
+          </div>
+        </div>
+      )}
+
+      {step === 4 && (
         <div className="card" style={{ maxWidth: 500 }}>
           <div className="section-title" style={{ marginBottom: '1.25rem' }}>FAA Part 107 certification</div>
           <p className="text-muted mb-2" style={{ fontSize: 13.5 }}>
@@ -301,7 +455,7 @@ export default function OperatorOnboarding() {
             <button className="btn btn-primary" onClick={uploadCert} disabled={uploading || !certFile}>
               {uploading ? 'Uploading…' : 'Submit for Verification'}
             </button>
-            <button className="btn btn-ghost" onClick={() => setStep(2)}>← Back</button>
+            <button className="btn btn-ghost" onClick={() => setStep(3)}>← Back</button>
           </div>
         </div>
       )}

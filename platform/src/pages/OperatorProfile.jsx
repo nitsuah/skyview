@@ -17,9 +17,60 @@ export default function OperatorProfile() {
   const [jobsLoading, setJobsLoading] = useState(false)
   const [selectedJob, setSelectedJob] = useState('')
   const [totalDollars, setTotalDollars] = useState('')
+  const [scheduleDate, setScheduleDate] = useState('')
+  const [scheduleTime, setScheduleTime] = useState('')
+  const [durationHours, setDurationHours] = useState('2')
+  const [availability, setAvailability] = useState(null)
   const [bookError, setBookError]   = useState('')
   const [bookSaving, setBookSaving] = useState(false)
   const [bookDone, setBookDone]     = useState(false)
+
+  const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const PREFERRED_TIME_DEFAULTS = { morning: '09:00', afternoon: '13:00', evening: '17:00' }
+
+  // Mirrors the server's rule (bookings.duration_hours is NUMERIC(4,2)): blank is
+  // allowed (defaults to 2h), otherwise finite, > 0, <= 99.99, max 2 decimals.
+  const durationError = (() => {
+    const raw = String(durationHours).trim()
+    if (raw === '') return null
+    const n = Number(raw)
+    if (!Number.isFinite(n) || n <= 0 || n > 99.99) return 'Duration must be between 0.01 and 99.99 hours.'
+    if (Math.abs(n * 100 - Math.round(n * 100)) > 1e-9) return 'Duration can have at most 2 decimal places.'
+    return null
+  })()
+
+  // Client-side hint only — the server is the source of truth and will
+  // reject (409) an actual conflict even if this check is stale or wrong.
+  const availabilityHint = (() => {
+    if (!availability || !scheduleDate) return null
+    if (durationError) return { ok: false, text: durationError }
+    const hours = String(durationHours).trim() === '' ? 2 : Number(durationHours)
+    const startMs = Date.parse(`${scheduleDate}T${scheduleTime || '00:00'}:00Z`)
+    if (Number.isNaN(startMs)) return null
+    // Same interval the server checks: [start, start + duration), in UTC.
+    const endMs = startMs + (scheduleTime && hours > 0 ? hours * 3600000 : 1)
+    const lastDate = new Date(endMs - 1).toISOString().slice(0, 10)
+    if (availability.blocked.some(b => {
+      const d = b.blocked_date?.slice(0, 10)
+      return d >= scheduleDate && d <= lastDate
+    })) {
+      return { ok: false, text: 'This operator has marked that date unavailable.' }
+    }
+    if (availability.weekly.length === 0) return null
+    const dow = new Date(`${scheduleDate}T00:00:00Z`).getUTCDay()
+    const dayWindows = availability.weekly.filter(w => w.day_of_week === dow)
+    if (dayWindows.length === 0) {
+      return { ok: false, text: `This operator hasn't listed ${DAY_NAMES[dow]} as available.` }
+    }
+    if (!scheduleTime) return null
+    const toMin = t => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5))
+    const startMin = toMin(scheduleTime)
+    const endMin = startMin + (hours > 0 ? hours * 60 : 0)
+    const fits = dayWindows.some(w => startMin >= toMin(w.start_time) && endMin <= toMin(w.end_time))
+    return fits
+      ? { ok: true, text: "Within this operator's declared availability." }
+      : { ok: false, text: `This operator is only available ${DAY_NAMES[dow]} ${dayWindows.map(w => `${w.start_time.slice(0, 5)}–${w.end_time.slice(0, 5)}`).join(', ')}, and the whole booking has to fit inside one window.` }
+  })()
 
   useEffect(() => {
     Promise.all([
@@ -36,8 +87,11 @@ export default function OperatorProfile() {
     if (jobs.length === 0) {
       setJobsLoading(true)
       try {
-        const all = await api.jobs.list()
-        setJobs(all.filter(j => j.status === 'open'))
+        const [all, avail] = await Promise.all([api.jobs.list(), api.operators.getAvailability(id)])
+        const openJobs = all.filter(j => j.status === 'open')
+        setJobs(openJobs)
+        setAvailability(avail)
+        if (openJobs.length === 1) selectJob(openJobs[0].id, openJobs)
       } catch (e) {
         setBookError(e.message)
       } finally {
@@ -46,16 +100,31 @@ export default function OperatorProfile() {
     }
   }
 
+  // Prefill the proposed date/time from the job's preferred_date/preferred_time
+  // so clients aren't re-entering what they already told us on the job post.
+  const selectJob = (jobId, jobList = jobs) => {
+    setSelectedJob(jobId)
+    const job = jobList.find(j => j.id === jobId)
+    // Reset first so switching to a job with no preference doesn't carry the
+    // previous job's date/time into this booking request.
+    setScheduleDate(job?.preferred_date ? String(job.preferred_date).slice(0, 10) : '')
+    setScheduleTime(PREFERRED_TIME_DEFAULTS[job?.preferred_time] ?? '')
+  }
+
   const submitBooking = async (e) => {
     e.preventDefault()
     if (!selectedJob)   { setBookError('Select a job'); return }
     if (!totalDollars || parseFloat(totalDollars) <= 0) { setBookError('Enter a valid total amount'); return }
+    if (scheduleDate && !scheduleTime) { setBookError('Pick a time for the proposed date'); return }
+    if (durationError) { setBookError(durationError); return }
     setBookSaving(true); setBookError('')
     try {
       await api.bookings.create({
         job_id:      selectedJob,
         operator_id: id,
-        total_cents: Math.round(parseFloat(totalDollars) * 100)
+        total_cents: Math.round(parseFloat(totalDollars) * 100),
+        scheduled_at: scheduleDate && scheduleTime ? `${scheduleDate}T${scheduleTime}:00Z` : null,
+        duration_hours: String(durationHours).trim() === '' ? null : Number(durationHours)
       })
       setBookDone(true)
     } catch (err) {
@@ -134,13 +203,31 @@ export default function OperatorProfile() {
                         You have no open jobs. <Link to="/app/jobs/new">Post a job</Link> first.
                       </div>
                     ) : (
-                      <select value={selectedJob} onChange={e => setSelectedJob(e.target.value)} required>
+                      <select value={selectedJob} onChange={e => selectJob(e.target.value)} required>
                         <option value="">— Choose a job —</option>
                         {jobs.map(j => (
                           <option key={j.id} value={j.id}>{j.title}</option>
                         ))}
                       </select>
                     )}
+                  </div>
+                  <div className="form-group">
+                    <label>Proposed date &amp; time <span className="text-muted" style={{ fontWeight: 400 }}>(optional — can be arranged later)</span></label>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} style={{ flex: 1 }} />
+                      <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)} style={{ flex: 1 }} />
+                    </div>
+                    {availabilityHint && (
+                      <small style={{ color: availabilityHint.ok ? 'var(--green, #22c55e)' : 'var(--red, #ef4444)' }}>
+                        {availabilityHint.text}
+                      </small>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <label>Duration (hours)</label>
+                    <input type="number" step="any" className="duration-input" value={durationHours}
+                      onChange={e => setDurationHours(e.target.value)} />
+                    {durationError && <small style={{ color: 'var(--red, #ef4444)' }}>{durationError}</small>}
                   </div>
                   <div className="form-group">
                     <label>Agreed total (USD)</label>

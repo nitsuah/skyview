@@ -3,6 +3,7 @@ import { requireAuth } from './utils/auth.js'
 import { json, error, cors, unauthorized, forbidden, notFound } from './utils/response.js'
 import { stripe } from './utils/stripe.js'
 import { sendBookingConfirmedEmail, sendBookingDeclinedEmail, sendBookingCompletedEmail } from './utils/email.js'
+import { checkOperatorAvailability } from './utils/scheduling.js'
 
 export const config = { path: '/api/bookings*' }
 
@@ -84,7 +85,12 @@ async function createBooking(req) {
   const body = await req.json().catch(() => null)
   if (!body) return error('Invalid JSON')
 
-  const { job_id, operator_id, scheduled_at, duration_hours, total_cents } = body
+  const { job_id, operator_id, total_cents } = body
+  // Blank strings mean "not provided": normalize once so the availability check
+  // and the INSERT always see the same values (an empty scheduled_at would
+  // otherwise skip the check and then fail as an invalid timestamp at INSERT).
+  const scheduled_at   = body.scheduled_at === '' ? null : (body.scheduled_at ?? null)
+  const duration_hours = body.duration_hours === '' ? null : (body.duration_hours ?? null)
   if (!job_id || !operator_id || !total_cents)
     return error('job_id, operator_id, and total_cents are required')
   if (!Number.isInteger(total_cents) || total_cents <= 0 || total_cents > 2_147_483_647)
@@ -98,6 +104,9 @@ async function createBooking(req) {
   `
   if (!opProfile) return error('Operator is not available', 409)
 
+  const availability = await checkOperatorAvailability(operator_id, scheduled_at, duration_hours)
+  if (!availability.ok) return error(availability.reason, 409)
+
   const fee    = Math.round(total_cents * PLATFORM_FEE)
   const payout = total_cents - fee
 
@@ -109,14 +118,23 @@ async function createBooking(req) {
   `
   if (!jobUpdate) return error('This job is no longer available', 409)
 
-  const [booking] = await sql`
-    INSERT INTO bookings
-      (job_id, client_id, operator_id, scheduled_at, duration_hours, total_cents, platform_fee_cents, operator_payout_cents)
-    VALUES
-      (${job_id}, ${user.id}, ${operator_id}, ${scheduled_at ?? null}, ${duration_hours ?? null},
-       ${total_cents}, ${fee}, ${payout})
-    RETURNING *
-  `
+  let booking
+  try {
+    ;[booking] = await sql`
+      INSERT INTO bookings
+        (job_id, client_id, operator_id, scheduled_at, duration_hours, total_cents, platform_fee_cents, operator_payout_cents)
+      VALUES
+        (${job_id}, ${user.id}, ${operator_id}, ${scheduled_at ?? null}, ${duration_hours ?? null},
+         ${total_cents}, ${fee}, ${payout})
+      RETURNING *
+    `
+  } catch (err) {
+    // 23P01 = bookings_no_operator_overlap (migration 006): a concurrent request
+    // took this operator's slot after checkOperatorAvailability() ran.
+    await sql`UPDATE jobs SET status = 'open', assigned_operator_id = NULL WHERE id = ${job_id}`
+    if (err?.code === '23P01') return error('This operator already has a booking that overlaps this time', 409)
+    throw err
+  }
 
   let stripe_client_secret = null
   if (stripe) {
@@ -161,6 +179,14 @@ async function confirmBooking(req, id) {
   const [booking] = await sql`SELECT * FROM bookings WHERE id = ${id}`
   if (!booking) return notFound()
   if (booking.operator_id !== user.id) return forbidden()
+
+  // Re-check for a conflict with another booking this operator already confirmed
+  // since this one was created — two pending requests can overlap; only one
+  // may be accepted. checkOperatorAvailability only compares against
+  // OTHER bookings, so this one (still 'pending' at this point) never
+  // conflicts with itself.
+  const availability = await checkOperatorAvailability(booking.operator_id, booking.scheduled_at, booking.duration_hours, booking.id)
+  if (!availability.ok) return error(availability.reason, 409)
 
   const [updated] = await sql`
     UPDATE bookings SET status = 'confirmed', confirmed_at = NOW()
