@@ -69,10 +69,10 @@ function formatUpdatedAt(updatedAt) {
     });
 }
 
-// The dashboard is owner tooling, not part of the public page. It shows on a
-// developer's own machine, and on a real host only after the visitor's session
-// is confirmed to be an admin (see revealDashboardForAdmin). It deliberately
-// has no URL parameter or config flag that makes it public.
+// The dashboard is owner tooling, not part of the public page. It is hidden by
+// default everywhere. It shows for a confirmed admin session (see
+// revealDashboardForAdmin), or on localhost only when a developer adds
+// ?metrics=1. There is no URL parameter or config flag that shows it on a real host.
 let adminVerified = false;
 
 function isLocalPreview() {
@@ -84,7 +84,10 @@ function shouldShowDashboard() {
         return false;
     }
 
-    return isLocalPreview() || adminVerified;
+    // Even on localhost it stays hidden unless explicitly requested with
+    // ?metrics=1 — that opt-in is honored ONLY on localhost, never on a real host.
+    const localOptIn = isLocalPreview() && new URLSearchParams(window.location?.search || '').get('metrics') === '1';
+    return localOptIn || adminVerified;
 }
 
 async function isAdminSession() {

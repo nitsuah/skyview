@@ -46,7 +46,17 @@ describe('conversion-tracking', () => {
         });
     });
 
-    it('renders a lightweight local conversion dashboard for reporting visibility', async () => {
+    it('is hidden by default, even on localhost', async () => {
+        window.history.replaceState({}, '', '/');
+        const { initConversionTracking } = await import('../../scripts/conversion-tracking.js?test=' + Date.now());
+
+        initConversionTracking();
+
+        expect(document.querySelector('.conversion-dashboard')).toBeNull();
+    });
+
+    it('renders a lightweight local conversion dashboard when a developer opts in on localhost', async () => {
+        window.history.replaceState({}, '', '/?metrics=1');
         const { initConversionTracking } = await import('../../scripts/conversion-tracking.js?test=' + Date.now());
 
         initConversionTracking();
