@@ -8,8 +8,8 @@
 ## Done (2026-09 cycle)
 
 Condensed into `docs/ROADMAP.md` (milestones) and `CHANGELOG.md` (change-by-change
-history, including the native operator scheduling, signed client-portal file
-delivery, drone cursor, Docker SPA build, identity config plumbing, and Vitest 5
+history, including the native operator scheduling and signed-link/token
+generation, drone cursor, Docker SPA build, identity config plumbing, and Vitest 5
 regression fix) — see those files rather than a duplicated narrative here. The
 still-open gaps from this cycle (per-client storage backend, bulk ZIP download,
 demo manifest) are tracked under Todo below.
