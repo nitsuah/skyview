@@ -8,7 +8,7 @@
     "dev": "netlify dev",
     "dev:platform": "cd platform && npm run dev",
     "db:migrate": "node scripts/migrate.js",
-    "test": "playwright test",
+    "test": "playwright test --config config/playwright.config.ts",
     "test:unit": "vitest run --config config/vitest.config.ts",
     "lint:js": "eslint . --config config/eslint.config.mjs",
     "lint:css": "stylelint \"**/*.css\" --config config/stylelint.config.mjs",

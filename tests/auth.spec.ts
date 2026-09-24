@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // The platform SPA (login/register/dashboard) is served separately from the
-// marketing site — see the second `webServer` entry in playwright.config.ts.
+// marketing site — see the second `webServer` entry in config/playwright.config.ts.
 // AuthProvider calls GET /api/auth/me on every mount, so every test here
 // mocks it up front (401 = signed out, 200 = signed in).
 const PLATFORM_BASE = 'http://127.0.0.1:3001';
