@@ -20,9 +20,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, code of conduct, and how 
 - [Owner Guide](docs/OWNER_GUIDE.md)
 - [Getting Started](docs/GETTING_STARTED.md)
 - [Metrics](METRICS.md)
-- [Features](FEATURES.md)
-- [Roadmap](ROADMAP.md)
-- [Tasks](TASKS.md)
+- [Features](docs/FEATURES.md)
+- [Roadmap](docs/ROADMAP.md)
+- [Tasks](docs/TASKS.md)
 
 A stunning, high-tech website for professional drone services featuring a minimalist design with full-bleed photography, dark high-contrast aesthetics, and glassmorphic UI elements.
 

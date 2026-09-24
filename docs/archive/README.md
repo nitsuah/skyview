@@ -9,7 +9,7 @@ history — not maintained, and may contain inaccurate/stale instructions
 
 | File | Why it moved | Current source of truth |
 |------|---------------|--------------------------|
-| `PROJECT_STATUS.md` | Dated 2025-12-13; describes a pre-refactor file layout (`client-portal.html` at repo root, no `platform/` SPA) | `FEATURES.md`, `ROADMAP.md` |
+| `PROJECT_STATUS.md` | Dated 2025-12-13; describes a pre-refactor file layout (`client-portal.html` at repo root, no `platform/` SPA) | `docs/FEATURES.md`, `docs/ROADMAP.md` |
 | `SESSION_SUMMARY.md` | One-off summary of a past WebP-optimization work session | `docs/WEBP_OPTIMIZATION.md` |
 | `QUICK_REFERENCE.md` | Dated 2025-12-13; duplicated setup/testing commands now covered elsewhere | `docs/GETTING_STARTED.md`, root `README.md` |
 | `QUICKSTART.md` | Informal duplicate of the onboarding walkthrough | `docs/GETTING_STARTED.md`, `docs/OWNER_GUIDE.md` |
