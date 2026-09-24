@@ -78,7 +78,7 @@ See **[🚀 Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** for Netlify deployment
 - **JavaScript**: ES6 Modules (`scripts/`).
 - **CMS**: Decap CMS (git-based content management).
 - **Testing**:
-  - **E2E**: Playwright (`npx playwright test`)
+  - **E2E**: Playwright (`npx playwright test --config config/playwright.config.ts`)
   - **Unit**: Vitest (`npx vitest run --config config/vitest.config.ts`)
 - **Netlify**: Hosting, Forms, and Identity.
 
@@ -127,6 +127,7 @@ npm run db:migrate     # Run Neon database migrations (platform feature)
 # Linting
 npm run lint:js        # ESLint (config/eslint.config.mjs)
 npm run lint:css       # Stylelint (config/stylelint.config.mjs)
+pre-commit run --all-files --config config/.pre-commit-config.yaml  # pre-commit hooks (install with: pre-commit install --config config/.pre-commit-config.yaml)
 
 # Optimization
 npm run optimize:images  # Convert images to WebP
