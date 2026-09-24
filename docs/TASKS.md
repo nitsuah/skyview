@@ -7,7 +7,7 @@
 
 ## Done (2026-09 cycle)
 
-Condensed into `docs/ROADMAP.md` (milestones) and `CHANGELOG.md` (change-by-change
+Condensed into `docs/ROADMAP.md` (milestones) and `docs/CHANGELOG.md` (change-by-change
 history, including the native operator scheduling and signed-link/token
 generation, drone cursor, Docker SPA build, identity config plumbing, and Vitest 5
 regression fix) — see those files rather than a duplicated narrative here. The
