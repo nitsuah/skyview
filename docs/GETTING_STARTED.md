@@ -216,6 +216,7 @@ Before going live:
 
 ## 📚 Documentation Index
 
+- `FINAL_SETUP.md` - Marketplace platform setup (Neon, env vars, Resend, OAuth, Stripe)
 - `DEPLOYMENT_GUIDE.md` - Detailed Netlify deployment
 - `CONFIG.md` - config.js reference
 - `WEBP_OPTIMIZATION.md` - Image optimization details

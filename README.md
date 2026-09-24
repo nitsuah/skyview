@@ -136,6 +136,7 @@ npm run optimize:images  # Convert images to WebP
 
 ### Start Here
 - 📖 **[Getting Started Guide](docs/GETTING_STARTED.md)** - **Start here!** Complete setup walkthrough
+- 🛠️ [Platform Setup](docs/FINAL_SETUP.md) - Neon, Netlify env vars, Resend, Google OAuth, Stripe, and local dev for the `/app` marketplace
 - 📘 [Owner's Guide](docs/OWNER_GUIDE.md) - 30-minute non-technical launch guide
 
 ### Deployment & Management
