@@ -1,11 +1,21 @@
 # Changelog
 
+> 🧭 [skyview](../README.md) · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · [Tasks](./TASKS.md) · **Changelog** · [Metrics](../METRICS.md) <!-- nav -->
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### 2026-09-19 → 2026-09-24
+
+- **Changed — Calendly cutover:** the marketing site no longer uses Calendly. The booking section links into the marketplace platform ("Find a drone operator" / "Post a job" / "List as an operator"), the hero CTA goes to `/app/register`, and the Calendly widget, script, CSP entries, config, CSS and `features.platform`/`features.calendly` flags were removed; the unfinished testimonials and 3D preview sections were removed from the markup.
+- **Changed:** `CHANGELOG.md`/`FEATURES.md` moved into `docs/` (#147); pre-commit and Playwright configs moved into `config/` (#148); `docs/archive` reconciled with the live setup docs (#149); METRICS refreshed from a Docker unit/coverage run (#146).
+- **Dependencies:** netlify-cli 27.8.0 (#141), @vitest/coverage-v8 5.0.1 (#142), @netlify/blobs 11.1.0 (#143), resend 6.28.1 (#144).
+- **Docs:** planning docs reset for 2027 (`pmo-ff`) — completed roadmap sections condensed into FEATURES (new Marketplace Platform section), open 2026 items merged into 2027 Q1, broken `docs/`-relative links in OWNER_GUIDE/DEPLOYMENT_GUIDE/README fixed, breadcrumb navigation + README docs index added.
+
 
 ### Added
 

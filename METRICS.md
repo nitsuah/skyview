@@ -1,6 +1,8 @@
 
 # Skyview Metrics
 
+> 🧭 [skyview](./README.md) · [Features](./docs/FEATURES.md) · [Roadmap](./docs/ROADMAP.md) · [Tasks](./docs/TASKS.md) · [Changelog](./docs/CHANGELOG.md) · **Metrics** <!-- nav -->
+
 Last Validated: 2026-09-24 (PMO audit — Docker: `docker compose -f config/docker-compose.yml run --rm unit`)
 Health Score: 98/100
 Compliance: Overseer/PM core metrics and health scoring validated for Q3 2026

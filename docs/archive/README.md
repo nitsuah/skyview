@@ -1,5 +1,7 @@
 # Archived Documentation
 
+> 🧭 [skyview](../../README.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../../METRICS.md) <!-- nav -->
+
 These are dated historical records. They are kept on purpose, but nobody maintains
 them, and they describe the project as it was on the dates they carry. Don't follow
 any instructions in them: file paths, `config.js` flags, and commands have

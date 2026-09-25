@@ -1,5 +1,7 @@
 # SkyView Dynamics — Platform Setup
 
+> 🧭 [skyview](../README.md) · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · [Tasks](./TASKS.md) · [Changelog](./CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
+
 This guide covers everything you need to do manually before the marketplace platform goes live. The code is already in place — these are the external accounts and configuration steps.
 
 ---
