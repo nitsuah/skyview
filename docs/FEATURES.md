@@ -51,7 +51,7 @@
 
 ## Planned
 
-- **Client Delivery File Backend** — `client-gallery.html` still serves a client-side prototype file listing; the login gate is server-verified, but real per-client signed downloads are not built yet (2027 Q1)
+- **Per-Client Protected Delivery** — signed-token verification and a server-provided manifest with signed download links are shipped, but every verified session gets the same demo manifest pointing at publicly served `/assets/gallery` files; private per-client storage (Netlify Blobs/S3) is the remaining work (2027 Q1)
 - **Marketplace Production Go-Live** — the platform SPA, scheduling, and Calendly cutover are shipped; production activation (Neon migrations through 006, Stripe/Resend/JWT/`PORTAL_SALT` env vars, one live end-to-end pass) remains (2027 Q1)
 - **Multi-Segment Personalization** — expand campaign variants to cover service spotlight targeting (2027 Q1)
 - **Live A/B Experiments** — enable framework already shipped; wire to analytics and analyse results (2027 Q1)
