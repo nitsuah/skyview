@@ -1,5 +1,7 @@
 # 🚁 SkyView Dynamics - Cinematic Drone Services
 
+> 🧭 **skyview** · [Features](./docs/FEATURES.md) · [Roadmap](./docs/ROADMAP.md) · [Tasks](./docs/TASKS.md) · [Changelog](./docs/CHANGELOG.md) · [Metrics](./METRICS.md) <!-- nav -->
+
 [![Netlify Status](https://api.netlify.com/api/v1/badges/bea254e2-2234-434c-82d1-ffb8a8c2dd26/deploy-status)](https://app.netlify.com/projects/skyviewd/deploys) [![Playwright Tests](https://github.com/nitsuah/skyview/actions/workflows/playwright.yml/badge.svg)](https://github.com/nitsuah/skyview/actions/workflows/playwright.yml) [![Docker Smoke](https://github.com/nitsuah/skyview/actions/workflows/docker-smoke.yml/badge.svg)](https://github.com/nitsuah/skyview/actions/workflows/docker-smoke.yml)
 
 **Last Updated:** 2026-08-22 (documentation audit)
@@ -12,7 +14,7 @@
 - Docker smoke validation and coverage reporting (2026-03-27)
 
 ## 🤝 Contributing
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, code of conduct, and how to get involved.
+See [CONTRIBUTING.md](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md) (org default) for guidelines, code of conduct, and how to get involved.
 
 ## 🔗 Quick Links
 - [Live Site](https://skyviewd.netlify.app) / [Custom Domain](https://skyview.nitsuah.io)
@@ -158,8 +160,8 @@ npm run optimize:images  # Convert images to WebP
 - 📈 [Optimization Flow](docs/OPTIMIZATION_FLOW.md) - Performance workflow
 
 ### Project Overview
-- 📋 [Roadmap](ROADMAP.md) - Project phases and progress
-- ✅ [Tasks](TASKS.md) - Todo list
+- 📋 [Roadmap](./docs/ROADMAP.md) - Project phases and progress
+- ✅ [Tasks](./docs/TASKS.md) - Todo list
 - 📈 [Metrics](METRICS.md) - Test coverage and performance baseline
 
 ## ⚙️ Configuration
@@ -215,3 +217,39 @@ Shared community policies are centralized in https://github.com/nitsuah/.github:
 - Contributing: https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md
 - Code of Conduct: https://github.com/nitsuah/.github/blob/main/CODE_OF_CONDUCT.md
 - Security: https://github.com/nitsuah/.github/blob/main/SECURITY.md
+
+<!-- docs-index:start -->
+## Docs Index
+
+Every tracked doc in this repo, so nothing is orphaned (also used by the Obsidian vault mirror).
+
+- [Analytics Setup Guide](./docs/ANALYTICS_SETUP.md) — `docs/ANALYTICS_SETUP.md`
+- [Asset Management & Admin Guide](./docs/ASSET_MANAGEMENT.md) — `docs/ASSET_MANAGEMENT.md`
+- [Changelog](./docs/CHANGELOG.md) — `docs/CHANGELOG.md`
+- [Client Portal Documentation](./docs/CLIENT_PORTAL.md) — `docs/CLIENT_PORTAL.md`
+- [CMS Editing Guide](./docs/CMS_GUIDE.md) — `docs/CMS_GUIDE.md`
+- [Feature Flags & Configuration Guide](./docs/CONFIG.md) — `docs/CONFIG.md`
+- [🚀 Production Deployment Guide](./docs/DEPLOYMENT_GUIDE.md) — `docs/DEPLOYMENT_GUIDE.md`
+- [Email Notification Setup for Netlify Forms](./docs/EMAIL_NOTIFICATIONS.md) — `docs/EMAIL_NOTIFICATIONS.md`
+- [Skyview Features](./docs/FEATURES.md) — `docs/FEATURES.md`
+- [SkyView Dynamics — Platform Setup](./docs/FINAL_SETUP.md) — `docs/FINAL_SETUP.md`
+- [Getting Started with SkyView Website](./docs/GETTING_STARTED.md) — `docs/GETTING_STARTED.md`
+- [Image Optimization Flow](./docs/OPTIMIZATION_FLOW.md) — `docs/OPTIMIZATION_FLOW.md`
+- [SkyView Website - Owner's Guide](./docs/OWNER_GUIDE.md) — `docs/OWNER_GUIDE.md`
+- [Performance Optimization Checklist](./docs/PERFORMANCE_CHECKLIST.md) — `docs/PERFORMANCE_CHECKLIST.md`
+- [Skyview Roadmap](./docs/ROADMAP.md) — `docs/ROADMAP.md`
+- [SEO Implementation Guide](./docs/SEO_GUIDE.md) — `docs/SEO_GUIDE.md`
+- [Tasks](./docs/TASKS.md) — `docs/TASKS.md`
+- [Image Optimization Guide - WebP Format](./docs/WEBP_OPTIMIZATION.md) — `docs/WEBP_OPTIMIZATION.md`
+
+**`docs/archive/`**
+
+- [🎯 Project Status Summary](./docs/archive/PROJECT_STATUS.md) — `docs/archive/PROJECT_STATUS.md`
+- [Archived Documentation](./docs/archive/README.md) — `docs/archive/README.md`
+- [Session Summary: WebP Optimization & Performance Enhancement](./docs/archive/SESSION_SUMMARY.md) — `docs/archive/SESSION_SUMMARY.md`
+- [WebP Optimization - Implementation Summary](./docs/archive/WEBP_IMPLEMENTATION.md) — `docs/archive/WEBP_IMPLEMENTATION.md`
+
+**`docs/None/`**
+
+- [Skyview Metrics](./METRICS.md) — `METRICS.md`
+<!-- docs-index:end -->

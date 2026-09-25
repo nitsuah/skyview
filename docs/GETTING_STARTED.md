@@ -1,5 +1,7 @@
 # Getting Started with SkyView Website
 
+> 🧭 [skyview](../README.md) · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · [Tasks](./TASKS.md) · [Changelog](./CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
+
 Welcome! This guide will help you get the SkyView drone services website up and running. Everything is set up and ready - you just need to configure a few things.
 
 ## 🎯 What's Already Done
