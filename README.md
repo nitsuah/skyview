@@ -222,7 +222,7 @@ Shared community policies are centralized in https://github.com/nitsuah/.github:
 
 ## Docs Index
 
-Every tracked doc in this repo, so nothing is orphaned (also used by the Obsidian vault mirror).
+Every doc at the repo root and under `docs/` (the files mirrored into the Obsidian vault), so none of them is orphaned.
 
 - [Analytics Setup Guide](./docs/ANALYTICS_SETUP.md) — `docs/ANALYTICS_SETUP.md`
 - [Asset Management & Admin Guide](./docs/ASSET_MANAGEMENT.md) — `docs/ASSET_MANAGEMENT.md`
