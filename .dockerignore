@@ -12,8 +12,8 @@ tests
 *.md
 *.log
 config/playwright.config.ts
-eslint.config.mjs
-stylelint.config.mjs
+config/eslint.config.mjs
+config/stylelint.config.mjs
 scripts/convert-to-webp.js
 .env
 .env.*
