@@ -16,9 +16,13 @@ repos:
       - id: detect-private-key
 
   # CSS formatting
-  - repo: https://github.com/stylelint/stylelint
-    rev: 15.10.1
+  # stylelint ships no pre-commit hook definition, so run it as a local node hook.
+  - repo: local
     hooks:
       - id: stylelint
+        name: stylelint
+        language: node
+        entry: stylelint
+        additional_dependencies: [stylelint@17.15.0, stylelint-config-standard@40.0.0]
         args: [--fix, --config, config/stylelint.config.mjs]
         files: \.(css)$
