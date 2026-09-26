@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 2026-09-26
+
+- **Verified — production auth/env:** `DATABASE_URL`, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, `JWT_SECRET`, `RESEND_API_KEY` and `STRIPE_SECRET_KEY` are set in Netlify for all deploy contexts, and a real "Continue with Google" sign-in works on production, so the Google redirect URI is registered. The Resend sender domain and the password-reset email moved to a new task, blocked on the DNS/domain decision.
+
 ### 2026-09-19 → 2026-09-24
 
 - **Changed — Calendly cutover:** the marketing site no longer uses Calendly. The booking section links into the marketplace platform ("Find a drone operator" / "Post a job" / "List as an operator"), the hero CTA goes to `/app/register`, and the Calendly widget, script, CSP entries, config, CSS and `features.platform`/`features.calendly` flags were removed; the unfinished testimonials and 3D preview sections were removed from the markup.
