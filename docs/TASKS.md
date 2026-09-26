@@ -3,7 +3,7 @@
 
 > 🧭 [skyview](../README.md) · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · **Tasks** · [Changelog](./CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-**Last Updated:** 2026-09-24
+**Last Updated:** 2026-09-26
 
 > **Delivery split:** public FE covers the marketing site and funnel. `/admin` is a separate CMS surface. Secure client portal/download auth is a separate backend workstream.
 
@@ -30,11 +30,12 @@ Open 2026 items are tracked below and in `docs/ROADMAP.md` 2027 Q1.
 
 - [ ] Bring the marketplace backend live in production (the site's booking CTA now points at it).
   - Priority: P1 — Calendly has been removed from the marketing site; "Find an operator" / "Post a job" / the hero CTA now link straight to `/app/register`, so registration, job posting and booking must work in production.
-  - Acceptance Criteria: `db:migrate` run against production Neon DB (through migration 006, incl. the `bookings_no_operator_overlap` constraint); `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET`/`RESEND_API_KEY`/`JWT_SECRET`/`PORTAL_SALT`/`DATABASE_URL` set in Netlify; one real end-to-end pass: register as operator -> set availability -> register as client -> post a job -> book -> operator accepts.
+  - Acceptance Criteria: `db:migrate` run against production Neon DB (through migration 006, incl. the `bookings_no_operator_overlap` constraint); `STRIPE_WEBHOOK_SECRET` and `PORTAL_SALT` set in Netlify (the rest were confirmed 2026-09-26; production `STRIPE_SECRET_KEY` should be `sk_live_`); one real end-to-end pass: register as operator -> set availability -> register as client -> post a job -> book -> operator accepts.
 
-- [ ] Verify production auth/env end-to-end (left open by the 2026-09 auth + scheduling pass; nothing here could be checked without Netlify/Google/Resend access).
-  - Priority: P1
-  - Acceptance Criteria: (a) confirm `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`DATABASE_URL`/`JWT_SECRET`/`RESEND_API_KEY` are set in Netlify; (b) Google Cloud Console has `https://skyviewd.netlify.app/api/auth/google/callback` as an authorized redirect URI; (c) a human completes one real "Continue with Google" sign-in on production (the routing 404 is fixed and unit-tested, but the OAuth round trip itself was never exercised); (d) a real password-reset email is sent, received, and its link works (confirm the `noreply@skyviewdynamics.com` sender domain is verified in Resend).
+- [ ] Set up the email sending domain (DNS + Resend verification), then prove password reset in production.
+  - Priority: P2
+  - Blocked on: the domain/DNS decision. The owner is either moving nitsuah.io DNS from Netlify to Cloudflare (CNAME redirection, plus a DMARC investigation to centralize reports and route mail to Gmail) or buying a dedicated domain wired up the way nitsuah.io is through Netlify. `skyviewdynamics.com` may be a placeholder; see the production-identity item.
+  - Acceptance Criteria: (a) the sender domain used by `netlify/functions/utils/email.js` shows Verified in Resend (SPF/DKIM, plus a DMARC record); (b) a real password-reset email is sent, received, and its link works on production.
 
 - [ ] Native scheduling hardening (follow-ups to the availability work; none block the cutover).
   - Priority: P2
