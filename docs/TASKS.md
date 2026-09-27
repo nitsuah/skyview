@@ -30,7 +30,9 @@ Open 2026 items are tracked below and in `docs/ROADMAP.md` 2027 Q1.
 
 - [ ] Bring the marketplace backend live in production (the site's booking CTA now points at it).
   - Priority: P1 — Calendly has been removed from the marketing site; "Find an operator" / "Post a job" / the hero CTA now link straight to `/app/register`, so registration, job posting and booking must work in production.
-  - Acceptance Criteria: `db:migrate` run against production Neon DB (through migration 006, incl. the `bookings_no_operator_overlap` constraint); `STRIPE_WEBHOOK_SECRET` and `PORTAL_SALT` set in Netlify (the rest were confirmed 2026-09-26; production `STRIPE_SECRET_KEY` should be `sk_live_`); one real end-to-end pass: register as operator -> set availability -> register as client -> post a job -> book -> operator accepts.
+  - Done 2026-09-27: production Neon DB migrated through 006 (incl. `bookings_no_operator_overlap`); all 8 env vars set in Netlify, incl. the Stripe webhook (`/api/stripe-webhooks`: `payment_intent.payment_failed`, `account.updated`) and `PORTAL_SALT`.
+  - Remaining: switch the production `STRIPE_SECRET_KEY` (and the webhook secret) to live mode once the Stripe account is set up, then one real end-to-end pass: register as operator -> set availability -> register as client -> post a job -> book -> operator accepts.
+  - Note: `netlify dev:exec` can't migrate production, because the CLI only sees masked values for secret env vars. Run `db:migrate` with the connection string from the Neon console instead.; one real end-to-end pass: register as operator -> set availability -> register as client -> post a job -> book -> operator accepts.
 
 - [ ] Set up the email sending domain (DNS + Resend verification), then prove password reset in production.
   - Priority: P2
