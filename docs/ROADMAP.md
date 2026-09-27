@@ -17,7 +17,7 @@ Next Review: 2026-10-24
 
 ### Launch-critical *(carried from 2026 Marketplace / Calendly cutover)*
 
-- [ ] **Bring the marketplace backend live in production.** The site's booking CTAs now depend on it. `db:migrate` against production Neon (through migration 006); set `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `RESEND_API_KEY` / `JWT_SECRET` / `PORTAL_SALT` / `DATABASE_URL` in Netlify; then one real end-to-end pass (operator availability → client job → booking → accept). See TASKS.md.
+- [ ] **Bring the marketplace backend live in production.** The site's booking CTAs now depend on it. The database and Netlify env setup are done; what's left is switching Stripe to live mode, then one real end-to-end pass (operator availability → client job → booking → accept). See TASKS.md.
   - [x] Production Neon migrated through 006, incl. `bookings_no_operator_overlap` (2026-09-27)
   - [x] All 8 env vars set in Netlify, incl. the Stripe webhook (`/api/stripe-webhooks`) and `PORTAL_SALT` (2026-09-27)
   - [ ] Switch production Stripe keys (and the webhook secret) to live mode
