@@ -18,7 +18,13 @@ Next Review: 2026-10-24
 ### Launch-critical *(carried from 2026 Marketplace / Calendly cutover)*
 
 - [ ] **Bring the marketplace backend live in production.** The site's booking CTAs now depend on it. `db:migrate` against production Neon (through migration 006); set `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `RESEND_API_KEY` / `JWT_SECRET` / `PORTAL_SALT` / `DATABASE_URL` in Netlify; then one real end-to-end pass (operator availability → client job → booking → accept). See TASKS.md.
+  - [x] Production Neon migrated through 006, incl. `bookings_no_operator_overlap` (2026-09-27)
+  - [x] All 8 env vars set in Netlify, incl. the Stripe webhook (`/api/stripe-webhooks`) and `PORTAL_SALT` (2026-09-27)
+  - [ ] Switch production Stripe keys (and the webhook secret) to live mode
+  - [ ] One real end-to-end booking pass
 - [ ] **Production verification of auth + OAuth.** The `/api/auth/google` 404 is fixed and regression-tested, but a real Google sign-in, real reset email, and the Netlify env vars were never verified live. See TASKS.md "Verify production auth/env end-to-end".
+  - [x] Netlify env vars and a real Google sign-in verified on production (2026-09-26, #153)
+  - [ ] Real password-reset email: waits on verifying the sender domain in Resend (TASKS "Set up the email sending domain")
 - [ ] **Native scheduling hardening (P2).** Still open: per-operator timezones and cross-midnight windows, availability on public operator profiles, and a real-database integration test. See TASKS.md "Native scheduling hardening".
 - [ ] **Signed-download delivery backend for `client-gallery.html`** *(carried from 2026-09 Client Portal Security)* — the login gate is server-verified; the gallery's file listing is still the client-side prototype described in `docs/CLIENT_PORTAL.md`.
 
