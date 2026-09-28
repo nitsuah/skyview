@@ -8,6 +8,9 @@ import { defineConfig, devices } from '@playwright/test';
 // Run with: npx playwright test --config config/playwright.config.ts
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+// Use system chromium in container (installed via apk)
+const chromiumExecutable = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
+
 export default defineConfig({
   testDir: path.join(repoRoot, 'tests'),
   outputDir: path.join(repoRoot, 'test-results'),
@@ -24,7 +27,10 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        ...(chromiumExecutable ? { launchOptions: { executablePath: chromiumExecutable } } : {}),
+      },
     },
   ],
   webServer: [
