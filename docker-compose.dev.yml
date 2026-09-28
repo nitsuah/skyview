@@ -11,6 +11,7 @@ services:
     environment:
       - NETLIFY_AUTH_TOKEN=${NETLIFY_AUTH_TOKEN:-}
       - NETLIFY_SITE_ID=${NETLIFY_SITE_ID:-}
+      - PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium-browser
     volumes:
       - .:/app
       - /app/node_modules
