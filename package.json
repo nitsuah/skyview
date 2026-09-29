@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
-    "@netlify/blobs": "^11.1.0",
+    "@netlify/blobs": "^11.1.1",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.12",
     "netlify-cli": "^27.9.0",
