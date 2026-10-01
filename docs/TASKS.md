@@ -38,7 +38,7 @@ Open 2026 items are tracked below and in `docs/ROADMAP.md` 2027 Q1.
   - Priority: P2
   - Type: Tech Debt · Confidence: High
   - Problem: the handler is 375 lines. It handles routing, booking state transitions (create, confirm, decline, complete) and the Stripe PaymentIntent create, cancel and capture calls, plus `payoutAndInvoice`. No unit test under `tests/unit/` imports it, and the e2e specs stub `/api/bookings` with `page.route` (`scheduling.spec.ts:129`, `:257`), so no test runs the handler at all. The money paths (capture before job update, cancel on decline) are what the live-Stripe cutover above depends on.
-  - Acceptance Criteria: unit tests mock `sql` and `stripe` and cover create, confirm, decline (PaymentIntent cancel), complete (capture, then job update), and a Stripe failure on each path. After that, billing moves to a module such as `utils/booking-billing.js` with the route contracts unchanged, and the tests still pass.
+  - Acceptance Criteria: unit tests mock `sql` and `stripe` and cover create, confirm, decline (PaymentIntent cancel) and complete (capture, then job update), plus a Stripe failure on each Stripe-calling path (create, decline, complete). Confirm makes no Stripe call. After that, billing moves to a module such as `utils/booking-billing.js` with the route contracts unchanged, and the tests still pass.
   - Dependencies: none. Doing this before the live-Stripe switch lowers the cutover risk.
 
 - [ ] Set up the email sending domain (DNS + Resend verification), then prove password reset in production.
