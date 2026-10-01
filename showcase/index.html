@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyView Dynamics</title>
+    <meta name="description" content="Cinematic drone services site and two-sided marketplace: post a drone job with your preferred date and get matched with a verified, FAA Part 107-certified operator.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SkyView Dynamics: Elevate your vision from above">
+    <meta property="og:description" content="Drone footage up top, a marketplace underneath. Post a job, get matched with a pilot who's available.">
+    <meta property="og:image" content="media/poster.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030712;
+            --bg-2: #05081c;
+            --surface: rgba(8, 16, 28, 0.6);
+            --border: rgba(124, 242, 255, 0.18);
+            --text: #ffffff;
+            --muted: #b8c2d1;
+            --cyan: #7cf2ff;
+            --accent: #00d4ff;
+            --sunset: #f7b267;
+            --glow: 0 0 20px rgba(103, 232, 249, 0.45), 0 0 40px rgba(103, 232, 249, 0.18);
+            --mono: 'JetBrains Mono', ui-monospace, monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            background:
+                radial-gradient(circle at top left, rgba(0, 212, 255, 0.16), transparent 0 32%),
+                radial-gradient(circle at top right, rgba(247, 178, 103, 0.12), transparent 0 28%),
+                linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 100%);
+            background-color: var(--bg);
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(124, 242, 255, 0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 242, 255, 0.045) 1px, transparent 1px);
+            background-size: 120px 120px;
+            mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.9) 20%, transparent 85%);
+            opacity: 0.5;
+            z-index: -1;
+        }
+        a { color: inherit; text-decoration: none; }
+        img, video { display: block; max-width: 100%; }
+
+        .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+        /* nav */
+        .nav {
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            margin: 14px auto 0; padding: 12px 24px;
+            border: 1px solid rgba(124, 242, 255, 0.14); border-radius: 999px;
+            background: rgba(8, 16, 28, 0.68); backdrop-filter: blur(14px);
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 0.05em; font-size: 1.1rem; }
+        .logo svg { width: 28px; height: 28px; color: var(--cyan); filter: drop-shadow(0 0 8px rgba(103, 232, 249, 0.45)); }
+        .logo span { background: linear-gradient(135deg, #fff, var(--cyan)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; gap: 24px; align-items: center; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.1em; color: var(--muted); }
+        .nav-links a:hover { color: var(--cyan); }
+        .pill {
+            background: var(--cyan); color: #0b1120; border-radius: 999px; padding: 7px 16px;
+            box-shadow: 0 0 14px rgba(0, 212, 255, 0.25); white-space: nowrap;
+        }
+        .pill:hover { color: #0b1120 !important; box-shadow: 0 0 22px rgba(0, 212, 255, 0.45); }
+
+        /* hero */
+        .hero { text-align: center; padding: 80px 0 40px; }
+        .kicker {
+            display: inline-flex; gap: 8px; align-items: center;
+            padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(124, 242, 255, 0.3);
+            background: rgba(8, 16, 28, 0.72); color: var(--cyan);
+            font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase;
+        }
+        .kicker i { width: 8px; height: 8px; border-radius: 50%; background: #ff4444; display: inline-block; }
+        h1 {
+            margin: 22px auto 14px; max-width: 12ch;
+            font-size: clamp(2.6rem, 7vw, 5rem); font-weight: 900; letter-spacing: 0.08em; line-height: 0.98;
+            text-shadow: 0 0 30px rgba(103, 232, 249, 0.24);
+        }
+        .grad { background: linear-gradient(135deg, var(--cyan), #ffffff, var(--sunset)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .lede { max-width: 640px; margin: 0 auto; color: var(--muted); font-size: 1.12rem; }
+
+        .video-frame {
+            margin: 44px auto 0; border-radius: 22px; overflow: hidden;
+            border: 1px solid var(--border); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(0, 212, 255, 0.08);
+            background: #000; aspect-ratio: 16 / 9;
+        }
+        .video-frame video { width: 100%; height: 100%; object-fit: cover; }
+
+        .actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
+        .cta {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 14px 32px; border-radius: 50px; font-weight: 700; letter-spacing: 0.14em; font-size: 0.9rem;
+            border: 1px solid rgba(124, 242, 255, 0.5);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.16), rgba(8, 16, 28, 0.35));
+            transition: box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+        .cta:hover { box-shadow: var(--glow); border-color: rgba(124, 242, 255, 0.8); }
+        .cta.secondary { background: rgba(8, 16, 28, 0.46); border-color: rgba(247, 178, 103, 0.4); }
+        .cta.secondary:hover { box-shadow: 0 0 20px rgba(247, 178, 103, 0.3); }
+
+        /* sections */
+        section { padding: 80px 0; }
+        .eyebrow { font-family: var(--mono); font-size: 0.75rem; color: var(--cyan); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 10px; }
+        h2 { font-size: clamp(1.8rem, 4.5vw, 2.8rem); font-weight: 900; letter-spacing: 0.06em; line-height: 1.05; text-transform: uppercase; }
+        .section-head { max-width: 680px; margin-bottom: 40px; }
+        .section-head p { color: var(--muted); margin-top: 14px; font-size: 1.05rem; }
+
+        .flow { display: grid; gap: 28px; }
+        .step {
+            display: grid; grid-template-columns: 1fr 1.25fr; gap: 36px; align-items: center;
+            padding: 28px; border-radius: 22px; border: 1px solid var(--border); background: var(--surface);
+            backdrop-filter: blur(14px);
+        }
+        .step:nth-child(even) { grid-template-columns: 1.25fr 1fr; }
+        .step:nth-child(even) .step-text { order: 2; }
+        .step-num { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 0.12em; }
+        .step h3 { font-size: 1.5rem; font-weight: 800; margin: 6px 0 10px; letter-spacing: 0.02em; }
+        .step p { color: var(--muted); }
+        .step img { border-radius: 14px; border: 1px solid rgba(124, 242, 255, 0.12); width: 100%; height: auto; }
+        .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+        .tag {
+            font-family: var(--mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+            padding: 3px 9px; border-radius: 4px; background: rgba(0, 212, 255, 0.1); color: var(--accent);
+        }
+        .tag.amber { background: rgba(255, 215, 64, 0.12); color: #ffd740; }
+        .tag.purple { background: rgba(156, 107, 255, 0.12); color: #9c6bff; }
+        .tag.green { background: rgba(0, 230, 118, 0.12); color: #00e676; }
+
+        .gallery { display: grid; grid-template-columns: 1.4fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 14px; height: 560px; }
+        .gallery figure { overflow: hidden; border-radius: 18px; border: 1px solid var(--border); }
+        .gallery { grid-template-areas: "a b d" "a c d"; }
+        .gallery figure:nth-child(1) { grid-area: a; }
+        .gallery figure:nth-child(2) { grid-area: b; }
+        .gallery figure:nth-child(3) { grid-area: c; }
+        .gallery figure:nth-child(4) { grid-area: d; }
+        .gallery img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .gallery figure:hover img { transform: scale(1.04); }
+
+        .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .card {
+            padding: 24px; border-radius: 18px; border: 1px solid var(--border); background: var(--surface);
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .card:hover { border-color: rgba(124, 242, 255, 0.4); box-shadow: 0 0 30px rgba(0, 212, 255, 0.08); }
+        .card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: #fff; }
+        .card p { color: var(--muted); font-size: 0.95rem; }
+        .card code { font-family: var(--mono); font-size: 0.82em; color: var(--cyan); }
+
+        .stack { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+        .stack span {
+            font-family: var(--mono); font-size: 0.8rem; padding: 7px 14px; border-radius: 999px;
+            border: 1px solid rgba(124, 242, 255, 0.2); color: var(--muted); background: rgba(8, 16, 28, 0.5);
+        }
+
+        .closing { text-align: center; }
+        .closing p { color: var(--muted); max-width: 560px; margin: 14px auto 0; }
+
+        footer { border-top: 1px solid rgba(124, 242, 255, 0.1); padding: 28px 0 40px; color: var(--muted); font-size: 0.85rem; }
+        footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        footer a { color: var(--cyan); }
+
+        @media (max-width: 820px) {
+            .nav-links .hide-sm { display: none; }
+            .step, .step:nth-child(even) { grid-template-columns: 1fr; gap: 20px; padding: 18px; }
+            .step:nth-child(even) .step-text { order: 0; }
+            .features { grid-template-columns: 1fr; }
+            .gallery { grid-template-columns: 1fr 1fr; height: auto; }
+            .gallery { grid-template-areas: "a a" "b c" "d d"; grid-template-rows: 220px 160px 220px; }
+            .hero { padding-top: 56px; }
+            section { padding: 56px 0; }
+        }
+        @media (max-width: 480px) {
+            .wrap { padding: 0 16px; }
+            .nav { padding: 10px 14px; }
+            .logo { font-size: 0.95rem; }
+            .video-frame { border-radius: 14px; }
+            .cta { padding: 13px 24px; font-size: 0.82rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            * { transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <nav class="nav">
+            <a class="logo" href="#top" aria-label="SkyView Dynamics">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect x="10" y="10" width="4" height="3" rx="0.5" stroke="currentColor" stroke-width="1.5" fill="currentColor" />
+                    <line x1="10" y1="11" x2="4" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    <line x1="14" y1="11" x2="20" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    <line x1="10" y1="12" x2="4" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    <line x1="14" y1="12" x2="20" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    <circle cx="4" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5" />
+                    <circle cx="20" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5" />
+                    <circle cx="4" cy="18" r="2.5" stroke="currentColor" stroke-width="1.5" />
+                    <circle cx="20" cy="18" r="2.5" stroke="currentColor" stroke-width="1.5" />
+                </svg>
+                <span>SkyView Dynamics</span>
+            </a>
+            <div class="nav-links">
+                <a class="hide-sm" href="#how">HOW IT WORKS</a>
+                <a class="hide-sm" href="#under-the-hood">UNDER THE HOOD</a>
+                <a class="hide-sm" href="https://github.com/nitsuah/skyview">GITHUB</a>
+                <a class="pill" href="https://skyview.nitsuah.io">VISIT SITE</a>
+            </div>
+        </nav>
+    </div>
+
+    <main id="top">
+        <header class="hero wrap">
+            <span class="kicker"><i></i>21-second launch reel</span>
+            <h1>ELEVATE YOUR VISION <span class="grad" style="display:block">FROM ABOVE</span></h1>
+            <p class="lede">Cinematic aerials for real estate, events, and mapping, plus a two-sided marketplace that matches clients with verified, FAA Part 107-certified drone operators who are free on the date they need.</p>
+
+            <div class="video-frame">
+                <video controls playsinline preload="metadata" poster="media/poster.jpg">
+                    <source src="media/skyview-launch.mp4" type="video/mp4">
+                    <a href="media/skyview-launch.mp4">Watch the launch reel</a>
+                </video>
+            </div>
+
+            <div class="actions">
+                <a class="cta" href="https://skyview.nitsuah.io/app/register">FIND AN OPERATOR →</a>
+                <a class="cta secondary" href="https://github.com/nitsuah/skyview">VIEW THE CODE</a>
+            </div>
+        </header>
+
+        <section id="how">
+            <div class="wrap">
+                <div class="section-head">
+                    <div class="eyebrow">How it works</div>
+                    <h2>From hero shot <span class="grad">to booked pilot</span></h2>
+                    <p>The marketing site is the front door. Every booking CTA drops straight into the platform app at <code style="font-family:var(--mono);color:var(--cyan)">/app</code>.</p>
+                </div>
+
+                <div class="flow">
+                    <article class="step">
+                        <div class="step-text">
+                            <div class="step-num">01 · POST A JOB</div>
+                            <h3>Say what you need and when</h3>
+                            <p>Pick a service, name the shoot, drop a location and a preferred date. The address is geocoded so nearby operators see the job in geo-matched searches. Budget is optional, and no payment is taken up front.</p>
+                            <div class="tags"><span class="tag">Real Estate</span><span class="tag">Cinema / Film</span><span class="tag">Mapping / Survey</span><span class="tag">Events</span><span class="tag">Inspection</span></div>
+                        </div>
+                        <img src="media/post-a-job.jpg" alt="The Post a Job form with Real Estate selected, a job title, Downtown Austin location, date and budget filled in" loading="lazy" width="1280" height="720">
+                    </article>
+
+                    <article class="step">
+                        <div class="step-text">
+                            <div class="step-num">02 · GET MATCHED</div>
+                            <h3>Only pilots who are actually free</h3>
+                            <p>Operators publish weekly availability windows and blocked dates. Bookings are checked against them at creation and confirmation, and a database exclusion constraint prevents double-booking an operator.</p>
+                            <div class="tags"><span class="tag">Open</span><span class="tag amber">Matched</span><span class="tag purple">Booked</span><span class="tag green">Completed</span></div>
+                        </div>
+                        <img src="media/dashboard.jpg" alt="Client dashboard showing the job moved to Booked, with an availability confirmation" loading="lazy" width="1280" height="720">
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="work">
+            <div class="wrap">
+                <div class="section-head">
+                    <div class="eyebrow">Selected work</div>
+                    <h2>Shot <span class="grad">from above</span></h2>
+                    <p>The gallery is driven by <code style="font-family:var(--mono);color:var(--cyan)">assets/gallery.json</code> and edited through Decap CMS, with seasonal filtering, display ordering, and WebP fallbacks.</p>
+                </div>
+                <div class="gallery">
+                    <figure><img src="media/dji-example-2.jpg" alt="Red sunset over water with a row of old pilings" loading="lazy"></figure>
+                    <figure><img src="media/dji-example-1.jpg" alt="Aerial view of a marina at dusk" loading="lazy"></figure>
+                    <figure><img src="media/aerial-waterfront.jpg" alt="Aerial view of a waterfront residential community" loading="lazy"></figure>
+                    <figure><img src="media/dji-example-3.jpg" alt="Sun setting on the horizon over calm water" loading="lazy"></figure>
+                </div>
+            </div>
+        </section>
+
+        <section id="under-the-hood">
+            <div class="wrap">
+                <div class="section-head">
+                    <div class="eyebrow">Under the hood</div>
+                    <h2>No build step <span class="grad">up front</span></h2>
+                    <p>A zero-build static marketing site in plain ES modules, with a React + Vite platform behind it on Netlify Functions.</p>
+                </div>
+                <div class="features">
+                    <div class="card"><h3>Two-sided marketplace</h3><p>Clients post jobs; operators onboard, list services and rates, and accept bookings. Stripe Connect handles payouts.</p></div>
+                    <div class="card"><h3>Native scheduling</h3><p>Weekly hours plus blocked dates per operator, enforced by <code>checkOperatorAvailability()</code> and a DB constraint. Calendly is gone.</p></div>
+                    <div class="card"><h3>Campaign personalization</h3><p>UTM and referrer detection swap the hero subline per source. A deterministic A/B framework is ready to switch on.</p></div>
+                    <div class="card"><h3>Privacy-first funnel</h3><p>Landing → gallery → booking tracking with an owner-only dashboard and CSV/JSON export.</p></div>
+                    <div class="card"><h3>Signed client portal</h3><p>HMAC-SHA256 access codes verified server-side. The endpoint fails closed if <code>PORTAL_SALT</code> is unset.</p></div>
+                    <div class="card"><h3>Hardened by default</h3><p>CSP and Permissions-Policy on every page, a no-index, no-store admin, and a daily FAA certificate-expiry cron.</p></div>
+                </div>
+                <div class="stack">
+                    <span>HTML5 · CSS3 · ES modules</span><span>React + Vite</span><span>Netlify Functions</span><span>Neon Postgres</span><span>Stripe Connect</span><span>Resend</span><span>Decap CMS</span><span>Playwright</span><span>Vitest</span><span>Docker</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="closing">
+            <div class="wrap">
+                <h2>Need a pilot? <span class="grad">Post a job.</span></h2>
+                <p>Or list yourself as an operator and pick up bookings that fit your schedule.</p>
+                <div class="actions">
+                    <a class="cta" href="https://skyview.nitsuah.io/app/register?role=client">POST A JOB →</a>
+                    <a class="cta secondary" href="https://skyview.nitsuah.io/app/register?role=operator">LIST AS AN OPERATOR</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="wrap">
+            <span>© 2026 SkyView Dynamics</span>
+            <span><a href="https://skyview.nitsuah.io">skyview.nitsuah.io</a> · <a href="https://github.com/nitsuah/skyview">github.com/nitsuah/skyview</a></span>
+        </div>
+    </footer>
+</body>
+</html>
