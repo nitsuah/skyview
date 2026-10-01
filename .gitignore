@@ -14,3 +14,6 @@ coverage/
 # Build output
 dist/
 platform/dist/
+
+# /brag output (video source, frames, scratch)
+brag-output/
