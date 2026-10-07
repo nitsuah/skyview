@@ -1,0 +1,26 @@
+name: Unit Tests
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
+      with:
+        # Match the Netlify Functions runtime (netlify.toml NODE_VERSION)
+        node-version: 22
+        cache: npm
+    - name: Install dependencies
+      # Install scripts aren't needed by Vitest (netlify-cli's are slow)
+      run: npm ci --ignore-scripts
+    - name: Run Vitest
+      run: npm run test:unit
