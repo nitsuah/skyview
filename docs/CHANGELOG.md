@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 2026-10-07
+
+- **Added — booking payment tests (F-20260916-06):** `tests/unit/api-bookings.test.js` runs the `/api/bookings` handler with `sql`, auth, email, scheduling and Stripe mocked (40 tests). It covers create (validation, verified operator, availability, double-booking gate, overlap constraint, PaymentIntent create, rollback + 502 on Stripe failure), confirm (no Stripe call), decline (PaymentIntent cancel; a cancel failure stays non-fatal) and complete (capture before the job update, `disputed` on capture failure, Connect transfer + invoice, `payout_status` `failed` on payout/invoice errors), plus the no-Stripe mode.
+- **Changed — billing split out of `api-bookings.mjs`:** fee split, PaymentIntent authorize/release/capture and `payoutAndInvoice` moved to `netlify/functions/utils/booking-billing.js`; the handler (375 → 292 lines) keeps routing and booking/job state transitions. Route contracts are unchanged and the same tests pass before and after.
+
 ### 2026-10-01
 
 - **Added — GitHub Pages showcase:** `showcase/` is a static project page (launch reel, how-it-works flow, gallery, feature overview) deployed by `.github/workflows/pages.yml` on pushes to `main` that touch `showcase/**`. Includes a 21-second launch video (`showcase/media/skyview-launch.mp4`) built from the real site hero and platform UI.
