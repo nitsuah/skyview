@@ -36,14 +36,17 @@ jobs:
     # capped and retried instead of stalling the whole job.
     - name: Install Playwright Chromium
       timeout-minutes: 12
+      env:
+        CACHE_HIT: ${{ steps.pw-cache.outputs.cache-hit }}
       run: |
-        if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
-          cmd="npx playwright install-deps chromium"
+        if [ "$CACHE_HIT" = "true" ]; then
+          cmd=(npx playwright install-deps chromium)
         else
-          cmd="npx playwright install --with-deps chromium"
+          cmd=(npx playwright install --with-deps chromium)
         fi
         for attempt in 1 2 3; do
-          timeout 240 $cmd && exit 0
+          # --kill-after so a stalled apt child can't keep holding the dpkg lock
+          timeout --kill-after=10 240 "${cmd[@]}" && exit 0
           echo "::warning::Playwright install attempt $attempt failed or timed out; retrying"
         done
         exit 1
