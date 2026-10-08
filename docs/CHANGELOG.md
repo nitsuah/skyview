@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 2026-10-08
+
+- **Changed — Playwright CI install hardened:** `playwright.yml` installs only Chromium (the only project in `config/playwright.config.ts`) instead of all three browsers, caches `~/.cache/ms-playwright` per Playwright version, caps each install attempt at 4 minutes with up to 3 retries, and lowers the job timeout from 60 to 30 minutes. On 2026-10-07 an apt mirror stall in `playwright install --with-deps` hung the stripe 23 PR's run for the full hour. Also `npm install` → `npm ci` with npm caching.
+
 ### 2026-10-07 — Visual showcase
 
 - **Added:** Visual showcase ([standard](https://github.com/nitsuah/.github/blob/main/showcase/STANDARD.md)): `promo/spots.json` maps every FEATURES.md entry to its screenshots and videos and records the existing launch video(s); the Pages site loads the shared expand kit (click-to-expand images, fullscreen button on videos). `og:image` is now an absolute URL so link previews unfurl.
