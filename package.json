@@ -44,7 +44,6 @@
   },
   "overrides": {
     "ipx": "4.0.0-beta.1",
-    "@opentelemetry/api": "^1.9.0",
-    "braces": "^3.1.0"
+    "@opentelemetry/api": "^1.9.0"
   }
 }
