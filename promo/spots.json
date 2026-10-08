@@ -1,0 +1,229 @@
+{
+  "product": "skyview",
+  "live": "https://skyviewd.netlify.app/",
+  "page": "https://nitsuah.github.io/skyview/",
+  "pagesDir": "showcase",
+  "features": [
+    {
+      "id": "immersive-hero-section",
+      "title": "Immersive Hero Section",
+      "category": "Core Experiences",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "dynamic-gallery",
+      "title": "Dynamic Gallery",
+      "category": "Core Experiences",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "service-packages",
+      "title": "Service Packages",
+      "category": "Core Experiences",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "responsive-design",
+      "title": "Responsive Design",
+      "category": "Core Experiences",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "campaign-personalization",
+      "title": "Campaign Personalization",
+      "category": "Marketing & Personalization",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "a-b-testing-framework",
+      "title": "A/B Testing Framework",
+      "category": "Marketing & Personalization",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "conversion-funnel-tracking",
+      "title": "Conversion Funnel Tracking",
+      "category": "Marketing & Personalization",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "local-dashboard",
+      "title": "Local Dashboard",
+      "category": "Funnel Reporting",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "csv-json-export",
+      "title": "CSV / JSON Export",
+      "category": "Funnel Reporting",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "decap-cms",
+      "title": "Decap CMS",
+      "category": "Admin & CMS",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "admin-hardening",
+      "title": "Admin Hardening",
+      "category": "Admin & CMS",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "rate-limiting",
+      "title": "Rate Limiting",
+      "category": "Client Portal",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "time-bound-token-expiry",
+      "title": "Time-Bound Token Expiry",
+      "category": "Client Portal",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "server-side-token-validation",
+      "title": "Server-Side Token Validation",
+      "category": "Client Portal",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "token-generator",
+      "title": "Token Generator",
+      "category": "Client Portal",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "two-sided-marketplace",
+      "title": "Two-Sided Marketplace",
+      "category": "Marketplace Platform",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "native-operator-scheduling",
+      "title": "Native Operator Scheduling",
+      "category": "Marketplace Platform",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "calendly-removed",
+      "title": "Calendly Removed",
+      "category": "Marketplace Platform",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "content-security-policy",
+      "title": "Content Security Policy",
+      "category": "Security & Infrastructure",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "no-store-routes",
+      "title": "No-Store Routes",
+      "category": "Security & Infrastructure",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "modular-javascript",
+      "title": "Modular JavaScript",
+      "category": "Security & Infrastructure",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "docker-netlify-parity",
+      "title": "Docker/Netlify Parity",
+      "category": "Security & Infrastructure",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "docker-validation",
+      "title": "Docker Validation",
+      "category": "Security & Infrastructure",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "netlify-forms",
+      "title": "Netlify Forms",
+      "category": "Security & Infrastructure",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "per-client-protected-delivery",
+      "title": "Per-Client Protected Delivery",
+      "category": "Planned",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "marketplace-production-go-live",
+      "title": "Marketplace Production Go-Live",
+      "category": "Planned",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "multi-segment-personalization",
+      "title": "Multi-Segment Personalization",
+      "category": "Planned",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "live-a-b-experiments",
+      "title": "Live A/B Experiments",
+      "category": "Planned",
+      "screenshots": [],
+      "spots": []
+    }
+  ],
+  "spots": [
+    {
+      "id": "launch-21s",
+      "seconds": 21,
+      "format": "landscape",
+      "tool": "brag (one-off, source not kept)",
+      "features": [],
+      "published": "showcase/media/skyview-launch.mp4",
+      "rendered": "2026-10-01"
+    }
+  ],
+  "reels": [
+    {
+      "id": "hero",
+      "spots": [
+        "launch-21s"
+      ],
+      "published": "showcase/media/skyview-launch.mp4"
+    }
+  ],
+  "brand": {
+    "source": null,
+    "derived": [],
+    "manual": []
+  }
+}

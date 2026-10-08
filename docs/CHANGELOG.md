@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 2026-10-07 — Visual showcase
+
+- **Added:** Visual showcase ([standard](https://github.com/nitsuah/.github/blob/main/showcase/STANDARD.md)): `promo/spots.json` maps every FEATURES.md entry to its screenshots and videos and records the existing launch video(s); the Pages site loads the shared expand kit (click-to-expand images, fullscreen button on videos). `og:image` is now an absolute URL so link previews unfurl.
+
 ### 2026-10-07
 
 - **Added — unit tests in CI:** `.github/workflows/unit-tests.yml` runs `npm run test:unit` (Vitest) on Node 22 for every PR and push to `main`. Until now only Playwright (`test`) and the Docker smoke ran in CI, so unit tests, including the booking/billing suite, ran only locally.
