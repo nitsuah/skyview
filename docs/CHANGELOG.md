@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 2026-10-08
+
+- **Changed — Playwright CI install hardened:** `playwright.yml` installs only Chromium (the only project in `config/playwright.config.ts`) instead of all three browsers, caches `~/.cache/ms-playwright` per Playwright version, caps each install attempt at 4 minutes with up to 3 retries, and lowers the job timeout from 60 to 30 minutes. On 2026-10-07 an apt mirror stall in `playwright install --with-deps` hung the stripe 23 PR's run for the full hour. Also `npm install` → `npm ci` with npm caching.
+
 ### 2026-10-07
 
 - **Added — unit tests in CI:** `.github/workflows/unit-tests.yml` runs `npm run test:unit` (Vitest) on Node 22 for every PR and push to `main`. Until now only Playwright (`test`) and the Docker smoke ran in CI, so unit tests, including the booking/billing suite, ran only locally.
