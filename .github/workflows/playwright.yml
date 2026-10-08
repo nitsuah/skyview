@@ -11,17 +11,45 @@ permissions:
 
 jobs:
   test:
-    timeout-minutes: 60
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
     - uses: actions/setup-node@v7
       with:
         node-version: lts/*
+        cache: npm
     - name: Install dependencies
-      run: npm install
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+      run: npm ci
+    - name: Get Playwright version
+      id: pw
+      run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+    - name: Cache Playwright browsers
+      id: pw-cache
+      uses: actions/cache@v6
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-chromium-${{ runner.os }}-${{ steps.pw.outputs.version }}
+    # config/playwright.config.ts only runs the chromium project, so only that
+    # browser and its system packages are installed. The apt step has hung on
+    # Ubuntu mirrors for a full job timeout (2026-10-07), so each attempt is
+    # capped and retried instead of stalling the whole job.
+    - name: Install Playwright Chromium
+      timeout-minutes: 12
+      env:
+        CACHE_HIT: ${{ steps.pw-cache.outputs.cache-hit }}
+      run: |
+        if [ "$CACHE_HIT" = "true" ]; then
+          cmd=(npx playwright install-deps chromium)
+        else
+          cmd=(npx playwright install --with-deps chromium)
+        fi
+        for attempt in 1 2 3; do
+          # --kill-after so a stalled apt child can't keep holding the dpkg lock
+          timeout --kill-after=10 240 "${cmd[@]}" && exit 0
+          echo "::warning::Playwright install attempt $attempt failed or timed out; retrying"
+        done
+        exit 1
     - name: Run Playwright tests
       run: npx playwright test --config config/playwright.config.ts
     - uses: actions/upload-artifact@v7
