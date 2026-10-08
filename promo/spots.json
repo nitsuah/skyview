@@ -171,34 +171,6 @@
       "category": "Security & Infrastructure",
       "screenshots": [],
       "spots": []
-    },
-    {
-      "id": "per-client-protected-delivery",
-      "title": "Per-Client Protected Delivery",
-      "category": "Planned",
-      "screenshots": [],
-      "spots": []
-    },
-    {
-      "id": "marketplace-production-go-live",
-      "title": "Marketplace Production Go-Live",
-      "category": "Planned",
-      "screenshots": [],
-      "spots": []
-    },
-    {
-      "id": "multi-segment-personalization",
-      "title": "Multi-Segment Personalization",
-      "category": "Planned",
-      "screenshots": [],
-      "spots": []
-    },
-    {
-      "id": "live-a-b-experiments",
-      "title": "Live A/B Experiments",
-      "category": "Planned",
-      "screenshots": [],
-      "spots": []
     }
   ],
   "spots": [
