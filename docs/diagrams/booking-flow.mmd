@@ -1,0 +1,26 @@
+%% Booking lifecycle — rendered to booking-flow.svg by .github/workflows/visual-docs.yml
+sequenceDiagram
+  autonumber
+  participant C as Client
+  participant A as /api/bookings
+  participant D as Neon Postgres
+  participant S as Stripe
+  participant O as Operator
+
+  C->>A: Book operator for a job (date, hours, total)
+  A->>D: Operator verified? checkOperatorAvailability()
+  Note over A,D: weekly windows, blocked dates,<br/>exclusion constraint against overlaps
+  A->>D: job open → booked, insert booking (pending)
+  A->>S: PaymentIntent, manual capture (authorize only)
+  A-->>C: Booking request sent
+  alt Operator confirms
+    O->>A: Confirm
+    A->>D: Re-check availability, booking → confirmed
+    O->>A: Complete (after the flight)
+    A->>S: Capture, then transfer 85% to operator (15% platform fee)
+    A->>D: booking → completed, job → completed, payout_status
+  else Operator declines
+    O->>A: Decline
+    A->>S: Cancel PaymentIntent
+    A->>D: booking → cancelled, job → open
+  end

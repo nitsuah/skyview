@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 2026-10-10 — Visual docs
+
+- **Added — screenshots and diagrams from CI:** `.github/workflows/visual-docs.yml` runs a backend-free Playwright suite (`tests/visual-docs/`, `config/playwright.visual-docs.config.ts`: mocked `/api`, frozen clock, fictional demo data) and renders `docs/diagrams/*.mmd`, then opens a `bot/visual-docs` PR. 14 screenshots in `docs/screenshots/`, named after the feature ids in `promo/spots.json`, plus `architecture` and `booking-flow` diagrams. Screenshots are written through `toHaveScreenshot` with a small tolerance, so a file changes only when the UI does. The README has a generated "Screenshots & diagrams" block (`scripts/visual-docs-readme.mjs`).
+- **Changed — Pages showcase:** feature sections now follow `docs/FEATURES.md` categories and lead with those screenshots; added the two diagrams, a "use it" block (live site, clone with Docker), Twitter/`og:video` tags and links back to README, Features, Roadmap and Changelog. `pages.yml` copies `docs/screenshots` and `docs/diagrams` into the site at deploy time and redeploys when they change. The "selected work" gallery is 2-up.
+- **Fixed — Pages links:** the showcase linked to `skyview.nitsuah.io`, which no longer resolves; its links now go to `https://skyviewd.netlify.app`.
+- **Changed — `promo/spots.json`:** 11 of the 13 user-visible features have screenshots; 11 entries are marked `"visual": "none"` (headers, tooling, removed or gated features) with a note each; the launch reel lists the four features it shows.
+
 ### 2026-10-08
 
 - **Changed — Playwright CI install hardened:** `playwright.yml` installs only Chromium (the only project in `config/playwright.config.ts`) instead of all three browsers, caches `~/.cache/ms-playwright` per Playwright version, caps each install attempt at 4 minutes with up to 3 retries, and lowers the job timeout from 60 to 30 minutes. On 2026-10-07 an apt mirror stall in `playwright install --with-deps` hung the stripe 23 PR's run for the full hour. Also `npm install` → `npm ci` with npm caching.

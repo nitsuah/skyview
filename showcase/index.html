@@ -9,7 +9,13 @@
     <meta property="og:title" content="SkyView Dynamics: Elevate your vision from above">
     <meta property="og:description" content="Drone footage up top, a marketplace underneath. Post a job, get matched with a pilot who's available.">
     <meta property="og:image" content="https://nitsuah.github.io/skyview/media/poster.jpg">
+    <meta property="og:url" content="https://nitsuah.github.io/skyview/">
+    <meta property="og:video" content="https://nitsuah.github.io/skyview/media/skyview-launch.mp4">
+    <meta property="og:video:type" content="video/mp4">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SkyView Dynamics: Elevate your vision from above">
+    <meta name="twitter:description" content="Drone footage up top, a marketplace underneath. Post a job, get matched with a pilot who's available.">
+    <meta name="twitter:image" content="https://nitsuah.github.io/skyview/media/poster.jpg">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -142,15 +148,31 @@
         .tag.purple { background: rgba(156, 107, 255, 0.12); color: #9c6bff; }
         .tag.green { background: rgba(0, 230, 118, 0.12); color: #00e676; }
 
-        .gallery { display: grid; grid-template-columns: 1.4fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 14px; height: 560px; }
-        .gallery figure { overflow: hidden; border-radius: 18px; border: 1px solid var(--border); }
-        .gallery { grid-template-areas: "a b d" "a c d"; }
-        .gallery figure:nth-child(1) { grid-area: a; }
-        .gallery figure:nth-child(2) { grid-area: b; }
-        .gallery figure:nth-child(3) { grid-area: c; }
-        .gallery figure:nth-child(4) { grid-area: d; }
+        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .gallery figure { overflow: hidden; border-radius: 18px; border: 1px solid var(--border); aspect-ratio: 3 / 2; }
         .gallery img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
         .gallery figure:hover img { transform: scale(1.04); }
+
+        /* feature sections: one per FEATURES.md category, screenshot first */
+        .category { padding: 56px 0 0; }
+        .category:first-of-type { padding-top: 0; }
+        .category > h3 { font-size: 1.5rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+        .category > p { color: var(--muted); max-width: 720px; margin: 8px 0 24px; }
+        .shot { margin: 0 0 20px; border-radius: 18px; overflow: hidden; border: 1px solid var(--border); background: var(--surface); }
+        .shot img { width: 100%; height: auto; }
+        .shot.light img { background: #fff; padding: 16px; }
+        .shot figcaption { padding: 14px 20px 16px; color: var(--muted); font-size: 0.95rem; border-top: 1px solid rgba(124, 242, 255, 0.1); }
+        .shot figcaption strong { color: #fff; }
+        .shot figcaption code, .category code { font-family: var(--mono); font-size: 0.85em; color: var(--cyan); }
+        .shot figcaption a, .ways p a { color: var(--cyan); }
+        .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+        .pair.phone { grid-template-columns: 2.2fr 1fr; }
+        .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 20px; }
+
+        .ways { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .ways > *, .pair > *, .notes > * { min-width: 0; }
+        .ways pre { margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: rgba(3, 7, 18, 0.7); border: 1px solid rgba(124, 242, 255, 0.14); font-family: var(--mono); font-size: 0.8rem; color: var(--cyan); overflow-x: auto; white-space: pre; }
+        .ways .cta { margin-top: 16px; padding: 11px 22px; font-size: 0.8rem; }
 
         .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
         .card {
@@ -180,8 +202,8 @@
             .step, .step:nth-child(even) { grid-template-columns: 1fr; gap: 20px; padding: 18px; }
             .step:nth-child(even) .step-text { order: 0; }
             .features { grid-template-columns: 1fr; }
-            .gallery { grid-template-columns: 1fr 1fr; height: auto; }
-            .gallery { grid-template-areas: "a a" "b c" "d d"; grid-template-rows: 220px 160px 220px; }
+            .gallery, .pair, .pair.phone, .notes, .ways { grid-template-columns: 1fr; }
+            .category { padding-top: 40px; }
             .hero { padding-top: 56px; }
             section { padding: 56px 0; }
         }
@@ -218,10 +240,11 @@
                 <span>SkyView Dynamics</span>
             </a>
             <div class="nav-links">
+                <a class="hide-sm" href="#features">FEATURES</a>
                 <a class="hide-sm" href="#how">HOW IT WORKS</a>
-                <a class="hide-sm" href="#under-the-hood">UNDER THE HOOD</a>
+                <a class="hide-sm" href="#use">USE IT</a>
                 <a class="hide-sm" href="https://github.com/nitsuah/skyview">GITHUB</a>
-                <a class="pill" href="https://skyview.nitsuah.io">VISIT SITE</a>
+                <a class="pill" href="https://skyviewd.netlify.app">VISIT SITE</a>
             </div>
         </nav>
     </div>
@@ -233,46 +256,142 @@
             <p class="lede">Cinematic aerials for real estate, events, and mapping, plus a two-sided marketplace that matches clients with verified, FAA Part 107-certified drone operators who are free on the date they need.</p>
 
             <div class="video-frame">
-                <video controls playsinline preload="metadata" poster="media/poster.jpg">
+                <video controls muted loop playsinline preload="metadata" poster="media/poster.jpg" aria-label="SkyView Dynamics launch reel, 21 seconds">
                     <source src="media/skyview-launch.mp4" type="video/mp4">
                     <a href="media/skyview-launch.mp4">Watch the launch reel</a>
                 </video>
             </div>
 
             <div class="actions">
-                <a class="cta" href="https://skyview.nitsuah.io/app/register">FIND AN OPERATOR →</a>
+                <a class="cta" href="https://skyviewd.netlify.app/app/register">FIND AN OPERATOR →</a>
                 <a class="cta secondary" href="https://github.com/nitsuah/skyview">VIEW THE CODE</a>
             </div>
         </header>
 
-        <section id="how">
+        <section id="features">
             <div class="wrap">
                 <div class="section-head">
-                    <div class="eyebrow">How it works</div>
-                    <h2>From hero shot <span class="grad">to booked pilot</span></h2>
-                    <p>The marketing site is the front door. Every booking CTA drops straight into the platform app at <code style="font-family:var(--mono);color:var(--cyan)">/app</code>.</p>
+                    <div class="eyebrow">Features</div>
+                    <h2>What you <span class="grad">get</span></h2>
+                    <p>Every screenshot below is regenerated by CI from mocked demo data whenever the UI changes. Click any image to expand it.</p>
                 </div>
 
-                <div class="flow">
-                    <article class="step">
-                        <div class="step-text">
-                            <div class="step-num">01 · POST A JOB</div>
-                            <h3>Say what you need and when</h3>
-                            <p>Pick a service, name the shoot, drop a location and a preferred date. The address is geocoded so nearby operators see the job in geo-matched searches. Budget is optional, and no payment is taken up front.</p>
-                            <div class="tags"><span class="tag">Real Estate</span><span class="tag">Cinema / Film</span><span class="tag">Mapping / Survey</span><span class="tag">Events</span><span class="tag">Inspection</span></div>
-                        </div>
-                        <img src="media/post-a-job.jpg" alt="The Post a Job form with Real Estate selected, a job title, Downtown Austin location, date and budget filled in" loading="lazy" width="1280" height="720">
-                    </article>
+                <div class="category" id="core">
+                    <h3>Core experiences</h3>
+                    <p>The marketing site: a full-screen hero, service packages, and a gallery, in plain HTML, CSS and ES modules.</p>
+                    <figure class="shot">
+                        <img src="screenshots/immersive-hero-section.png" alt="Homepage hero: Elevate your vision from above, over sunset marina footage, with the cursor-follow drone next to the call to action" loading="lazy">
+                        <figcaption><strong>Immersive hero.</strong> Full-screen drone footage and a small drone that follows your cursor, hovering up and to the right with a spotlight beam.</figcaption>
+                    </figure>
+                    <figure class="shot">
+                        <img src="screenshots/service-packages.png" alt="Our Services section with Real Estate, Cinematography and Mapping and Survey cards" loading="lazy">
+                        <figcaption><strong>Service packages.</strong> Real estate, cinematography, and mapping and survey, each with what is included.</figcaption>
+                    </figure>
+                    <div class="pair phone">
+                        <figure class="shot">
+                        <img src="screenshots/dynamic-gallery.png" alt="Gallery section with five aerial photos in a masonry grid" loading="lazy">
+                        <figcaption><strong>Dynamic gallery.</strong> Driven by <code>assets/gallery.json</code>: seasonal filtering, display order, and active or inactive per image.</figcaption>
+                    </figure>
+                        <figure class="shot">
+                        <img src="screenshots/responsive-design.png" alt="The homepage at phone width with a hamburger menu" loading="lazy">
+                        <figcaption><strong>Responsive.</strong> Mobile-first layout.</figcaption>
+                    </figure>
+                    </div>
+                </div>
 
-                    <article class="step">
-                        <div class="step-text">
-                            <div class="step-num">02 · GET MATCHED</div>
-                            <h3>Only pilots who are actually free</h3>
-                            <p>Operators publish weekly availability windows and blocked dates. Bookings are checked against them at creation and confirmation, and a database exclusion constraint prevents double-booking an operator.</p>
-                            <div class="tags"><span class="tag">Open</span><span class="tag amber">Matched</span><span class="tag purple">Booked</span><span class="tag green">Completed</span></div>
-                        </div>
-                        <img src="media/dashboard.jpg" alt="Client dashboard showing the job moved to Booked, with an availability confirmation" loading="lazy" width="1280" height="720">
-                    </article>
+                <div class="category" id="marketing">
+                    <h3>Marketing &amp; personalization</h3>
+                    <p>Runs in the browser, with no third-party tracker.</p>
+                    <div class="notes">
+                        <div class="card"><h3>Campaign personalization</h3><p>UTM parameters and the referrer pick a per-source hero subline, kept for the session.</p></div>
+                        <div class="card"><h3>A/B testing framework</h3><p>Deterministic per-visitor buckets for hero headline and CTA experiments. Off by default in <code>config.js</code>.</p></div>
+                        <div class="card"><h3>Conversion funnel tracking</h3><p>Landing, gallery, and booking events with referrer and campaign metadata, stored locally.</p></div>
+                    </div>
+                </div>
+
+                <div class="category" id="funnel">
+                    <h3>Funnel reporting</h3>
+                    <p>An owner-only dashboard on top of the funnel events, with CSV and JSON export.</p>
+                    <figure class="shot">
+                        <img src="screenshots/local-dashboard.png" alt="Homepage with the local conversion dashboard panel: 412 landing views, 187 work sample opens, 64 booking clicks, and drop-off percentages" loading="lazy">
+                        <figcaption><strong>Local dashboard.</strong> Step-by-step drop-off. Hidden by default; shown to a signed-in admin, or on <code>localhost</code> with <code>?metrics=1</code>.</figcaption>
+                    </figure>
+                </div>
+
+                <div class="category" id="admin">
+                    <h3>Admin &amp; CMS</h3>
+                    <p>The owner edits the gallery without touching code.</p>
+                    <figure class="shot">
+                        <img src="screenshots/decap-cms.png" alt="Decap CMS showing the Gallery collection and its Gallery Items entry" loading="lazy">
+                        <figcaption><strong>Decap CMS.</strong> Git-backed editing of gallery images, season, display order, and active status at <code>/admin</code>, served no-index and no-store.</figcaption>
+                    </figure>
+                </div>
+
+                <div class="category" id="portal">
+                    <h3>Client portal</h3>
+                    <p>Clients open their delivery with a signed, expiring access code that is verified server-side with HMAC-SHA256.</p>
+                    <div class="pair">
+                        <figure class="shot">
+                        <img src="screenshots/rate-limiting.png" alt="Client portal locked after too many failed attempts, asking the visitor to wait 15 minutes" loading="lazy">
+                        <figcaption><strong>Rate limiting.</strong> Five attempts, then a 15-minute lockout.</figcaption>
+                    </figure>
+                        <figure class="shot">
+                        <img src="screenshots/time-bound-token-expiry.png" alt="Client portal showing that the access link has expired" loading="lazy">
+                        <figcaption><strong>Token expiry.</strong> Expired codes are rejected with a clear message.</figcaption>
+                    </figure>
+                    </div>
+                    <figure class="shot">
+                        <img src="screenshots/token-generator.png" alt="Terminal output of scripts/portal-token.js: client, expiry date, signed token and portal URL" loading="lazy">
+                        <figcaption><strong>Token generator.</strong> <code>scripts/portal-token.js</code> signs a <code>clientId.expiry.hmac</code> code with a configurable lifetime.</figcaption>
+                    </figure>
+                </div>
+
+                <div class="category" id="how">
+                    <h3>Marketplace platform</h3>
+                    <p>The marketing site is the front door. Every booking CTA drops into the platform app at <code>/app</code>, where clients post jobs and FAA Part 107-certified operators accept them.</p>
+                    <figure class="shot">
+                        <img src="screenshots/two-sided-marketplace-post-job.png" alt="The Post a Job form with Real Estate selected, a job title, description, Downtown Austin location, date and budget filled in" loading="lazy">
+                        <figcaption><strong>01 · Post a job.</strong> Pick a service, name the shoot, add a location and a preferred date. The address is geocoded for nearby operators. No payment is taken up front.</figcaption>
+                    </figure>
+                    <div class="pair">
+                        <figure class="shot">
+                        <img src="screenshots/two-sided-marketplace-operators.png" alt="Find Operators directory with three verified operators, their ratings, services and starting rates" loading="lazy">
+                        <figcaption><strong>02 · Find an operator.</strong> Verified pilots, filterable by service.</figcaption>
+                    </figure>
+                        <figure class="shot">
+                        <img src="screenshots/native-operator-scheduling.png" alt="Booking dialog proposing a date and time, with a hint that it is within the declared availability of the operator" loading="lazy">
+                        <figcaption><strong>03 · Propose a time.</strong> A live hint says whether the pilot is free.</figcaption>
+                    </figure>
+                    </div>
+                    <figure class="shot">
+                        <img src="screenshots/native-operator-scheduling-availability.png" alt="Operator setup, availability step: weekday hours from 9 to 5 and one blocked date" loading="lazy">
+                        <figcaption><strong>Native scheduling.</strong> Operators publish weekly hours and blocked dates. Bookings are checked against them at creation and confirmation, and a database exclusion constraint prevents double-booking. Calendly is gone.</figcaption>
+                    </figure>
+                    <figure class="shot">
+                        <img src="screenshots/two-sided-marketplace.png" alt="Client dashboard listing four jobs with Open, Matched, Booked and Completed status badges" loading="lazy">
+                        <figcaption><strong>Track it.</strong> Jobs move from open to matched, booked, and completed.</figcaption>
+                    </figure>
+                </div>
+
+                <div class="category" id="under-the-hood">
+                    <h3>Security &amp; infrastructure</h3>
+                    <p>A zero-build static site in front, a React + Vite app on Netlify Functions behind it.</p>
+                    <figure class="shot light">
+                        <img src="diagrams/architecture.svg" alt="Architecture: visitors reach the marketing site, which hands off to the platform SPA; Netlify Functions talk to Neon Postgres, Stripe Connect, Resend and Netlify Blobs; Decap CMS commits gallery changes to GitHub" loading="lazy">
+                        <figcaption><strong>How the pieces fit.</strong> Source: <a href="https://github.com/nitsuah/skyview/blob/main/docs/diagrams/architecture.mmd">architecture.mmd</a></figcaption>
+                    </figure>
+                    <figure class="shot light">
+                        <img src="diagrams/booking-flow.svg" alt="Booking sequence: availability check, payment authorized on request, captured on completion with 85 percent transferred to the operator, or cancelled on decline" loading="lazy">
+                        <figcaption><strong>A booking, end to end.</strong> Payment is authorized on request and captured on completion; the operator receives 85%.</figcaption>
+                    </figure>
+                    <div class="notes">
+                        <div class="card"><h3>Hardened by default</h3><p>CSP and Permissions-Policy on every page, no-store portal and gallery routes, and a daily FAA certificate-expiry cron.</p></div>
+                        <div class="card"><h3>No build step up front</h3><p>The marketing site is plain ES modules. Only the <code>/app</code> SPA has a Vite build.</p></div>
+                        <div class="card"><h3>Docker parity</h3><p>The Docker image runs the same build as Netlify, and the unit suite runs in a container.</p></div>
+                    </div>
+                    <div class="stack">
+                        <span>HTML5 · CSS3 · ES modules</span><span>React + Vite</span><span>Netlify Functions</span><span>Neon Postgres</span><span>Stripe Connect</span><span>Resend</span><span>Decap CMS</span><span>Playwright</span><span>Vitest</span><span>Docker</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -282,7 +401,6 @@
                 <div class="section-head">
                     <div class="eyebrow">Selected work</div>
                     <h2>Shot <span class="grad">from above</span></h2>
-                    <p>The gallery is driven by <code style="font-family:var(--mono);color:var(--cyan)">assets/gallery.json</code> and edited through Decap CMS, with seasonal filtering, display ordering, and WebP fallbacks.</p>
                 </div>
                 <div class="gallery">
                     <figure><img src="media/dji-example-2.jpg" alt="Red sunset over water with a row of old pilings" loading="lazy"></figure>
@@ -293,23 +411,25 @@
             </div>
         </section>
 
-        <section id="under-the-hood">
+        <section id="use">
             <div class="wrap">
                 <div class="section-head">
-                    <div class="eyebrow">Under the hood</div>
-                    <h2>No build step <span class="grad">up front</span></h2>
-                    <p>A zero-build static marketing site in plain ES modules, with a React + Vite platform behind it on Netlify Functions.</p>
+                    <div class="eyebrow">Use it</div>
+                    <h2>Two ways <span class="grad">in</span></h2>
                 </div>
-                <div class="features">
-                    <div class="card"><h3>Two-sided marketplace</h3><p>Clients post jobs; operators onboard, list services and rates, and accept bookings. Stripe Connect handles payouts.</p></div>
-                    <div class="card"><h3>Native scheduling</h3><p>Weekly hours plus blocked dates per operator, enforced by <code>checkOperatorAvailability()</code> and a DB constraint. Calendly is gone.</p></div>
-                    <div class="card"><h3>Campaign personalization</h3><p>UTM and referrer detection swap the hero subline per source. A deterministic A/B framework is ready to switch on.</p></div>
-                    <div class="card"><h3>Privacy-first funnel</h3><p>Landing → gallery → booking tracking with an owner-only dashboard and CSV/JSON export.</p></div>
-                    <div class="card"><h3>Signed client portal</h3><p>HMAC-SHA256 access codes verified server-side. The endpoint fails closed if <code>PORTAL_SALT</code> is unset.</p></div>
-                    <div class="card"><h3>Hardened by default</h3><p>CSP and Permissions-Policy on every page, a no-index, no-store admin, and a daily FAA certificate-expiry cron.</p></div>
-                </div>
-                <div class="stack">
-                    <span>HTML5 · CSS3 · ES modules</span><span>React + Vite</span><span>Netlify Functions</span><span>Neon Postgres</span><span>Stripe Connect</span><span>Resend</span><span>Decap CMS</span><span>Playwright</span><span>Vitest</span><span>Docker</span>
+                <div class="ways">
+                    <div class="card">
+                        <h3>Run it</h3>
+                        <p>The deployed site, with the marketplace at <code>/app</code>.</p>
+                        <a class="cta" href="https://skyviewd.netlify.app/">OPEN THE LIVE SITE →</a>
+                    </div>
+                    <div class="card">
+                        <h3>Clone it</h3>
+                        <p>Serve the production image locally with Docker. More in the <a href="https://github.com/nitsuah/skyview#-quick-start">README quick start</a>.</p>
+<pre>git clone https://github.com/nitsuah/skyview.git
+cd skyview
+docker compose -f config/docker-compose.yml up --build web</pre>
+                    </div>
                 </div>
             </div>
         </section>
@@ -319,8 +439,8 @@
                 <h2>Need a pilot? <span class="grad">Post a job.</span></h2>
                 <p>Or list yourself as an operator and pick up bookings that fit your schedule.</p>
                 <div class="actions">
-                    <a class="cta" href="https://skyview.nitsuah.io/app/register?role=client">POST A JOB →</a>
-                    <a class="cta secondary" href="https://skyview.nitsuah.io/app/register?role=operator">LIST AS AN OPERATOR</a>
+                    <a class="cta" href="https://skyviewd.netlify.app/app/register?role=client">POST A JOB →</a>
+                    <a class="cta secondary" href="https://skyviewd.netlify.app/app/register?role=operator">LIST AS AN OPERATOR</a>
                 </div>
             </div>
         </section>
@@ -329,7 +449,7 @@
     <footer>
         <div class="wrap">
             <span>© 2026 SkyView Dynamics</span>
-            <span><a href="https://skyview.nitsuah.io">skyview.nitsuah.io</a> · <a href="https://github.com/nitsuah/skyview">github.com/nitsuah/skyview</a></span>
+            <span><a href="https://github.com/nitsuah/skyview#readme">README</a> · <a href="https://github.com/nitsuah/skyview/blob/main/docs/FEATURES.md">Features</a> · <a href="https://github.com/nitsuah/skyview/blob/main/docs/ROADMAP.md">Roadmap</a> · <a href="https://github.com/nitsuah/skyview/blob/main/docs/CHANGELOG.md">Changelog</a> · <a href="https://skyviewd.netlify.app">skyviewd.netlify.app</a></span>
         </div>
     </footer>
 </body>

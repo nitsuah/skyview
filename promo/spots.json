@@ -8,28 +8,40 @@
       "id": "immersive-hero-section",
       "title": "Immersive Hero Section",
       "category": "Core Experiences",
-      "screenshots": [],
-      "spots": []
+      "screenshots": [
+        "docs/screenshots/immersive-hero-section.png"
+      ],
+      "spots": [
+        "launch-21s"
+      ]
     },
     {
       "id": "dynamic-gallery",
       "title": "Dynamic Gallery",
       "category": "Core Experiences",
-      "screenshots": [],
-      "spots": []
+      "screenshots": [
+        "docs/screenshots/dynamic-gallery.png"
+      ],
+      "spots": [
+        "launch-21s"
+      ]
     },
     {
       "id": "service-packages",
       "title": "Service Packages",
       "category": "Core Experiences",
-      "screenshots": [],
+      "screenshots": [
+        "docs/screenshots/service-packages.png"
+      ],
       "spots": []
     },
     {
       "id": "responsive-design",
       "title": "Responsive Design",
       "category": "Core Experiences",
-      "screenshots": [],
+      "screenshots": [
+        "docs/screenshots/responsive-design.png"
+      ],
       "spots": []
     },
     {
@@ -37,27 +49,30 @@
       "title": "Campaign Personalization",
       "category": "Marketing & Personalization",
       "screenshots": [],
-      "spots": []
+      "spots": [],
+      "note": "no screenshot: scripts/campaign.js targets .hero-subline, index.html has .hero-subtitle, so the variant never renders"
     },
     {
       "id": "a-b-testing-framework",
       "title": "A/B Testing Framework",
       "category": "Marketing & Personalization",
-      "screenshots": [],
-      "spots": []
+      "visual": "none",
+      "note": "feature-gated off (experiments.enabled: false); nothing renders"
     },
     {
       "id": "conversion-funnel-tracking",
       "title": "Conversion Funnel Tracking",
       "category": "Marketing & Personalization",
-      "screenshots": [],
-      "spots": []
+      "visual": "none",
+      "note": "event capture; what a user sees is the Local Dashboard"
     },
     {
       "id": "local-dashboard",
       "title": "Local Dashboard",
       "category": "Funnel Reporting",
-      "screenshots": [],
+      "screenshots": [
+        "docs/screenshots/local-dashboard.png"
+      ],
       "spots": []
     },
     {
@@ -65,112 +80,132 @@
       "title": "CSV / JSON Export",
       "category": "Funnel Reporting",
       "screenshots": [],
-      "spots": []
+      "spots": [],
+      "note": "no screenshot: the CSV / JSON buttons have no CSS and render dark-on-dark in the dashboard"
     },
     {
       "id": "decap-cms",
       "title": "Decap CMS",
       "category": "Admin & CMS",
-      "screenshots": [],
+      "screenshots": [
+        "docs/screenshots/decap-cms.png"
+      ],
       "spots": []
     },
     {
       "id": "admin-hardening",
       "title": "Admin Hardening",
       "category": "Admin & CMS",
-      "screenshots": [],
-      "spots": []
+      "visual": "none",
+      "note": "response headers"
     },
     {
       "id": "rate-limiting",
       "title": "Rate Limiting",
       "category": "Client Portal",
-      "screenshots": [],
+      "screenshots": [
+        "docs/screenshots/rate-limiting.png"
+      ],
       "spots": []
     },
     {
       "id": "time-bound-token-expiry",
       "title": "Time-Bound Token Expiry",
       "category": "Client Portal",
-      "screenshots": [],
+      "screenshots": [
+        "docs/screenshots/time-bound-token-expiry.png"
+      ],
       "spots": []
     },
     {
       "id": "server-side-token-validation",
       "title": "Server-Side Token Validation",
       "category": "Client Portal",
-      "screenshots": [],
-      "spots": []
+      "visual": "none",
+      "note": "server-side check; the visible result is the portal screens"
     },
     {
       "id": "token-generator",
       "title": "Token Generator",
       "category": "Client Portal",
-      "screenshots": [],
+      "screenshots": [
+        "docs/screenshots/token-generator.png"
+      ],
       "spots": []
     },
     {
       "id": "two-sided-marketplace",
       "title": "Two-Sided Marketplace",
       "category": "Marketplace Platform",
-      "screenshots": [],
-      "spots": []
+      "screenshots": [
+        "docs/screenshots/two-sided-marketplace.png",
+        "docs/screenshots/two-sided-marketplace-post-job.png",
+        "docs/screenshots/two-sided-marketplace-operators.png"
+      ],
+      "spots": [
+        "launch-21s"
+      ]
     },
     {
       "id": "native-operator-scheduling",
       "title": "Native Operator Scheduling",
       "category": "Marketplace Platform",
-      "screenshots": [],
-      "spots": []
+      "screenshots": [
+        "docs/screenshots/native-operator-scheduling.png",
+        "docs/screenshots/native-operator-scheduling-availability.png"
+      ],
+      "spots": [
+        "launch-21s"
+      ]
     },
     {
       "id": "calendly-removed",
       "title": "Calendly Removed",
       "category": "Marketplace Platform",
-      "screenshots": [],
-      "spots": []
+      "visual": "none",
+      "note": "a removal, covered by Native Operator Scheduling"
     },
     {
       "id": "content-security-policy",
       "title": "Content Security Policy",
       "category": "Security & Infrastructure",
-      "screenshots": [],
-      "spots": []
+      "visual": "none",
+      "note": "response headers"
     },
     {
       "id": "no-store-routes",
       "title": "No-Store Routes",
       "category": "Security & Infrastructure",
-      "screenshots": [],
-      "spots": []
+      "visual": "none",
+      "note": "cache headers"
     },
     {
       "id": "modular-javascript",
       "title": "Modular JavaScript",
       "category": "Security & Infrastructure",
-      "screenshots": [],
-      "spots": []
+      "visual": "none",
+      "note": "tech stack"
     },
     {
       "id": "docker-netlify-parity",
       "title": "Docker/Netlify Parity",
       "category": "Security & Infrastructure",
-      "screenshots": [],
-      "spots": []
+      "visual": "none",
+      "note": "build/deploy detail"
     },
     {
       "id": "docker-validation",
       "title": "Docker Validation",
       "category": "Security & Infrastructure",
-      "screenshots": [],
-      "spots": []
+      "visual": "none",
+      "note": "test tooling"
     },
     {
       "id": "netlify-forms",
       "title": "Netlify Forms",
       "category": "Security & Infrastructure",
-      "screenshots": [],
-      "spots": []
+      "visual": "none",
+      "note": "claimed but not in the code: the contact form was removed (tests/site.spec.ts)"
     }
   ],
   "spots": [
@@ -179,7 +214,12 @@
       "seconds": 21,
       "format": "landscape",
       "tool": "brag (one-off, source not kept)",
-      "features": [],
+      "features": [
+        "immersive-hero-section",
+        "two-sided-marketplace",
+        "native-operator-scheduling",
+        "dynamic-gallery"
+      ],
       "published": "showcase/media/skyview-launch.mp4",
       "rendered": "2026-10-01"
     }
@@ -194,8 +234,15 @@
     }
   ],
   "brand": {
-    "source": null,
-    "derived": [],
-    "manual": []
+    "source": "assets/favicon.svg",
+    "derived": [
+      "showcase/favicon.svg"
+    ],
+    "manual": [
+      {
+        "what": "GitHub repo social preview image",
+        "url": "https://github.com/nitsuah/skyview/settings"
+      }
+    ]
   }
 }

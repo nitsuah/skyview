@@ -17,3 +17,10 @@ platform/dist/
 
 # /brag output (video source, frames, scratch)
 brag-output/
+
+# Copied in from docs/ by pages.yml at deploy time
+showcase/screenshots/
+showcase/diagrams/
+
+# /promo renders (spot sources live in promo/<spot>/)
+promo/out/

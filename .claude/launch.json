@@ -6,6 +6,12 @@
       "runtimeExecutable": "docker",
       "runtimeArgs": ["compose", "-f", "docker-compose.dev.yml", "up", "--build"],
       "port": 8888
+    },
+    {
+      "name": "showcase",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["run", "--rm", "-p", "8090:80", "-v", "./showcase:/usr/share/nginx/html:ro", "nginx:alpine"],
+      "port": 8090
     }
   ]
 }
