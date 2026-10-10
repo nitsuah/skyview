@@ -12,7 +12,8 @@
         "docs/screenshots/immersive-hero-section.png"
       ],
       "spots": [
-        "launch-21s"
+        "site-14s",
+        "hero-30s"
       ]
     },
     {
@@ -23,7 +24,8 @@
         "docs/screenshots/dynamic-gallery.png"
       ],
       "spots": [
-        "launch-21s"
+        "site-14s",
+        "hero-30s"
       ]
     },
     {
@@ -33,7 +35,10 @@
       "screenshots": [
         "docs/screenshots/service-packages.png"
       ],
-      "spots": []
+      "spots": [
+        "site-14s",
+        "hero-30s"
+      ]
     },
     {
       "id": "responsive-design",
@@ -106,7 +111,10 @@
       "screenshots": [
         "docs/screenshots/rate-limiting.png"
       ],
-      "spots": []
+      "spots": [
+        "portal-12s",
+        "hero-30s"
+      ]
     },
     {
       "id": "time-bound-token-expiry",
@@ -115,7 +123,10 @@
       "screenshots": [
         "docs/screenshots/time-bound-token-expiry.png"
       ],
-      "spots": []
+      "spots": [
+        "portal-12s",
+        "hero-30s"
+      ]
     },
     {
       "id": "server-side-token-validation",
@@ -131,7 +142,10 @@
       "screenshots": [
         "docs/screenshots/token-generator.png"
       ],
-      "spots": []
+      "spots": [
+        "portal-12s",
+        "hero-30s"
+      ]
     },
     {
       "id": "two-sided-marketplace",
@@ -143,7 +157,8 @@
         "docs/screenshots/two-sided-marketplace-operators.png"
       ],
       "spots": [
-        "launch-21s"
+        "book-18s",
+        "hero-30s"
       ]
     },
     {
@@ -155,7 +170,8 @@
         "docs/screenshots/native-operator-scheduling-availability.png"
       ],
       "spots": [
-        "launch-21s"
+        "book-18s",
+        "hero-30s"
       ]
     },
     {
@@ -210,27 +226,69 @@
   ],
   "spots": [
     {
-      "id": "launch-21s",
-      "seconds": 21,
+      "id": "site-14s",
+      "seconds": 14,
       "format": "landscape",
-      "tool": "brag (one-off, source not kept)",
+      "tool": "promo/build.sh",
       "features": [
         "immersive-hero-section",
-        "two-sided-marketplace",
-        "native-operator-scheduling",
+        "service-packages",
         "dynamic-gallery"
       ],
-      "published": "showcase/media/skyview-launch.mp4",
-      "rendered": "2026-10-01"
+      "published": "showcase/media/site-14s.mp4",
+      "rendered": "2026-10-10"
+    },
+    {
+      "id": "book-18s",
+      "seconds": 18,
+      "format": "landscape",
+      "tool": "promo/build.sh",
+      "features": [
+        "two-sided-marketplace",
+        "native-operator-scheduling"
+      ],
+      "published": "showcase/media/book-18s.mp4",
+      "rendered": "2026-10-10"
+    },
+    {
+      "id": "portal-12s",
+      "seconds": 12,
+      "format": "landscape",
+      "tool": "promo/build.sh",
+      "features": [
+        "token-generator",
+        "time-bound-token-expiry",
+        "rate-limiting"
+      ],
+      "published": "showcase/media/portal-12s.mp4",
+      "rendered": "2026-10-10"
+    },
+    {
+      "id": "hero-30s",
+      "seconds": 30,
+      "format": "landscape",
+      "tool": "promo/build.sh",
+      "features": [
+        "immersive-hero-section",
+        "service-packages",
+        "dynamic-gallery",
+        "two-sided-marketplace",
+        "native-operator-scheduling",
+        "token-generator",
+        "time-bound-token-expiry",
+        "rate-limiting"
+      ],
+      "published": "showcase/media/hero-30s.mp4",
+      "rendered": "2026-10-10"
     }
   ],
   "reels": [
     {
       "id": "hero",
       "spots": [
-        "launch-21s"
+        "hero-30s"
       ],
-      "published": "showcase/media/skyview-launch.mp4"
+      "published": "showcase/media/hero-30s.mp4"
     }
   ],
   "brand": {

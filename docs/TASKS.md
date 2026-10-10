@@ -29,10 +29,6 @@ Open 2026 items are tracked below and in `docs/ROADMAP.md` 2027 Q1.
   - The dashboard's CSV / JSON buttons and funnel drop-off rows have no CSS (`.conversion-dashboard__export`, `__actions`, `__funnel*`): the buttons render dark-on-dark.
   - Acceptance Criteria: both render correctly; add `campaign-personalization` and `csv-json-export` captures to `tests/visual-docs/screenshots.spec.ts` and link them in `promo/spots.json`.
 
-- [ ] Re-render the launch reel once the domain decision lands.
-  - Priority: P3
-  - The 21 s reel's outro shows `skyview.nitsuah.io`, which no longer resolves (README's "Custom Domain" link is dead too). Its source was not kept in the repo; rebuild it under `promo/<spot>/` with per-category feature spots (see `promo/spots.json`).
-
 - [ ] Trim `docs/FEATURES.md` to what users can see or do.
   - Priority: P3
   - 11 of 24 entries have nothing to show (`"visual": "none"` in `promo/spots.json`). "Netlify Forms" is no longer true (the contact form was removed 2026-09-19); "Calendly Removed" is a changelog entry, not a feature.

@@ -1,0 +1,1 @@
+The SkyView marketing site is plain HTML and ES modules: a full-screen hero with a drone that follows your cursor, three service packages, and a gallery the owner edits from a CMS. skyviewd.netlify.app

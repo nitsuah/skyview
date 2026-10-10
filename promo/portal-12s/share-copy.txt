@@ -1,0 +1,1 @@
+SkyView client delivery: one CLI command signs an access code that expires. Expired codes are refused, and five wrong tries lock the portal for 15 minutes. skyviewd.netlify.app
