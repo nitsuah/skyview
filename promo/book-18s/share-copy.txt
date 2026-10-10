@@ -1,0 +1,1 @@
+Booking a drone pilot on SkyView: post a job, pick a verified Part 107 operator, and the booking dialog tells you whether they are free at that time before you send the request. skyviewd.netlify.app/app

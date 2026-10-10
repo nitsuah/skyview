@@ -1,0 +1,8 @@
+{
+  "title": "SkyView: the marketing site (hero, services, gallery)",
+  "base": "hero-30s",
+  "duration": 14,
+  "poster": 2.4,
+  "outroLine": "Hero, services and gallery. No build step.",
+  "scenes": [["site-hero", 0, 4.4], ["site-services", 4.4, 8], ["site-gallery", 8, 11.5], ["outro", 11.5, 14]]
+}
