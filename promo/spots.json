@@ -235,7 +235,7 @@
         "service-packages",
         "dynamic-gallery"
       ],
-      "published": "showcase/media/site-14s.mp4",
+      "published": null,
       "rendered": "2026-10-10"
     },
     {
@@ -260,7 +260,7 @@
         "time-bound-token-expiry",
         "rate-limiting"
       ],
-      "published": "showcase/media/portal-12s.mp4",
+      "published": null,
       "rendered": "2026-10-10"
     },
     {
@@ -278,7 +278,7 @@
         "time-bound-token-expiry",
         "rate-limiting"
       ],
-      "published": "showcase/media/hero-30s.mp4",
+      "published": null,
       "rendered": "2026-10-10"
     }
   ],
@@ -288,7 +288,7 @@
       "spots": [
         "hero-30s"
       ],
-      "published": "showcase/media/hero-30s.mp4"
+      "published": null
     }
   ],
   "brand": {

@@ -37,7 +37,9 @@ const [W, H] = cfg.size || [1920, 1080];
         fs.rmSync(`${OUT}/stills`, { recursive: true, force: true });
         fs.mkdirSync(`${OUT}/stills`, { recursive: true });
         const page = await open();
-        for (const t of stills.split(',').map(Number)) await shoot(page, t, `${OUT}/stills/t${t.toFixed(2).padStart(5, '0')}.png`);
+        const times = stills.split(',').map(Number);
+        if (times.some((t) => !Number.isFinite(t) || t < 0)) throw new Error(`invalid still times: ${stills}`);
+        for (const t of times) await shoot(page, t, `${OUT}/stills/t${t.toFixed(2).padStart(5, '0')}.png`);
     } else {
         fs.rmSync(`${OUT}/frames`, { recursive: true, force: true });
         fs.mkdirSync(`${OUT}/frames`, { recursive: true });

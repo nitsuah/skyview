@@ -1,6 +1,6 @@
 # Promo spots
 
-Short videos for the [Pages showcase](https://nitsuah.github.io/skyview/), rendered locally in Docker. The contract is the [visual showcase standard](https://github.com/nitsuah/.github/blob/main/showcase/STANDARD.md); [`spots.json`](spots.json) records what each spot covers and when it was rendered.
+Short videos for the [Pages showcase](https://nitsuah.github.io/skyview/), rendered locally in Docker. The page shows `book-18s`; the others are rendered but not published (`"published": null` in `spots.json`). The contract is the [visual showcase standard](https://github.com/nitsuah/.github/blob/main/showcase/STANDARD.md); [`spots.json`](spots.json) records what each spot covers and when it was rendered.
 
 | Spot | Shows | Length |
 |---|---|---|

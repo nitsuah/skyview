@@ -42,6 +42,7 @@ run sh /repo/promo/pipeline.sh encode "$SPOT"
 echo "done → promo/out/$SPOT/$SPOT.mp4"
 
 if [ "$PUBLISH" = 1 ]; then
+  mkdir -p showcase/media
   cp "promo/out/$SPOT/$SPOT-web.mp4" "showcase/media/$SPOT.mp4"
   cp "promo/out/$SPOT/$SPOT.jpg" "showcase/media/$SPOT.jpg"
   echo "published → showcase/media/$SPOT.mp4, $SPOT.jpg"

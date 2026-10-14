@@ -10,7 +10,7 @@
     {
       "name": "showcase",
       "runtimeExecutable": "docker",
-      "runtimeArgs": ["run", "--rm", "-p", "8090:80", "-v", "./showcase:/usr/share/nginx/html:ro", "nginx:alpine"],
+      "runtimeArgs": ["run", "--rm", "-p", "8090:80", "-v", "./showcase:/usr/share/nginx/html", "-v", "./docs/screenshots:/usr/share/nginx/html/screenshots:ro", "-v", "./docs/diagrams:/usr/share/nginx/html/diagrams:ro", "nginx:alpine"],
       "port": 8090
     }
   ]
