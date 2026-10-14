@@ -67,7 +67,7 @@
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://plausible.io https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://plausible.io https://api.netlify.com https://identity.netlify.com; img-src 'self' data: https:; media-src 'self';"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://plausible.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://plausible.io https://api.netlify.com; img-src 'self' data: https:; media-src 'self';"
 
 # Platform app — Stripe-compatible CSP
 [[headers]]
@@ -79,15 +79,6 @@
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "no-store"
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.stripe.com https://nominatim.openstreetmap.org; frame-src https://js.stripe.com https://hooks.stripe.com; img-src 'self' data: blob: https:; media-src 'self';"
-
-[[headers]]
-  for = "/admin/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    X-Robots-Tag = "noindex, nofollow"
-    Cache-Control = "no-store, no-cache, must-revalidate"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://api.netlify.com https://identity.netlify.com; img-src 'self' data: https:; frame-ancestors 'none';"
 
 [[headers]]
   for = "/client-portal.html"

@@ -89,15 +89,6 @@
       "note": "no screenshot: the CSV / JSON buttons have no CSS and render dark-on-dark in the dashboard"
     },
     {
-      "id": "decap-cms",
-      "title": "Decap CMS",
-      "category": "Admin & CMS",
-      "screenshots": [
-        "docs/screenshots/decap-cms.png"
-      ],
-      "spots": []
-    },
-    {
       "id": "admin-hardening",
       "title": "Admin Hardening",
       "category": "Admin & CMS",

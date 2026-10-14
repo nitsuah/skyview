@@ -135,23 +135,6 @@ test.describe('client portal', () => {
   });
 });
 
-test.describe('admin', () => {
-  test('decap-cms', async ({ page }) => {
-    // Swap git-gateway for Decap's in-memory test backend so the editor opens without Netlify Identity.
-    await page.route('**/admin/config.yml', async (route) => {
-      const res = await route.fetch();
-      const body = (await res.text()).replace('name: git-gateway', 'name: test-repo');
-      await route.fulfill({ response: res, body });
-    });
-    await page.route('**/identity.netlify.com/**', (route) => route.abort());
-    await page.goto('/admin/');
-    await page.getByRole('button', { name: /login/i }).click();
-    await expect(page.getByRole('heading', { name: /collections/i })).toBeVisible({ timeout: 30000 });
-    await page.waitForTimeout(800);
-    await shot(page, 'decap-cms');
-  });
-});
-
 test.describe('marketplace platform', () => {
   const client = { id: 'client-1', role: 'client', name: 'Dana Whitfield', email: 'dana@example.com', active: true };
   const operator = {

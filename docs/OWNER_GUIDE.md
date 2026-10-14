@@ -57,7 +57,6 @@ Edit `config.js` file:
 **Guide:** `docs/WEBP_OPTIMIZATION.md`
 
 #### 4. Setup Notifications (5 min) 📧
-- Enable Netlify Identity
 - Configure email notifications
 - Test contact form
 
