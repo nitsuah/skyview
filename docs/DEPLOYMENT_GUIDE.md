@@ -302,7 +302,7 @@ In browser console, you should see:
 ### Important (Recommended)
 - [ ] Custom domain configured
 - [ ] Analytics enabled and tracking
-- [ ] Security headers added to netlify.toml
+- [ ] Security headers in netlify.toml reviewed
 - [ ] Sitemap created and submitted to Google
 - [ ] Favicon displays correctly
 - [ ] Social media preview images set
