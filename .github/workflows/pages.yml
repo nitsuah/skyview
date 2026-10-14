@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'showcase/**'
+      - 'docs/screenshots/**'
+      - 'docs/diagrams/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -30,6 +32,14 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v6
+
+      # The page shows the CI-generated screenshots and diagrams from docs/, so
+      # they are copied in at deploy time instead of being committed twice.
+      - name: Add screenshots and diagrams
+        run: |
+          mkdir -p showcase/screenshots showcase/diagrams
+          cp docs/screenshots/*.png showcase/screenshots/
+          cp docs/diagrams/*.svg showcase/diagrams/
 
       - name: Upload showcase
         uses: actions/upload-pages-artifact@v5

@@ -1,0 +1,9 @@
+{
+  "title": "SkyView: hero cut (every feature, one hook, one outro)",
+  "duration": 30,
+  "fps": 30,
+  "poster": 1.6,
+  "url": "skyviewd.netlify.app",
+  "outroLine": "Cinematic aerials. A marketplace to book the pilot.",
+  "scenes": [["hook", 0, 2.6], ["site-hero", 2.6, 5.2], ["site-services", 5.2, 7.4], ["site-gallery", 7.4, 9.6], ["book-post", 9.6, 12.4], ["book-find", 12.4, 14.6], ["book-modal", 14.6, 17.4], ["book-avail", 17.4, 19.6], ["book-dash", 19.6, 21.8], ["portal-token", 21.8, 24.2], ["portal-expiry", 24.2, 25.8], ["portal-lock", 25.8, 27.4], ["outro", 27.4, 30]]
+}

@@ -1,0 +1,8 @@
+{
+  "title": "SkyView: the client portal (signed, expiring access codes)",
+  "base": "hero-30s",
+  "duration": 12,
+  "poster": 3.2,
+  "outroLine": "Signed, expiring delivery links.",
+  "scenes": [["portal-token", 0, 4], ["portal-expiry", 4, 6.8], ["portal-lock", 6.8, 9.6], ["outro", 9.6, 12]]
+}

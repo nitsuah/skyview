@@ -1,0 +1,37 @@
+%% SkyView architecture — rendered to architecture.svg by .github/workflows/visual-docs.yml
+flowchart LR
+  visitor[Visitor / client]
+  pilot[Drone operator]
+  owner[Site owner]
+
+  subgraph Netlify[Netlify]
+    site[Marketing site<br/>index.html · ES modules, no build<br/>hero · services · gallery · booking CTAs]
+    spa[Platform SPA at /app<br/>React + Vite<br/>jobs · operators · bookings]
+    portal[Client portal<br/>pages/client-portal.html]
+    cms[Decap CMS at /admin<br/>edits assets/gallery.json]
+    fn[Netlify Functions /api/*<br/>auth · jobs · operators · bookings<br/>reviews · notifications · uploads · portal]
+    cron[cron-cert-expiry<br/>daily 09:00 UTC]
+    blobs[(Netlify Blobs<br/>operator certs · deliverables)]
+  end
+
+  db[(Neon Postgres<br/>users · jobs · bookings<br/>operator availability)]
+  stripe[Stripe Connect<br/>PaymentIntents · transfers]
+  resend[Resend email]
+  gh[(GitHub repo<br/>git-gateway)]
+
+  visitor --> site
+  site -- FIND AN OPERATOR / POST A JOB --> spa
+  visitor --> portal
+  pilot --> spa
+  owner --> cms
+  cms -- commits gallery.json --> gh
+  gh -- deploy --> site
+  spa --> fn
+  portal -- HMAC access code --> fn
+  fn --> db
+  fn --> stripe
+  stripe -- webhooks --> fn
+  fn --> resend
+  fn --> blobs
+  cron --> db
+  cron --> resend

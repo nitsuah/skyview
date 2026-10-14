@@ -1,0 +1,8 @@
+{
+  "title": "SkyView: the marketplace (post a job, book a pilot who is free)",
+  "base": "hero-30s",
+  "duration": 18,
+  "poster": 9.6,
+  "outroLine": "Post a job. Book a pilot who is actually free.",
+  "scenes": [["book-post", 0, 4], ["book-find", 4, 7], ["book-modal", 7, 10.6], ["book-avail", 10.6, 13.2], ["book-dash", 13.2, 15.6], ["outro", 15.6, 18]]
+}

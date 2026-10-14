@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SkyView promo composition</title>
+<!--
+  One composition for every SkyView spot. render.cjs injects window.SPOT (the
+  spot's merged spot.json); window.render(t) draws frame t as a pure function
+  of time. A spot plays the scenes in its "scenes" list ([id, start, end]) and
+  nothing else, so feature spots share no intro with the hero cut.
+
+  Real UI only: the screenshots are the CI captures in docs/screenshots
+  (mocked demo data), the terminal text is real scripts/portal-token.js output.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=block" rel="stylesheet">
+<style>
+  :root { --bg: #030712; --bg2: #05081c; --cyan: #7cf2ff; --accent: #00d4ff; --sunset: #f7b267; --muted: #b8c2d1; --mono: 'JetBrains Mono', monospace; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  body { font-family: 'Inter', sans-serif; color: #fff; }
+  #stage { position: absolute; inset: 0; overflow: hidden;
+    background: radial-gradient(circle at 0 0, rgba(0, 212, 255, 0.16), transparent 34%), radial-gradient(circle at 100% 0, rgba(247, 178, 103, 0.12), transparent 30%), linear-gradient(180deg, var(--bg2), var(--bg)); }
+  #grid { position: absolute; inset: 0; opacity: 0.5;
+    background-image: linear-gradient(rgba(124, 242, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(124, 242, 255, 0.05) 1px, transparent 1px); background-size: 120px 120px; }
+  .layer { position: absolute; inset: 0; opacity: 0; }
+
+  /* top bar: wordmark from frame 0 in every scene */
+  #bar { position: absolute; left: 64px; right: 64px; top: 30px; height: 56px; display: flex; align-items: center; justify-content: space-between; z-index: 20; }
+  .mark { display: flex; align-items: center; gap: 14px; font-weight: 800; font-size: 26px; letter-spacing: 0.08em; }
+  .mark svg { width: 40px; height: 40px; color: var(--cyan); filter: drop-shadow(0 0 10px rgba(103, 232, 249, 0.5)); }
+  .mark span { background: linear-gradient(135deg, #fff, var(--cyan)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  #chip { font-family: var(--mono); font-size: 18px; letter-spacing: 0.16em; color: var(--cyan); padding: 9px 18px; border-radius: 999px; border: 1px solid rgba(124, 242, 255, 0.3); background: rgba(8, 16, 28, 0.72); }
+
+  /* UI scenes: a framed screenshot with a moving camera */
+  .frame { position: absolute; left: 204px; top: 104px; width: 1512px; height: 836px; border-radius: 22px; overflow: hidden; background: #0b1120;
+    border: 1px solid rgba(124, 242, 255, 0.22); box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55), 0 0 70px rgba(0, 212, 255, 0.1); }
+  .cam { position: absolute; left: 0; top: 0; width: 1512px; transform-origin: 0 0; will-change: transform; }
+  .cam img { display: block; width: 100%; }
+  .ring { position: absolute; border: 3px solid var(--cyan); border-radius: 10px; box-shadow: 0 0 0 4px rgba(124, 242, 255, 0.16), 0 0 26px rgba(124, 242, 255, 0.55); opacity: 0; }
+  .cursor { position: absolute; width: 30px; height: 30px; margin: -3px 0 0 -3px; opacity: 0; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7)); }
+  .ripple { position: absolute; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%; border: 3px solid var(--cyan); opacity: 0; }
+  .drone { position: absolute; width: 84px; height: 84px; margin: -42px 0 0 -42px; color: var(--cyan); opacity: 0; filter: drop-shadow(0 0 10px rgba(103, 232, 249, 0.8)); }
+  .beam { position: absolute; height: 3px; transform-origin: 0 50%; opacity: 0; background: linear-gradient(90deg, rgba(124, 242, 255, 0.85), rgba(124, 242, 255, 0)); }
+  .cap { position: absolute; left: 0; right: 0; top: 962px; text-align: center; font-size: 46px; font-weight: 800; letter-spacing: 0.01em; }
+  .cap b { color: var(--cyan); font-weight: 800; }
+
+  /* terminal */
+  .term { position: absolute; left: 204px; top: 104px; width: 1512px; height: 836px; border-radius: 22px; background: #0b1120; border: 1px solid rgba(124, 242, 255, 0.22);
+    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55), 0 0 70px rgba(0, 212, 255, 0.1); overflow: hidden; }
+  .term .dots { height: 52px; display: flex; align-items: center; gap: 10px; padding: 0 22px; border-bottom: 1px solid rgba(124, 242, 255, 0.12); }
+  .term .dots i { width: 14px; height: 14px; border-radius: 50%; background: #22304a; }
+  .term pre { padding: 34px 44px; font-family: var(--mono); font-size: 31px; line-height: 1.8; color: #d7e3f4; white-space: pre-wrap; word-break: break-all; }
+  .term .p { color: var(--cyan); } .term .k { color: var(--muted); } .term .tok { color: var(--sunset); } .term .ok { color: #00e676; }
+
+  /* hook */
+  #hook img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 60%; }
+  #hook .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(3, 7, 18, 0.55), rgba(3, 7, 18, 0.15) 40%, rgba(3, 7, 18, 0.75)); }
+  #hook h1 { position: absolute; left: 0; right: 0; top: 370px; text-align: center; font-size: 124px; font-weight: 900; letter-spacing: 0.07em; line-height: 1; text-shadow: 0 0 40px rgba(3, 7, 18, 0.8); }
+  .grad { background: linear-gradient(135deg, var(--cyan), #fff, var(--sunset)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  #hook .alt { position: absolute; left: 80px; bottom: 70px; font-family: var(--mono); font-size: 30px; letter-spacing: 0.14em; color: var(--cyan); }
+  #hook .rec { position: absolute; right: 80px; bottom: 70px; font-family: var(--mono); font-size: 30px; letter-spacing: 0.14em; color: #fff; }
+  #hook .rec i { display: inline-block; width: 16px; height: 16px; border-radius: 50%; background: #ff4444; margin-right: 12px; }
+
+  /* outro */
+  #outro { text-align: center; }
+  #outro svg { position: absolute; left: 50%; top: 250px; width: 150px; height: 150px; margin-left: -75px; color: var(--cyan); filter: drop-shadow(0 0 24px rgba(103, 232, 249, 0.6)); }
+  #outro h2 { position: absolute; left: 0; right: 0; top: 440px; font-size: 104px; font-weight: 900; letter-spacing: 0.1em; }
+  #outro p { position: absolute; left: 0; right: 0; top: 590px; font-size: 40px; font-weight: 600; color: var(--muted); }
+  #outro .url { position: absolute; left: 50%; top: 700px; transform: translateX(-50%); font-family: var(--mono); font-size: 40px; font-weight: 700; color: #0b1120; background: var(--cyan); padding: 18px 44px; border-radius: 999px; box-shadow: 0 0 40px rgba(0, 212, 255, 0.45); white-space: nowrap; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="drone" viewBox="0 0 24 24" fill="none">
+    <rect x="10" y="10" width="4" height="3" rx="0.5" stroke="currentColor" stroke-width="1.5" fill="currentColor"/>
+    <line x1="10" y1="11" x2="4" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="14" y1="11" x2="20" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="10" y1="12" x2="4" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="14" y1="12" x2="20" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="4" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="20" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+    <circle cx="4" cy="18" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="20" cy="18" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+  </symbol>
+  <symbol id="arrow" viewBox="0 0 24 24"><path d="M3 2l7 19 2.5-8L21 10.5z" fill="#fff" stroke="#0b1120" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div id="stage">
+  <div id="grid"></div>
+
+  <div class="layer" id="hook">
+    <img src="../../assets/gallery/sunset-marina.jpg" alt="">
+    <div class="shade"></div>
+    <h1>ELEVATE YOUR VISION<br><span class="grad">FROM ABOVE</span></h1>
+    <div class="alt">ALT <span id="alt">000</span> FT</div>
+    <div class="rec"><i></i>REC</div>
+  </div>
+
+  <div id="scenes"></div>
+
+  <div class="layer" id="portal-token">
+    <div class="term"><div class="dots"><i></i><i></i><i></i></div><pre id="termtext"></pre></div>
+    <div class="cap">Sign an <b>expiring</b> access code.</div>
+  </div>
+
+  <div class="layer" id="outro">
+    <svg><use href="#drone"/></svg>
+    <h2><span class="grad">SKYVIEW DYNAMICS</span></h2>
+    <p id="outroLine"></p>
+    <div class="url" id="outroUrl"></div>
+  </div>
+
+  <div id="bar">
+    <div class="mark"><svg><use href="#drone"/></svg><span>SKYVIEW DYNAMICS</span></div>
+    <div id="chip"></div>
+  </div>
+</div>
+
+<script>
+const S = window.SPOT || { scenes: [['hook', 0, 2.5], ['outro', 2.5, 5]], duration: 5, outroLine: '', url: 'skyviewd.netlify.app' };
+const SS = '../../docs/screenshots/';
+const FW = 1512, FH = 836;
+
+// cam: [p, scale, focusX, focusY]   rings: [pStart, x0, y0, x1, y1]   cursor: [p, x, y]   (x/y are fractions of the image)
+const UI = {
+  'site-hero': { img: '../assets/hero-clean.jpg', ih: 900, chip: 'MARKETING SITE', cap: 'A drone <b>follows your cursor</b>.',
+    cam: [[0, 1, .5, .5], [1, 1.08, .5, .46]], drone: [[0, .30, .78], [.35, .46, .56], [.7, .66, .62], [1, .60, .40]] },
+  'site-services': { img: SS + 'service-packages.png', ih: 882, chip: 'SERVICES', cap: 'Real estate. Cinematography. <b>Mapping.</b>',
+    cam: [[0, 1, .5, .4], [1, 1.06, .5, .56]], rings: [[.12, .105, .32, .353, .89, .3], [.42, .375, .32, .623, .89, .3], [.72, .647, .32, .895, .89, 1]] },
+  'site-gallery': { img: SS + 'dynamic-gallery.png', ih: 1063, chip: 'GALLERY', cap: 'A gallery the owner edits <b>without code</b>.',
+    cam: [[0, 1, .5, .3], [1, 1.1, .5, .66]] },
+  'book-post': { img: SS + 'two-sided-marketplace-post-job.png', ih: 1180, chip: '/APP · POST A JOB', cap: 'Post a job <b>in a minute</b>.',
+    cam: [[0, 1.5, .4, .2], [.2, 1.5, .4, .2], [.78, 1.5, .4, .86], [1, 1.5, .4, .86]], cursor: [[.45, .52, .7], [.84, .213, .988]], click: .88 },
+  'book-find': { img: SS + 'two-sided-marketplace-operators.png', ih: 900, chip: '/APP · FIND OPERATORS', cap: 'Verified <b>Part 107</b> pilots.',
+    cam: [[0, 1.1, .6, .26], [1, 1.3, .58, .28]], cursor: [[.3, .6, .52], [.78, .277, .37]], click: .84 },
+  'book-modal': { img: SS + 'native-operator-scheduling.png', ih: 900, chip: '/APP · BOOK', cap: 'See if the pilot is <b>free</b> before you ask.',
+    cam: [[0, 1.3, .5, .5], [.45, 1.9, .49, .43], [1, 1.9, .49, .43]], rings: [[.42, .355, .408, .525, .448, 1]] },
+  'book-avail': { img: SS + 'native-operator-scheduling-availability.png', ih: 900, chip: '/APP · OPERATOR SETUP', cap: 'Operators set <b>weekly hours</b> and blocked dates.',
+    cam: [[0, 1.35, .39, .45], [1, 1.6, .36, .56]], rings: [[.3, .192, .383, .428, .617, 1]] },
+  'book-dash': { img: SS + 'two-sided-marketplace.png', ih: 900, chip: '/APP · DASHBOARD', cap: 'Open, matched, booked, <b>completed</b>.',
+    cam: [[0, 1.2, .57, .38], [1, 1.35, .58, .44]], rings: [[.3, .735, .352, .808, .605, 1]] },
+  'portal-expiry': { img: SS + 'time-bound-token-expiry.png', ih: 900, chip: 'CLIENT PORTAL', cap: '<b>Expired</b> codes are refused.',
+    cam: [[0, 1.25, .5, .5], [1, 1.55, .5, .46]], rings: [[.3, .352, .385, .648, .452, 1]] },
+  'portal-lock': { img: SS + 'rate-limiting.png', ih: 900, chip: 'CLIENT PORTAL', cap: 'Five wrong tries. <b>Locked for 15 minutes.</b>',
+    cam: [[0, 1.25, .5, .5], [1, 1.55, .5, .46]], rings: [[.3, .352, .392, .648, .462, 1]] },
+};
+const CHIPS = { hook: 'DRONE SERVICES + MARKETPLACE', 'portal-token': 'CLIENT PORTAL · CLI', outro: '' };
+
+const TOKEN = 'ZGVtby13ZWRkaW5n.1802617200.7a2a87f67d68a57c992a3b4ec825f88622e6ecf904fa69c95cf575a62d41736a';
+const CMD = 'PORTAL_SALT=<secret> node scripts/portal-token.js --client demo-wedding --days 30';
+const OUT = [
+  '<span class="k">=== Skyview Client Portal Token ===</span>',
+  '<span class="k">Client: </span> demo-wedding',
+  '<span class="k">Expires:</span> <span class="ok">Sun Feb 14 2027 (30 days)</span>',
+  '<span class="k">Token:  </span> <span class="tok">' + TOKEN + '</span>',
+];
+
+// build UI scene DOM
+const host = document.getElementById('scenes');
+for (const [id, d] of Object.entries(UI)) {
+  const el = document.createElement('div');
+  el.className = 'layer'; el.id = id;
+  el.innerHTML = `<div class="frame"><div class="cam" style="height:${FW * d.ih / 1440}px"><img src="${d.img}" alt="">` +
+    (d.rings || []).map(() => '<div class="ring"></div>').join('') +
+    (d.cursor ? '<div class="ripple"></div><svg class="cursor"><use href="#arrow"/></svg>' : '') +
+    (d.drone ? '<div class="beam"></div><svg class="drone"><use href="#drone"/></svg><svg class="cursor"><use href="#arrow"/></svg>' : '') +
+    `</div></div><div class="cap">${d.cap}</div>`;
+  host.appendChild(el);
+}
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = (x) => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const lerp = (a, b, k) => a + (b - a) * k;
+// piecewise-eased keyframes: rows of [p, ...values]
+const key = (rows, p) => {
+  if (p <= rows[0][0]) return rows[0].slice(1);
+  for (let i = 1; i < rows.length; i++) {
+    if (p <= rows[i][0]) { const k = ease((p - rows[i - 1][0]) / (rows[i][0] - rows[i - 1][0])); return rows[i].slice(1).map((v, j) => lerp(rows[i - 1][j + 1], v, k)); }
+  }
+  return rows[rows.length - 1].slice(1);
+};
+
+const FADE_IN = 0.3, FADE_OUT = 0.22;
+// Scene clock: u seconds in, p 0..1, vis = layer opacity. The first scene of a
+// spot starts settled (frame 0 is on screen), the last one never fades out.
+const T = (id, t) => {
+  const i = S.scenes.findIndex((s) => s[0] === id);
+  if (i < 0) return null;
+  const [, a, b] = S.scenes[i];
+  if (t < a - 1e-6 || t >= b + (i === S.scenes.length - 1 ? 1 : 0)) return { vis: 0 };
+  const u = t - a, d = b - a;
+  const vin = i === 0 ? 1 : clamp(u / FADE_IN), vout = i === S.scenes.length - 1 ? 1 : clamp((d - u) / FADE_OUT);
+  return { u, d, p: clamp(u / d), vis: Math.min(vin, vout), enter: i === 0 ? 1 : ease(u / 0.45) };
+};
+
+const $ = (id) => document.getElementById(id);
+document.getElementById('outroLine').textContent = S.outroLine || '';
+document.getElementById('outroUrl').textContent = S.url || 'skyviewd.netlify.app';
+
+window.render = (t) => {
+  let chip = '';
+  // hook
+  { const c = T('hook', t), el = $('hook');
+    el.style.opacity = c ? c.vis : 0;
+    if (c && c.vis) {
+      chip = CHIPS.hook;
+      el.querySelector('img').style.transform = `scale(${1.04 + 0.08 * c.p})`;
+      $('alt').textContent = String(Math.round(400 * ease(c.u / 1.8))).padStart(3, '0');
+      el.querySelector('h1').style.opacity = ease(c.u / 0.5 + (S.scenes[0][0] === 'hook' ? 1 : 0));
+    } }
+
+  // UI scenes
+  for (const [id, d] of Object.entries(UI)) {
+    const c = T(id, t), el = $(id);
+    el.style.opacity = c ? c.vis : 0;
+    if (!c || !c.vis) continue;
+    chip = d.chip;
+    const IH = FW * d.ih / 1440;
+    const [s, fx, fy] = key(d.cam, c.p);
+    const tx = clamp(FW / 2 - fx * FW * s, FW - FW * s, 0);
+    const ty = IH * s <= FH ? (FH - IH * s) / 2 : clamp(FH / 2 - fy * IH * s, FH - IH * s, 0);
+    el.querySelector('.cam').style.transform = `translate(${tx}px, ${ty}px) scale(${s})`;
+    el.querySelector('.frame').style.transform = `translateY(${(1 - c.enter) * 26}px)`;
+    el.querySelector('.cap').style.transform = `translateY(${(1 - c.enter) * 14}px)`;
+    el.querySelectorAll('.ring').forEach((r, i) => {
+      const [p0, x0, y0, x1, y1, hold] = d.rings[i];
+      const on = clamp((c.p - p0) / 0.08), off = hold === 1 ? 1 : clamp((p0 + hold - c.p) / 0.06);
+      r.style.opacity = Math.min(on, off);
+      const pad = (1 - ease(on)) * 14;
+      r.style.left = x0 * FW - pad + 'px'; r.style.top = y0 * IH - pad + 'px';
+      r.style.width = (x1 - x0) * FW + pad * 2 + 'px'; r.style.height = (y1 - y0) * IH + pad * 2 + 'px';
+      r.style.borderWidth = 3 / s + 'px';
+    });
+    if (d.cursor) {
+      const [cx, cy] = key(d.cursor, c.p), cur = el.querySelector('.cursor'), rip = el.querySelector('.ripple');
+      cur.style.opacity = clamp((c.p - d.cursor[0][0] + 0.08) / 0.08);
+      cur.style.left = cx * FW + 'px'; cur.style.top = cy * IH + 'px';
+      cur.style.transform = `scale(${1 / s * 1.5})`; cur.style.transformOrigin = '3px 3px';
+      const k = clamp((c.p - d.click) / 0.1);
+      rip.style.left = cx * FW + 'px'; rip.style.top = cy * IH + 'px';
+      rip.style.opacity = k > 0 && k < 1 ? 1 - k : 0; rip.style.transform = `scale(${(0.3 + k) / s * 1.4})`;
+    }
+    if (d.drone) {
+      // The site's drone hovers up-and-right of the pointer, trailing it, with a beam back to it.
+      const [px, py] = key(d.drone, c.p), [lx, ly] = key(d.drone, Math.max(0, c.p - 0.07));
+      const X = px * FW, Y = py * IH, DX = lx * FW + 70, DY = ly * IH - 62;
+      const cur = el.querySelector('.cursor'), dr = el.querySelector('.drone'), bm = el.querySelector('.beam');
+      cur.style.opacity = 1; cur.style.left = X + 'px'; cur.style.top = Y + 'px';
+      dr.style.opacity = 1; dr.style.left = DX + 'px'; dr.style.top = DY + 'px';
+      dr.style.transform = `rotate(${clamp((X - lx * FW) * 0.2, -16, 16)}deg)`;
+      bm.style.opacity = 0.9; bm.style.left = DX + 'px'; bm.style.top = DY + 'px';
+      bm.style.width = Math.hypot(X - DX, Y - DY) + 'px';
+      bm.style.transform = `rotate(${Math.atan2(Y - DY, X - DX) * 180 / Math.PI}deg)`;
+    }
+  }
+
+  // terminal: the command types, then the real output lands line by line
+  { const c = T('portal-token', t), el = $('portal-token');
+    el.style.opacity = c ? c.vis : 0;
+    if (c && c.vis) {
+      chip = CHIPS['portal-token'];
+      const typed = CMD.slice(0, Math.round(CMD.length * clamp(c.p / 0.3)));
+      const lines = OUT.filter((_, i) => c.p >= 0.36 + i * 0.07);
+      $('termtext').innerHTML = `<span class="p">$</span> ${typed.replace(/</g, '&lt;')}${c.p < 0.3 ? '▍' : ''}\n\n${lines.join('\n')}`;
+      el.querySelector('.term').style.transform = `translateY(${(1 - c.enter) * 26}px)`;
+    } }
+
+  // outro
+  { const c = T('outro', t), el = $('outro');
+    el.style.opacity = c ? c.vis : 0;
+    if (c && c.vis) {
+      el.querySelector('svg').style.transform = `translateY(${(1 - ease(c.u / 0.5)) * -30}px) scale(${0.8 + 0.2 * ease(c.u / 0.5)})`;
+      el.querySelector('h2').style.opacity = ease((c.u - 0.1) / 0.4);
+      $('outroLine').style.opacity = ease((c.u - 0.3) / 0.4);
+      $('outroUrl').style.opacity = ease((c.u - 0.5) / 0.4);
+    } }
+
+  // Hidden layers are taken out of layout so Chromium doesn't composite a dozen full-size screenshots per frame.
+  document.querySelectorAll('.layer').forEach((l) => { l.style.display = +l.style.opacity > 0 ? 'block' : 'none'; });
+  $('chip').textContent = chip; $('chip').style.opacity = chip ? 1 : 0;
+  // The big outro lockup replaces the corner wordmark.
+  { const c = T('outro', t); document.querySelector('#bar .mark').style.opacity = c && c.vis ? 1 - c.vis : 1; }
+};
+window.render(0);
+</script>
+</body>
+</html>
