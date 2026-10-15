@@ -1,0 +1,139 @@
+{
+  "title": "SkyView: vertical short (site, marketplace, portal; narrated)",
+  "format": "vertical",
+  "size": [
+    1080,
+    1920
+  ],
+  "synth": "hero-30s",
+  "duration": 29.8,
+  "fps": 30,
+  "poster": 4.5,
+  "url": "skyviewd.netlify.app",
+  "outroLine": "Cinematic aerials. A marketplace to book the pilot.",
+  "scenes": [
+    [
+      "hook",
+      0,
+      3
+    ],
+    [
+      "site-hero",
+      3,
+      6.8
+    ],
+    [
+      "site-gallery",
+      6.8,
+      9.7
+    ],
+    [
+      "book-post",
+      9.7,
+      13.4
+    ],
+    [
+      "book-find",
+      13.4,
+      17.2
+    ],
+    [
+      "book-modal",
+      17.2,
+      20
+    ],
+    [
+      "portal-token",
+      20,
+      23.9
+    ],
+    [
+      "portal-lock",
+      23.9,
+      26.7
+    ],
+    [
+      "outro",
+      26.7,
+      29.8
+    ]
+  ],
+  "narration": {
+    "voice": "af_heart",
+    "speed": 1,
+    "lines": [
+      {
+        "id": "01",
+        "scene": "hook",
+        "at": 0.3,
+        "dur": 2.155,
+        "text": "Cinematic drone footage, from above.",
+        "cap": "Cinematic drone footage, <b>from above</b>."
+      },
+      {
+        "id": "02",
+        "scene": "site-hero",
+        "at": 3.2,
+        "dur": 3.093,
+        "text": "The SkyView site has a drone that follows your cursor.",
+        "cap": "A drone <b>follows your cursor</b>."
+      },
+      {
+        "id": "03",
+        "scene": "site-gallery",
+        "at": 7,
+        "dur": 2.197,
+        "text": "A gallery the owner edits without code.",
+        "cap": "A gallery the owner edits <b>without code</b>."
+      },
+      {
+        "id": "04",
+        "scene": "book-post",
+        "at": 9.9,
+        "dur": 3.179,
+        "text": "Behind it is a marketplace. Post a job in a minute.",
+        "cap": "A marketplace. Post a job <b>in a minute</b>."
+      },
+      {
+        "id": "05",
+        "scene": "book-find",
+        "at": 13.6,
+        "dur": 3.477,
+        "text": "Browse verified FAA Part 107 pilots.",
+        "cap": "Verified <b>Part 107</b> pilots."
+      },
+      {
+        "id": "06",
+        "scene": "book-modal",
+        "at": 17.4,
+        "dur": 2.091,
+        "text": "See if the pilot is free before you ask.",
+        "cap": "See if the pilot is <b>free</b> before you ask."
+      },
+      {
+        "id": "07",
+        "scene": "portal-token",
+        "at": 20.2,
+        "dur": 3.499,
+        "text": "Deliver the footage with a signed, expiring access code.",
+        "cap": "A signed, <b>expiring</b> access code."
+      },
+      {
+        "id": "08",
+        "scene": "portal-lock",
+        "at": 24.1,
+        "dur": 2.475,
+        "text": "Five wrong tries locks it for fifteen minutes.",
+        "cap": "Five wrong tries. <b>Locked for 15 minutes.</b>"
+      },
+      {
+        "id": "09",
+        "scene": "outro",
+        "at": 26.9,
+        "dur": 2.347,
+        "text": "SkyView Dynamics. Book the pilot.",
+        "cap": ""
+      }
+    ]
+  }
+}

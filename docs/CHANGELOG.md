@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 2026-10-14 — Promo spots published
+
+- **Added — showcase videos:** published `site-14s`, `portal-12s` and the `hero-30s` hero cut to `showcase/media/`, plus a new narrated 9:16 short `hero-30s-vert` (29.8 s, Kokoro voice, burned-in captions). `promo/pipeline.sh` mixes a spot's `vo/*.wav` over the music; `promo/tts/` holds the narration script (reuses vigil's `vigil-promo-tts` image).
+
 ### 2026-10-14 — Removed dead Netlify Identity / Decap CMS login
 
 - **Removed — `/admin` CMS login:** Netlify Identity is not enabled on the site (`/.netlify/identity/settings` returns 404), so the Decap CMS `/admin` login could never work. Removed `admin/` (Decap config and UI), the Identity widget script in `index.html`, the unused `adminCMS` flag in `config.js`, the `/admin/*` CSP block in `netlify.toml`, and `https://identity.netlify.com` from the remaining CSP. Gallery content stays in `assets/gallery.json` and is edited directly.

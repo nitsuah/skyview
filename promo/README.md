@@ -1,6 +1,6 @@
 # Promo spots
 
-Short videos for the [Pages showcase](https://nitsuah.github.io/skyview/), rendered locally in Docker. The page shows `book-18s`; the others are rendered but not published (`"published": null` in `spots.json`). The contract is the [visual showcase standard](https://github.com/nitsuah/.github/blob/main/showcase/STANDARD.md); [`spots.json`](spots.json) records what each spot covers and when it was rendered.
+Short videos for the [Pages showcase](https://nitsuah.github.io/skyview/), rendered locally in Docker. All spots are published to `showcase/media/` (`spots.json` `published`); the page embeds `book-18s`. The contract is the [visual showcase standard](https://github.com/nitsuah/.github/blob/main/showcase/STANDARD.md); [`spots.json`](spots.json) records what each spot covers and when it was rendered.
 
 | Spot | Shows | Length |
 |---|---|---|
@@ -8,6 +8,7 @@ Short videos for the [Pages showcase](https://nitsuah.github.io/skyview/), rende
 | `book-18s` | post a job, operator directory, booking dialog with the availability hint, operator hours, dashboard | 18 s |
 | `portal-12s` | token generator CLI, expired code, lockout | 12 s |
 | `hero-30s` | every scene above in one cut, with one hook and one outro | 30 s |
+| `hero-30s-vert` | 9:16 narrated short: hero, gallery, booking, portal | 29.8 s |
 
 ## Render
 
