@@ -18,7 +18,6 @@ on:
       - 'styles/**'
       - 'scripts/**'
       - 'pages/**'
-      - 'admin/**'
       - 'assets/gallery.json'
       - 'platform/src/**'
       - 'docs/diagrams/**'

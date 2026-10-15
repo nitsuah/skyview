@@ -22,11 +22,6 @@
 - **Local Dashboard** — in-browser conversion dashboard with step-by-step drop-off percentages (owner-only: hidden by default; shown to a logged-in admin, or on `localhost` with `?metrics=1`)
 - **CSV / JSON Export** — `exportMetricsCSV()` and `exportMetricsJSON()` for offline analysis
 
-## Admin & CMS
-
-- **Decap CMS** — git-gateway backend; gallery assets managed without code changes; season, display order, and active status editable in the CMS editor
-- **Admin Hardening** — CSP, `X-Robots-Tag: noindex,nofollow`, and `Cache-Control: no-store` enforced on all `/admin/*` routes via `netlify.toml`
-
 ## Client Portal
 
 - **Rate Limiting** — 5-attempt / 15-minute lockout enforced client-side via localStorage

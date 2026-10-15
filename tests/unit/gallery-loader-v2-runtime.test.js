@@ -105,6 +105,22 @@ describe('gallery-loader-v2 runtime', () => {
         expect(gallery).toBeTruthy();
     });
 
+    it('should render external image URLs without derived WebP or JPEG sources', async () => {
+        const external = 'https://images.example.com/hero.png';
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ items: [{ src: external, alt: 'Remote' }] })
+        });
+
+        const module = await import('../../scripts/gallery-loader-v2.js');
+        await module.loadGallery();
+
+        const img = document.querySelector('.gallery-grid picture img');
+        expect(img.getAttribute('src')).toBe(external);
+        expect(img.alt).toBe('Remote');
+        expect(document.querySelectorAll('.gallery-grid picture source')).toHaveLength(0);
+    });
+
     it('should handle fetch errors gracefully', async () => {
         global.fetch.mockRejectedValueOnce(new Error('Network error'));
 

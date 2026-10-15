@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 2026-10-14 — Removed dead Netlify Identity / Decap CMS login
+
+- **Removed — `/admin` CMS login:** Netlify Identity is not enabled on the site (`/.netlify/identity/settings` returns 404), so the Decap CMS `/admin` login could never work. Removed `admin/` (Decap config and UI), the Identity widget script in `index.html`, the unused `adminCMS` flag in `config.js`, the `/admin/*` CSP block in `netlify.toml`, and `https://identity.netlify.com` from the remaining CSP. Gallery content stays in `assets/gallery.json` and is edited directly.
+- **Removed — CMS docs and capture:** `docs/CMS_GUIDE.md`, the Decap screenshot and its visual-docs capture; README, setup, deployment, owner and asset docs no longer describe Identity or Decap.
+- **Unchanged:** Google sign-in and JWT auth in `netlify/functions` are untouched. `robots.txt` still disallows `/admin/` so the SPA fallback page is not indexed there.
+
 ### 2026-10-10 — Visual docs
 
 - **Added — screenshots and diagrams from CI:** `.github/workflows/visual-docs.yml` runs a backend-free Playwright suite (`tests/visual-docs/`, `config/playwright.visual-docs.config.ts`: mocked `/api`, frozen clock, fictional demo data) and renders `docs/diagrams/*.mmd`, then opens a `bot/visual-docs` PR. 14 screenshots in `docs/screenshots/`, named after the feature ids in `promo/spots.json`, plus `architecture` and `booking-flow` diagrams. Screenshots are written through `toHaveScreenshot` with a small tolerance, so a file changes only when the UI does. The README has a generated "Screenshots & diagrams" block (`scripts/visual-docs-readme.mjs`).

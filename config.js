@@ -19,9 +19,6 @@ window.SKYVIEW_CONFIG = {
         // Client portal - Enable when ready to offer client file delivery
         clientPortal: false,
 
-        // Admin CMS - Enable when Netlify Identity is configured
-        adminCMS: true,
-
         // 3D Preview - Enable when 3D viewer is implemented
         preview3D: false,
 
