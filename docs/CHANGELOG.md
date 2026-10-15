@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 2026-10-14 — Nightly journeys
 
-- **Added — `tests/journeys/` and `.github/workflows/journeys.yml`:** 9 journeys (landing hero to gallery, phone layout, conversion dashboard, portal expiry and lockout, marketplace dashboard and operators, post a job, book an operator, operator availability) with 12 visual baselines, tagged with the feature ids in `promo/spots.json`. Backend-free (mocked `/api`, frozen clock, fictional demo data). The nightly caller uses the shared `nitsuah/.github` harness, so failures become deduplicated `bot:journey` issues with no AI. `npm run test:journeys`; the existing e2e config ignores `tests/journeys`.
+- **Added — `tests/journeys/` and `.github/workflows/journeys.yml`:** 9 journeys (landing hero to gallery, phone layout, conversion dashboard, portal expiry and lockout, marketplace dashboard and operators, post a job, book an operator, operator availability) with 15 visual baselines, tagged with the feature ids in `promo/spots.json`. Backend-free (mocked `/api`, frozen clock, fictional demo data). The nightly caller uses the shared `nitsuah/.github` harness, so failures become deduplicated `bot:journey` issues with no AI. `npm run test:journeys`; the existing e2e config ignores `tests/journeys`.
 - **Found:** the one-time review pass filed #189 (platform pages scroll sideways at phone width) and #190 (privacy page loads `main.js` as a classic script).
 
 ### 2026-10-14 — Promo spots published

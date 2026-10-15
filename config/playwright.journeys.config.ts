@@ -26,7 +26,7 @@ export default defineConfig({
   reporter: [['list'], ['json', { outputFile: path.join(repoRoot, 'journeys-report', 'report.json') }]],
   expect: {
     toHaveScreenshot: {
-      maxDiffPixels: 20, // soaked at 0 px noise (DOM-only site, 81/81 runs); one changed letter is ~66 px
+      maxDiffPixels: 20, // soaked at 0 px noise (DOM-only site, 81/81 runs, Google Fonts blocked so the font is the installed fallback); one changed letter is ~27 px
       animations: 'disabled',
       caret: 'hide',
       scale: 'css',

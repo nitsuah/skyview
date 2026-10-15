@@ -32,19 +32,54 @@ export const jobs = [
   { id: 'job-4', title: 'Rooftop inspection, Pier 9', service_type: 'inspection', status: 'completed', preferred_date: '2026-12-18', budget_cents: 30000 },
 ];
 
-export async function mockPlatform(page: Page, me: object) {
+/** Writes the page made, so a journey can assert the action reached the API. */
+export interface PlatformWrites {
+  jobs: Record<string, any>[];
+  bookings: Record<string, any>[];
+  availability: Record<string, any>[];
+}
+
+export async function mockPlatform(page: Page, me: object): Promise<PlatformWrites> {
+  const writes: PlatformWrites = { jobs: [], bookings: [], availability: [] };
+  const liveJobs = [...jobs];
+  const liveBookings: Record<string, any>[] = [{ id: 'bk-1', job_id: 'job-3', status: 'confirmed', operator_name: 'Ridgeline Survey' }];
   await page.route('**/api/auth/me', (route) => route.fulfill(json(me)));
   await page.route('**/api/notifications*', (route) => route.fulfill(json({ unread_count: 2, notifications: [] })));
-  await page.route('**/api/jobs', (route) => route.fulfill(json(jobs)));
-  await page.route('**/api/bookings', (route) => route.fulfill(json([{ id: 'bk-1', job_id: 'job-3', status: 'confirmed', operator_name: 'Ridgeline Survey' }])));
+  await page.route('**/api/jobs', (route) => {
+    if (route.request().method() === 'POST') {
+      const body = route.request().postDataJSON();
+      writes.jobs.push(body);
+      const created = { id: 'job-new', status: 'open', preferred_time: null, ...body };
+      liveJobs.unshift(created);
+      return route.fulfill(json(created, 201));
+    }
+    return route.fulfill(json(liveJobs));
+  });
+  await page.route('**/api/bookings', (route) => {
+    if (route.request().method() === 'POST') {
+      const body = route.request().postDataJSON();
+      writes.bookings.push(body);
+      const created = { id: 'bk-new', status: 'pending', operator_name: 'Harbor Aerial Co.', ...body };
+      liveBookings.push(created);
+      return route.fulfill(json(created, 201));
+    }
+    return route.fulfill(json(liveBookings));
+  });
   await page.route('**/api/reviews*', (route) => route.fulfill(json([])));
   await page.route('**/api/operators*', (route) => route.fulfill(json(operators)));
   await page.route('**/api/operators/op-1', (route) => route.fulfill(json(operator)));
-  await page.route('**/api/operators/op-1/availability', (route) => route.fulfill(json({
-    weekly: [1, 2, 3, 4, 5].map((d) => ({ day_of_week: d, start_time: '09:00:00', end_time: '17:00:00' })),
-    blocked: [{ blocked_date: '2027-02-02', reason: 'Maintenance' }],
-  })));
+  await page.route('**/api/operators/op-1/availability', (route) => {
+    if (route.request().method() === 'PUT') {
+      writes.availability.push(route.request().postDataJSON());
+      return route.fulfill(json({ success: true }));
+    }
+    return route.fulfill(json({
+      weekly: [1, 2, 3, 4, 5].map((d) => ({ day_of_week: d, start_time: '09:00:00', end_time: '17:00:00' })),
+      blocked: [{ blocked_date: '2027-02-02', reason: 'Maintenance' }],
+    }));
+  });
   await page.route('**/nominatim.openstreetmap.org/**', (route) => route.fulfill(json([{ lat: '30.2672', lon: '-97.7431' }])));
+  return writes;
 }
 
 /** Web fonts and every eager image are in; call after each navigation. */
@@ -57,6 +92,10 @@ export const test = base.extend({
   page: async ({ page }, use) => {
     await page.clock.setFixedTime(NOW);
     await page.route(/\.(mp4|mov|webm)(\?.*)?$/, (route) => route.abort());
+    // Google Fonts: whether Inter arrives before the screenshot depends on the network, and the
+    // headline wraps differently with and without it (CI vs local). Block it so every
+    // environment renders the same installed fallback font.
+    await page.route(/fonts\.(googleapis|gstatic)\.com/, (route) => route.abort());
     await use(page);
   },
 });
