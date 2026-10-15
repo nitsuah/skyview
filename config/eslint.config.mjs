@@ -6,7 +6,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ['dist/', 'node_modules/', 'build/', '.next/', 'out/'],
+    ignores: ['dist/', 'node_modules/', 'build/', '.next/', 'out/', 'journeys-report/'],
   },
   {
     languageOptions: {

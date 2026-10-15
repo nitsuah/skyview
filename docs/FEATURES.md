@@ -42,6 +42,7 @@
 - **Modular JavaScript** — ES modules throughout; zero build step required for the marketing site (the marketplace platform SPA at `/app` does have a Vite build, run via `scripts/build.js`)
 - **Docker/Netlify Parity** — the Docker preview image (`Dockerfile`) now runs the same `scripts/build.js` build as Netlify, so it serves the marketplace platform SPA at `/app` identically to production instead of only the static marketing pages
 - **Docker Validation** — `docker compose -f config/docker-compose.yml run --rm unit` runs the Vitest suite with coverage; web smoke build confirms zero import errors. See METRICS.md for the current test count.
+- **Nightly Journeys** — `tests/journeys/` drives the site, client portal and marketplace like a user (mocked `/api`, frozen clock, 9 journeys, visual baselines per step); `.github/workflows/journeys.yml` files and auto-closes `bot:journey` issues with no AI
 - **Netlify Forms** — zero-config contact form handling
 
 ## Planned

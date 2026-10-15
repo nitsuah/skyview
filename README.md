@@ -83,6 +83,7 @@ See **[🚀 Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** for Netlify deployment
 - **JavaScript**: ES6 Modules (`scripts/`).
 - **Testing**:
   - **E2E**: Playwright (`npx playwright test --config config/playwright.config.ts`)
+  - **Journeys**: nightly Playwright "AI user" journeys with visual baselines (`npm run test:journeys`, Docker image only); failures file `bot:journey` issues, and [BUGS.md](https://github.com/nitsuah/skyview/blob/bot/journeys/BUGS.md) lists what is open
   - **Unit**: Vitest (`npx vitest run --config config/vitest.config.ts`) — both run in CI on every PR to `main`
 - **Netlify**: Hosting, Forms, and Functions.
 
@@ -120,6 +121,7 @@ npm run dev            # Start Netlify dev server (port 8888; requires netlify-c
 
 # Testing
 npm test              # Run Playwright E2E tests
+npm run test:journeys # Nightly journeys (baselines are Linux: run in the Playwright Docker image)
 npm run test:unit     # Run Vitest unit tests with coverage
 docker compose -f config/docker-compose.yml run --rm unit  # Run unit tests with coverage in Docker
 
