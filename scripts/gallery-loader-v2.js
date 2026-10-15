@@ -63,7 +63,7 @@ function createPictureElement(item) {
     }
     
     // External URLs are used as given: a derived .webp/.jpg path may not exist on the provider
-    if (/^https?:\/\//i.test(item.src)) {
+    if (/^https:\/\//i.test(item.src)) {
         const img = document.createElement('img');
         img.src = item.src;
         img.alt = item.alt;
@@ -152,6 +152,13 @@ export async function loadGallery({ respectSeason = false } = {}) {
 
         const activeItems = rawItems
             .filter(item => respectSeason ? isActiveForSeason(item, currentSeason) : item.active !== false)
+            .filter(item => {
+                if (!isVideo(item) && /^http:\/\//i.test(item.src)) {
+                    console.warn('Skipping HTTP gallery image:', item.src);
+                    return false;
+                }
+                return true;
+            })
             .sort((a, b) => (a.displayOrder ?? 50) - (b.displayOrder ?? 50));
 
         const items = activeItems.filter(item => isVideo(item) || !posterSources.has(item.src));
