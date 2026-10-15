@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 2026-10-14 — Nightly journeys
+
+- **Added — `tests/journeys/` and `.github/workflows/journeys.yml`:** 9 journeys (landing hero to gallery, phone layout, conversion dashboard, portal expiry and lockout, marketplace dashboard and operators, post a job, book an operator, operator availability) with 15 visual baselines, tagged with the feature ids in `promo/spots.json`. Backend-free (mocked `/api`, frozen clock, fictional demo data). The nightly caller uses the shared `nitsuah/.github` harness, so failures become deduplicated `bot:journey` issues with no AI. `npm run test:journeys`; the existing e2e config ignores `tests/journeys`.
+- **Found:** the one-time review pass filed #189 (platform pages scroll sideways at phone width) and #190 (privacy page loads `main.js` as a classic script).
+
 ### 2026-10-14 — Promo spots published
 
 - **Added — showcase videos:** published `site-14s`, `portal-12s` and the `hero-30s` hero cut to `showcase/media/`, plus a new narrated 9:16 short `hero-30s-vert` (29.8 s, Kokoro voice, burned-in captions). `promo/pipeline.sh` mixes a spot's `vo/*.wav` over the music; `promo/tts/` holds the narration script (reuses vigil's `vigil-promo-tts` image).

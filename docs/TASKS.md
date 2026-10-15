@@ -23,6 +23,12 @@ Open 2026 items are tracked below and in `docs/ROADMAP.md` 2027 Q1.
 
 ## Todo
 
+- [ ] Fix the two defects from the journeys review pass.
+  - Priority: P2
+  - #189: signed-in platform pages are 630px wide at 390px (`platform/src/styles/app.css:272-277`, sidebar nav row doesn't wrap), so "Sign out" is cut off.
+  - #190: `pages/privacy.html:318` loads `scripts/main.js` without `type="module"`, so it throws and nothing initialises.
+  - Acceptance Criteria: both fixed; the affected journey baselines regenerated in Docker.
+
 - [ ] Fix the two features the screenshot suite found broken on the real page.
   - Priority: P2
   - Campaign personalization never applies: `scripts/campaign.js` targets `.hero-subline, [data-campaign-subline]`, but `index.html`'s hero uses `.hero-subtitle` (the unit test builds its own `.hero-subline` markup, so it passes). Decide whether organic visitors keep the authored subtitle before wiring it up.

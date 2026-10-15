@@ -14,7 +14,7 @@ const chromiumExecutable = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
 export default defineConfig({
   testDir: path.join(repoRoot, 'tests'),
   outputDir: path.join(repoRoot, 'test-results'),
-  testIgnore: ['**/unit/**', '**/visual-docs/**'],
+  testIgnore: ['**/unit/**', '**/visual-docs/**', '**/journeys/**'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
