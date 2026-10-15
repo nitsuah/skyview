@@ -17,12 +17,18 @@ fi
 [ -d "$W/frames" ] || { echo "no frames yet; run without --audio first"; exit 1; }
 M="$W/spot.merged.json"
 node -e 'process.stdout.write(JSON.stringify(require("/repo/promo/spot-config.cjs")("/repo/promo", process.argv[1])))' "$SPOT" > "$M"
-BASE=$(node -p 'require(process.argv[1]).base || process.argv[2]' "$M" "$SPOT")
+BASE=$(node -p 'const s = require(process.argv[1]); s.synth || s.base || process.argv[2]' "$M" "$SPOT")
 FPS=$(node -p 'require(process.argv[1]).fps || 30' "$M")
 N=$(node -p 'const s = require(process.argv[1]); Math.round(s.duration * (s.fps || 30))' "$M")
 P=$(node -p 'const s = require(process.argv[1]); String(Math.round(s.poster * (s.fps || 30))).padStart(4, "0")' "$M")
 
-python3 "/repo/promo/$BASE/synth.py" "$M" "$W/audio-raw.wav"
+# A spot with "narration" gets its committed vo/<id>.wav lines mixed over the music (tts/narrate.sh).
+if node -e 'process.exit(require(process.argv[1]).narration ? 0 : 1)' "$M"; then
+  python3 "/repo/promo/$BASE/synth.py" "$M" "$W/music.wav"
+  python3 /repo/promo/tts/mix.py "$M" "/repo/promo/$SPOT/vo" "$W/music.wav" "$W/audio-raw.wav"
+else
+  python3 "/repo/promo/$BASE/synth.py" "$M" "$W/audio-raw.wav"
+fi
 ffmpeg -hide_banner -loglevel error -y -i "$W/audio-raw.wav" \
   -af loudnorm=I=-14:TP=-1.5:LRA=11:linear=true -ar 44100 "$W/audio.wav"
 

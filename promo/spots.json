@@ -226,8 +226,8 @@
         "service-packages",
         "dynamic-gallery"
       ],
-      "published": null,
-      "rendered": "2026-10-10"
+      "published": "showcase/media/site-14s.mp4",
+      "rendered": "2026-10-14"
     },
     {
       "id": "book-18s",
@@ -251,8 +251,8 @@
         "time-bound-token-expiry",
         "rate-limiting"
       ],
-      "published": null,
-      "rendered": "2026-10-10"
+      "published": "showcase/media/portal-12s.mp4",
+      "rendered": "2026-10-14"
     },
     {
       "id": "hero-30s",
@@ -269,8 +269,24 @@
         "time-bound-token-expiry",
         "rate-limiting"
       ],
-      "published": null,
-      "rendered": "2026-10-10"
+      "published": "showcase/media/hero-30s.mp4",
+      "rendered": "2026-10-14"
+    },
+    {
+      "id": "hero-30s-vert",
+      "seconds": 29.8,
+      "format": "vertical",
+      "tool": "promo/build.sh",
+      "features": [
+        "immersive-hero-section",
+        "dynamic-gallery",
+        "two-sided-marketplace",
+        "native-operator-scheduling",
+        "token-generator",
+        "rate-limiting"
+      ],
+      "published": "showcase/media/hero-30s-vert.mp4",
+      "rendered": "2026-10-14"
     }
   ],
   "reels": [
@@ -279,7 +295,7 @@
       "spots": [
         "hero-30s"
       ],
-      "published": null
+      "published": "showcase/media/hero-30s.mp4"
     }
   ],
   "brand": {
