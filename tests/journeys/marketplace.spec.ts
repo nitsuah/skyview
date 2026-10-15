@@ -102,3 +102,32 @@ test('operator sets weekly availability while onboarding', {
     await settle(page);
   });
 });
+
+test('client on a phone can reach Sign out on every signed-in page', {
+  tag: ['@feature:responsive-design'],
+}, async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mockPlatform(page, client);
+
+  for (const [title, path] of [
+    ['dashboard', '/app/dashboard'],
+    ['operators', '/app/operators'],
+    ['post a job', '/app/jobs/new'],
+    ['bookings', '/app/bookings'],
+    ['notifications', '/app/notifications'],
+  ] as const) {
+    await step(page, `${title} fits the phone width`, async () => {
+      await page.goto(`${PLATFORM}${path}`);
+      await settle(page);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow).toBe(0);
+      await expect(page.getByRole('button', { name: 'Sign out' })).toBeInViewport();
+    }, { screenshot: false });
+  }
+
+  await step(page, 'the dashboard header and actions wrap on a phone', async () => {
+    await page.goto(`${PLATFORM}/app/dashboard`);
+    await expect(page.getByRole('link', { name: '+ Post a Job' })).toBeInViewport();
+    await settle(page);
+  }, { docs: 'responsive-design-dashboard' });
+});

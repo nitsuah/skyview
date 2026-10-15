@@ -80,3 +80,17 @@ test('owner checks the conversion dashboard', {
     await page.waitForTimeout(600);
   }, { target: page.locator('#skyview-conversion-dashboard'), docs: 'local-dashboard' });
 });
+
+test('visitor on the privacy page still gets the shared site script', {
+  tag: ['@feature:responsive-design'],
+}, async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on('pageerror', (err) => pageErrors.push(err.message));
+  await page.goto(SITE + '/pages/privacy.html');
+  await settle(page);
+
+  await step(page, 'open the privacy policy with no script errors', async () => {
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    expect(pageErrors).toEqual([]);
+  }, { screenshot: false });
+});
