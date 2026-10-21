@@ -1,9 +1,8 @@
-
 # Tasks
 
 > 🧭 [skyview](../README.md) · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · **Tasks** · [Changelog](./CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-**Last Updated:** 2026-10-14
+**Last Updated:** 2026-10-15
 
 > **Delivery split:** public FE covers the marketing site and funnel. Secure client portal/download auth is a separate backend workstream.
 
