@@ -46,6 +46,9 @@ function collectReachable(roots) {
 }
 const production = collectReachable(Object.keys(root.dependencies ?? {}));
 const cliTree = collectReachable(['netlify-cli']);
+const bracesPaths = Object.keys(packages).filter(path => /(^|\\/)node_modules\\/braces$/.test(path));
+assert.ok(bracesPaths.length > 0, 'the lockfile should retain the transitive braces package while the advisory is under review');
+assert.ok(bracesPaths.every(path => !production.has(path)), 'braces must remain outside the production dependency graph until the advisory is resolved or its applicability is documented');
 assert.ok(cliTree.size > 0, 'lockfile must resolve netlify-cli');
 for (const path of cliTree) {
   if (production.has(path)) continue;
