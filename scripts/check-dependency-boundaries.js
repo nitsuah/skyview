@@ -28,9 +28,9 @@ function resolveDependency(fromPath, dependency) {
   return packages[rootPath] ? rootPath : null;
 }
 
-function collectReachable(roots, { requiredRoots = [] } = {}) {
+function collectReachable(roots, { requiredRoots = [], resolvedRoots = [] } = {}) {
   const seen = new Set();
-  const queue = [];
+  const queue = [...resolvedRoots];
   for (const name of roots) {
     const resolved = resolveDependency('', name);
     if (requiredRoots.includes(name)) {
@@ -81,14 +81,18 @@ const cliTree = collectReachable(['netlify-cli'], { requiredRoots: ['netlify-cli
 // npm may leave a package without dev:true when it is also present solely to
 // satisfy an optional peer of a production package. Such peers are not installed
 // automatically and must not be treated as production-reachable dependencies.
-const optionalPeerPaths = new Set();
+const optionalPeerRoots = new Set();
 for (const path of production) {
   const entry = packages[path];
   for (const [name, metadata] of Object.entries(entry.peerDependenciesMeta ?? {})) {
     if (metadata?.optional !== true) continue;
     const resolved = resolveDependency(path, name);
-    if (resolved) optionalPeerPaths.add(resolved);
+    if (resolved) optionalPeerRoots.add(resolved);
   }
+}
+const optionalPeerPaths = new Set();
+for (const path of collectReachable([], { resolvedRoots: [...optionalPeerRoots] })) {
+  if (packages[path]?.dev !== true) optionalPeerPaths.add(path);
 }
 
 const bracesPaths = Object.keys(packages).filter(path => path === 'node_modules/braces' || path.endsWith('/node_modules/braces'));
