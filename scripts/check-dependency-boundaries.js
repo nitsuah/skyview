@@ -27,25 +27,56 @@ function resolveDependency(fromPath, dependency) {
   const rootPath = `node_modules/${dependency}`;
   return packages[rootPath] ? rootPath : null;
 }
-function collectReachable(roots) {
+
+function collectReachable(roots, { requiredRoots = [] } = {}) {
   const seen = new Set();
-  const queue = roots.map(name => resolveDependency('', name)).filter(Boolean);
+  const queue = [];
+  for (const name of roots) {
+    const resolved = resolveDependency('', name);
+    if (requiredRoots.includes(name)) {
+      assert.ok(resolved, `required root dependency ${name} must resolve in package-lock.json`);
+    }
+    if (resolved) queue.push(resolved);
+  }
+
   while (queue.length) {
     const path = queue.shift();
     if (seen.has(path)) continue;
     seen.add(path);
-    const entry = packages[path] ?? {};
-    for (const section of ['dependencies', 'optionalDependencies', 'peerDependencies']) {
-      for (const name of Object.keys(entry[section] ?? {})) {
-        const resolved = resolveDependency(path, name);
-        if (resolved && !seen.has(resolved)) queue.push(resolved);
-      }
+    const entry = packages[path];
+    assert.ok(entry, `reachable lockfile entry ${path} must exist`);
+
+    for (const name of Object.keys(entry.dependencies ?? {})) {
+      const resolved = resolveDependency(path, name);
+      assert.ok(resolved, `required dependency ${name} from ${path} must resolve in package-lock.json`);
+      if (!seen.has(resolved)) queue.push(resolved);
+    }
+
+    // Optional dependencies may legitimately be absent on a given platform.
+    for (const name of Object.keys(entry.optionalDependencies ?? {})) {
+      const resolved = resolveDependency(path, name);
+      if (resolved && !seen.has(resolved)) queue.push(resolved);
+    }
+
+    // Peer dependencies are not necessarily installed. Skip optional peers even
+    // when present in the lockfile; follow required peers only when they resolve.
+    for (const name of Object.keys(entry.peerDependencies ?? {})) {
+      if (entry.peerDependenciesMeta?.[name]?.optional === true) continue;
+      const resolved = resolveDependency(path, name);
+      if (resolved && !seen.has(resolved)) queue.push(resolved);
     }
   }
   return seen;
 }
-const production = collectReachable(Object.keys(root.dependencies ?? {}));
-const cliTree = collectReachable(['netlify-cli']);
+
+const productionRoots = [
+  ...Object.keys(root.dependencies ?? {}),
+  ...Object.keys(root.optionalDependencies ?? {}),
+];
+const production = collectReachable(productionRoots, {
+  requiredRoots: Object.keys(root.dependencies ?? {}),
+});
+const cliTree = collectReachable(['netlify-cli'], { requiredRoots: ['netlify-cli'] });
 const bracesPaths = Object.keys(packages).filter(path => path === 'node_modules/braces' || path.endsWith('/node_modules/braces'));
 assert.ok(bracesPaths.length > 0, 'the lockfile should retain the transitive braces package while the advisory is under review');
 assert.ok(bracesPaths.every(path => !production.has(path)), 'braces must remain outside the production dependency graph until the advisory is resolved or its applicability is documented');
