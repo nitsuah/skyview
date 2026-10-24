@@ -22,5 +22,7 @@ jobs:
     - name: Install dependencies
       # Install scripts aren't needed by Vitest (netlify-cli's are slow)
       run: npm ci --ignore-scripts
+    - name: Run dependency-boundary checks
+      run: node scripts/check-dependency-boundaries.js
     - name: Run Vitest
       run: npm run test:unit
