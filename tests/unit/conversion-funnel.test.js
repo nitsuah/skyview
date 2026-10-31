@@ -91,8 +91,8 @@ describe('conversion-tracking funnel extensions', () => {
         expect(csvCell('-1+2')).toBe(`"'-1+2"`);
         expect(csvCell('@SUM')).toBe(`"'@SUM"`);
         expect(csvCell('  =1+1')).toBe(`"'  =1+1"`);
-        expect(csvCell('\\t=1+1')).toBe(`"'\\t=1+1"`);
-        expect(csvCell('\\r1+1')).toBe(`"'\\r1+1"`);
+        expect(csvCell('\t=1+1')).toBe('"\'\t=1+1"');
+        expect(csvCell('\r1+1')).toBe('"\'\r1+1"');
         expect(csvCell('a"b')).toBe('"a""b"');
         expect(csvCell(null)).toBe('""');
         expect(csvCell(undefined)).toBe('""');
