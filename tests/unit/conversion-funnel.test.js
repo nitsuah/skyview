@@ -74,6 +74,45 @@ describe('conversion-tracking funnel extensions', () => {
         expect(csv).toContain('booking_cta_click');
     });
 
+    it('neutralizes formula-like CSV cells while preserving numeric literals', async () => {
+        vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
+        vi.spyOn(URL, 'revokeObjectURL').mockReturnValue(undefined);
+
+        const originalCreate = document.createElement.bind(document);
+        vi.spyOn(document, 'createElement').mockImplementation((tag) => {
+            const el = originalCreate(tag);
+            if (tag === 'a') el.click = vi.fn();
+            return el;
+        });
+
+        const { csvCell, exportMetricsCSV } = await import('../../scripts/conversion-tracking.js?csvguard=' + Date.now());
+        expect(csvCell('=1+1')).toBe(`"'=1+1"`);
+        expect(csvCell('+cmd')).toBe(`"'+cmd"`);
+        expect(csvCell('-1+2')).toBe(`"'-1+2"`);
+        expect(csvCell('@SUM')).toBe(`"'@SUM"`);
+        expect(csvCell('  =1+1')).toBe(`"'  =1+1"`);
+        expect(csvCell('\\t=1+1')).toBe(`"'\\t=1+1"`);
+        expect(csvCell('\\r1+1')).toBe(`"'\\r1+1"`);
+        expect(csvCell('a"b')).toBe('"a""b"');
+        expect(csvCell(null)).toBe('""');
+        expect(csvCell(undefined)).toBe('""');
+        expect(csvCell('')).toBe('""');
+        expect(csvCell('ordinary')).toBe('"ordinary"');
+        expect(csvCell('-123')).toBe('"-123"');
+        expect(csvCell('+1.5e2')).toBe('"+1.5e2"');
+
+        const csv = exportMetricsCSV({
+            events: [{
+                name: 'landing_view',
+                timestamp: '2026-01-01T00:00:00.000Z',
+                campaign: '=1+1',
+                source: '-1+2'
+            }]
+        });
+        expect(csv).toContain(`"'=1+1"`);
+        expect(csv).toContain(`"'-1+2"`);
+    });
+
     it('referrer and campaign are allowed metadata keys', async () => {
         const { getConversionMetrics, trackConversionEvent } = await import('../../scripts/conversion-tracking.js?reftest=' + Date.now());
         trackConversionEvent('landing_view', { source: 'page_load', referrer: 'google.com', campaign: 'summer' });
