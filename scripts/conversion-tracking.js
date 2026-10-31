@@ -141,6 +141,14 @@ export function getFunnelDropOff(metrics = getConversionMetrics()) {
     });
 }
 
+export function csvCell(value) {
+    const text = value == null ? '' : String(value);
+    const numericLiteral = /^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:e[+-]?\\d+)?$/i.test(text.trim());
+    const formulaLike = /^[\\t\\r\\n]/.test(text) || (!numericLiteral && /^\\s*[=+\\-@]/.test(text));
+    const safe = formulaLike ? `'${text}` : text;
+    return `"${safe.replace(/"/g, '""')}"`;
+}
+
 export function exportMetricsCSV(metrics = getConversionMetrics()) {
     const rows = [
         ['event', 'timestamp', 'page', 'source', 'location', 'target', 'referrer', 'campaign', 'variant'],
@@ -157,7 +165,7 @@ export function exportMetricsCSV(metrics = getConversionMetrics()) {
         ])
     ];
 
-    const csv = rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csv = rows.map(row => row.map(csvCell).join(',')).join('\\n');
 
     if (typeof document !== 'undefined') {
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
