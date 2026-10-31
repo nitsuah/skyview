@@ -145,8 +145,8 @@ export function csvCell(value) {
     const text = value == null ? '' : String(value);
     const numericLiteral = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(text.trim());
     const formulaLike = /^[\t\r\n]/.test(text) || (!numericLiteral && /^\s*[=+\-@]/.test(text));
-    const safe = formulaLike ? \`'\${text}\` : text;
-    return \`"\${safe.replace(/"/g, '""')}"\`;
+    const safe = formulaLike ? "'" + text : text;
+    return '"' + safe.replace(/"/g, '""') + '"';
 }
 
 export function exportMetricsCSV(metrics = getConversionMetrics()) {
