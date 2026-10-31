@@ -110,7 +110,7 @@ describe('conversion-tracking funnel extensions', () => {
                 source: '-1+2'
             }]
         });
-        expect(csv.split('\\n')).toHaveLength(2);
+        expect(csv.split('\n')).toHaveLength(2);
         expect(csv).toContain(`"'=1+1"`);
         expect(csv).toContain(`"'-1+2"`);
     });
