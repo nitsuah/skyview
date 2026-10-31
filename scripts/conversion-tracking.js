@@ -165,7 +165,7 @@ export function exportMetricsCSV(metrics = getConversionMetrics()) {
         ])
     ];
 
-    const csv = rows.map(row => row.map(csvCell).join(',')).join('\\n');
+    const csv = rows.map(row => row.map(csvCell).join(',')).join('\n');
 
     if (typeof document !== 'undefined') {
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
