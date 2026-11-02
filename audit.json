@@ -1,0 +1,571 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@fastify/static": {
+      "name": "@fastify/static",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "glob"
+      ],
+      "effects": [
+        "netlify-cli"
+      ],
+      "range": ">=7.0.0",
+      "nodes": [
+        "node_modules/@fastify/static"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "@netlify/build": {
+      "name": "@netlify/build",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@netlify/config",
+        "@netlify/functions-utils",
+        "@netlify/zip-it-and-ship-it",
+        "minimatch"
+      ],
+      "effects": [
+        "netlify-cli"
+      ],
+      "range": "0.0.24 - 0.0.26 || >=0.1.10",
+      "nodes": [
+        "node_modules/@netlify/build"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "@netlify/build-info": {
+      "name": "@netlify/build-info",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "minimatch"
+      ],
+      "effects": [
+        "netlify-cli"
+      ],
+      "range": "6.2.3-rc.1 || >=6.3.0",
+      "nodes": [
+        "node_modules/@netlify/build-info"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "@netlify/config": {
+      "name": "@netlify/config",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "deepmerge"
+      ],
+      "effects": [
+        "@netlify/build",
+        "@netlify/dev",
+        "netlify-cli"
+      ],
+      "range": ">=0.1.2",
+      "nodes": [
+        "node_modules/@netlify/config"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "@netlify/dev": {
+      "name": "@netlify/dev",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@netlify/config",
+        "@netlify/functions-dev"
+      ],
+      "effects": [
+        "netlify-cli"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/@netlify/dev"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "@netlify/functions-dev": {
+      "name": "@netlify/functions-dev",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@netlify/zip-it-and-ship-it"
+      ],
+      "effects": [
+        "@netlify/dev"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/@netlify/functions-dev"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "@netlify/functions-utils": {
+      "name": "@netlify/functions-utils",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@netlify/zip-it-and-ship-it"
+      ],
+      "effects": [
+        "@netlify/build"
+      ],
+      "range": ">=1.3.21",
+      "nodes": [
+        "node_modules/@netlify/functions-utils"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "@netlify/zip-it-and-ship-it": {
+      "name": "@netlify/zip-it-and-ship-it",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@vercel/nft",
+        "archiver",
+        "minimatch",
+        "precinct"
+      ],
+      "effects": [
+        "@netlify/build",
+        "@netlify/functions-dev",
+        "@netlify/functions-utils",
+        "netlify-cli"
+      ],
+      "range": ">=3.0.0",
+      "nodes": [
+        "node_modules/@netlify/zip-it-and-ship-it"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "@typescript-eslint/typescript-estree": {
+      "name": "@typescript-eslint/typescript-estree",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "minimatch"
+      ],
+      "effects": [
+        "detective-typescript"
+      ],
+      "range": ">=6.16.0",
+      "nodes": [
+        "node_modules/@typescript-eslint/typescript-estree"
+      ],
+      "fixAvailable": true
+    },
+    "@vercel/nft": {
+      "name": "@vercel/nft",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "glob"
+      ],
+      "effects": [
+        "@netlify/zip-it-and-ship-it"
+      ],
+      "range": ">=0.29.2",
+      "nodes": [
+        "node_modules/@vercel/nft"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "archiver": {
+      "name": "archiver",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "readdir-glob"
+      ],
+      "effects": [
+        "@netlify/zip-it-and-ship-it"
+      ],
+      "range": ">=5.0.0",
+      "nodes": [
+        "node_modules/archiver"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "body-parser": {
+      "name": "body-parser",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1243074,
+          "name": "body-parser",
+          "dependency": "body-parser",
+          "title": "body-parser vulnerable to Denial of Service via trailing bytes after a compressed request body",
+          "url": "https://github.com/advisories/GHSA-27r3-jxmh-p828",
+          "severity": "high",
+          "cwe": [
+            "CWE-248"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=2.0.0 <2.4.0"
+        }
+      ],
+      "effects": [],
+      "range": "2.0.0 - 2.3.0",
+      "nodes": [
+        "node_modules/body-parser"
+      ],
+      "fixAvailable": true
+    },
+    "deepmerge": {
+      "name": "deepmerge",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1243505,
+          "name": "deepmerge",
+          "dependency": "deepmerge",
+          "title": "deepmerge mergeObject() allows prototype poisoning of returned objects",
+          "url": "https://github.com/advisories/GHSA-gcqx-w48m-w2h4",
+          "severity": "low",
+          "cwe": [
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N"
+          },
+          "range": ">=4.2.0 <=4.3.1"
+        }
+      ],
+      "effects": [
+        "@netlify/config"
+      ],
+      "range": ">=4.2.0",
+      "nodes": [
+        "node_modules/deepmerge"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "detective-typescript": {
+      "name": "detective-typescript",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@typescript-eslint/typescript-estree"
+      ],
+      "effects": [
+        "detective-vue2",
+        "precinct"
+      ],
+      "range": ">=12.0.0",
+      "nodes": [
+        "node_modules/detective-typescript"
+      ],
+      "fixAvailable": true
+    },
+    "detective-vue2": {
+      "name": "detective-vue2",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "detective-typescript"
+      ],
+      "effects": [
+        "precinct"
+      ],
+      "range": ">=1.0.2",
+      "nodes": [
+        "node_modules/detective-vue2"
+      ],
+      "fixAvailable": true
+    },
+    "fastify": {
+      "name": "fastify",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1242860,
+          "name": "fastify",
+          "dependency": "fastify",
+          "title": "fastify is vulnerable to header validation bypass via case-sensitive propertyNames",
+          "url": "https://github.com/advisories/GHSA-389g-gv7q-r4x8",
+          "severity": "low",
+          "cwe": [
+            "CWE-178"
+          ],
+          "cvss": {
+            "score": 3.7,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:N"
+          },
+          "range": ">=5.12.2 <5.12.6"
+        }
+      ],
+      "effects": [],
+      "range": "5.12.2 - 5.12.5",
+      "nodes": [
+        "node_modules/fastify"
+      ],
+      "fixAvailable": true
+    },
+    "follow-redirects": {
+      "name": "follow-redirects",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1244003,
+          "name": "follow-redirects",
+          "dependency": "follow-redirects",
+          "title": "follow-redirects: Cross-realm sensitiveHeaders arrays are discarded and custom credentials can follow redirects",
+          "url": "https://github.com/advisories/GHSA-mrwp-f3q8-3g9p",
+          "severity": "high",
+          "cwe": [
+            "CWE-201"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          },
+          "range": ">=1.16.0 <=1.16.1"
+        }
+      ],
+      "effects": [],
+      "range": "1.16.0 - 1.16.1",
+      "nodes": [
+        "node_modules/follow-redirects"
+      ],
+      "fixAvailable": true
+    },
+    "glob": {
+      "name": "glob",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1244013,
+          "name": "glob",
+          "dependency": "glob",
+          "title": "Glob: AbortSignal cancellation bypass allows post-timeout filesystem traversal",
+          "url": "https://github.com/advisories/GHSA-3g3m-2fjr-6pw4",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-400"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": ">=9.0.0 <=14.0.1"
+        },
+        "minimatch"
+      ],
+      "effects": [
+        "@fastify/static",
+        "@vercel/nft"
+      ],
+      "range": "3.0.0 - 14.0.1",
+      "nodes": [
+        "node_modules/glob"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "minimatch": {
+      "name": "minimatch",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1244012,
+          "name": "minimatch",
+          "dependency": "minimatch",
+          "title": "minimatch has potential denial of service via globparts amplification",
+          "url": "https://github.com/advisories/GHSA-g3hv-75wg-m249",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-405"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<11.0.1"
+        }
+      ],
+      "effects": [
+        "@netlify/build",
+        "@netlify/build-info",
+        "@netlify/zip-it-and-ship-it",
+        "@typescript-eslint/typescript-estree",
+        "glob",
+        "readdir-glob"
+      ],
+      "range": "<11.0.1",
+      "nodes": [
+        "node_modules/minimatch"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "netlify-cli": {
+      "name": "netlify-cli",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@fastify/static",
+        "@netlify/build",
+        "@netlify/build-info",
+        "@netlify/config",
+        "@netlify/dev",
+        "@netlify/zip-it-and-ship-it"
+      ],
+      "effects": [],
+      "range": ">=2.23.1",
+      "nodes": [
+        "node_modules/netlify-cli"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    },
+    "precinct": {
+      "name": "precinct",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "detective-typescript",
+        "detective-vue2"
+      ],
+      "effects": [],
+      "range": ">=12.0.0",
+      "nodes": [
+        "node_modules/precinct"
+      ],
+      "fixAvailable": true
+    },
+    "qs": {
+      "name": "qs",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1243687,
+          "name": "qs",
+          "dependency": "qs",
+          "title": "qs : qs.stringify with arrayFormat 'comma' throws an uncaught TypeError on array elements carrying a non-callable own toString (DoS)",
+          "url": "https://github.com/advisories/GHSA-6pq8-jhm2-2vcw",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-248",
+            "CWE-704"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=6.7.0 <=6.16.0"
+        }
+      ],
+      "effects": [],
+      "range": "6.7.0 - 6.16.0",
+      "nodes": [
+        "node_modules/qs"
+      ],
+      "fixAvailable": true
+    },
+    "readdir-glob": {
+      "name": "readdir-glob",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "minimatch"
+      ],
+      "effects": [
+        "archiver"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/readdir-glob"
+      ],
+      "fixAvailable": {
+        "name": "netlify-cli",
+        "version": "2.23.0",
+        "isSemVerMajor": true
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 3,
+      "moderate": 18,
+      "high": 2,
+      "critical": 0,
+      "total": 23
+    },
+    "dependencies": {
+      "prod": 58,
+      "dev": 1033,
+      "optional": 95,
+      "peer": 32,
+      "peerOptional": 0,
+      "total": 1090
+    }
+  }
+}
