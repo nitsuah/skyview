@@ -39,9 +39,9 @@
     "@neondatabase/serverless": "^1.2.0",
     "@netlify/blobs": "^11.1.6",
     "bcryptjs": "^3.0.3",
-    "jose": "^6.2.13",
-    "resend": "^6.34.1",
-    "stripe": "^23.0.1"
+    "jose": "^6.2.14",
+    "resend": "^6.35.0",
+    "stripe": "^23.1.0"
   },
   "overrides": {
     "ipx": "4.0.0-beta.1",
