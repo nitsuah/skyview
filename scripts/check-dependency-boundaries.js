@@ -11,7 +11,7 @@ for (const section of ['dependencies', 'devDependencies', 'optionalDependencies'
 }
 
 assert.equal(manifest.dependencies?.['netlify-cli'], undefined, 'netlify-cli is local development tooling and must not be a production dependency');
-assert.equal(manifest.devDependencies?.['netlify-cli'], '^27.13.0', 'keep the pinned netlify-cli range in devDependencies');
+assert.equal(manifest.devDependencies?.['netlify-cli'], '^27.16.1', 'keep the pinned netlify-cli range in devDependencies');
 
 const packages = lock.packages;
 function resolveDependency(fromPath, dependency) {
