@@ -1,5 +1,5 @@
 # Bugs
 
-> Generated from open `bot:journey` / `bot:review` issues in [nitsuah/skyview](https://github.com/nitsuah/skyview/issues). Don’t edit this file by hand: fix or close the issue. Updated 2026-11-07 by [the nightly journey run](https://github.com/nitsuah/skyview/actions/runs/42352502368).
+> Generated from open `bot:journey` / `bot:review` issues in [nitsuah/skyview](https://github.com/nitsuah/skyview/issues). Don’t edit this file by hand: fix or close the issue. Updated 2026-11-08 by [the nightly journey run](https://github.com/nitsuah/skyview/actions/runs/42459978751).
 
 No open bot issues. 🎉
