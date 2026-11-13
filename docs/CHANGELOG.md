@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Fixed:** cleared the moderate `glob` (GHSA-3g3m-2fjr-6pw4) and low `deepmerge` advisories in netlify-cli's dependency tree with overrides (`glob` `^14.0.6`, `deepmerge` `4.1.2`). Playwright moves to 1.65.0 in the package and the Journeys image together.
 - **Fixed:** the production `ignore` command now returns 1 (build) when `CACHED_COMMIT_REF` or `COMMIT_REF` is empty, and quotes both. Unquoted, an empty `CACHED_COMMIT_REF` made the shell drop the argument, so `git diff --quiet` compared a commit to the working tree and could exit 0, skipping a production deploy instead of failing open.
 - `docs/PERFORMANCE_CHECKLIST.md` no longer contains a committed stash-conflict block; its Related links point at the Lighthouse reports and Deployment Guide.
 - Signed-in platform pages fit a phone width: the sidebar nav wraps, so "Sign out" and the dashboard actions stay on screen (#189).
