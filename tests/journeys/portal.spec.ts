@@ -1,6 +1,6 @@
 import { test, expect, step, settle, SITE, NOW } from './skyview';
 // The repo's own signing and verification code (the same module the Netlify function uses).
-// @ts-ignore plain JS module
+// @ts-expect-error plain JS module, no type declarations
 import { generatePortalToken, verifyPortalToken } from '../../netlify/functions/utils/portal.js';
 
 const TEST_SALT = 'skyview-journeys-test-salt'; // throwaway; never a production PORTAL_SALT

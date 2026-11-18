@@ -7,7 +7,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ['dist/', 'node_modules/', 'build/', '.next/', 'out/', 'journeys-report/'],
+    ignores: ['dist/', 'node_modules/', 'build/', '.next/', 'out/', 'journeys-report/', 'platform/dist/'],
   },
   {
     languageOptions: {
@@ -32,6 +32,11 @@ export default tseslint.config(
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
     },
+  },
+  {
+    // CommonJS scripts: require() is the module system here, not a style choice.
+    files: ['**/*.cjs'],
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   prettier
 );
