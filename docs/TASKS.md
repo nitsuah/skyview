@@ -65,7 +65,7 @@ Open 2026 items are tracked below and in `docs/ROADMAP.md` 2027 Q1.
 
 - [ ] Test and tooling debt surfaced by the 2026-09 auth + scheduling pass.
   - Priority: P3
-  - `npm run lint:js` is broken: `eslint` is not in `package.json`, so linting has never run in CI (stylelint likewise unverified).
+  - Progress 2026-11-18: `npm run lint:js` now exits 0 (the 5 errors are fixed; 149 warnings remain) and runs in the Unit Tests workflow. Stylelint is still unverified in CI.
   - The stylelint pre-commit hook now runs (local node hook, stylelint 17.15.0) and reports 134 pre-existing errors in `styles/style.css`, mostly camelCase `@keyframes` names (`keyframes-name-pattern`) and `selector-class-pattern`. Any commit that touches CSS will fail the hook until they're fixed. Either rename them (and update the JS/HTML references), or relax those two rules in `config/stylelint.config.mjs`.
   - `tests/site.spec.ts` "gallery interaction" times out intermittently under heavy parallel load (passes alone and with `--workers=2`); CI uses 1 worker, so low risk, but worth de-flaking.
   - Platform form labels (`Login.jsx`, `ResetPassword.jsx`, etc.) aren't associated with their inputs (no `htmlFor`/`id`), so `getByLabel` fails and screen readers lose the label; e2e specs currently select by placeholder. Fix the markup, then switch tests to `getByLabel`.

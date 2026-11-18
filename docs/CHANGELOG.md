@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Fixed:** `npm run lint:js` exits 0 again: the 5 errors are gone (`@ts-ignore` became `@ts-expect-error` in `tests/journeys/portal.spec.ts`; `require()` is allowed in `.cjs` scripts; `platform/dist/` build output is ignored). Warnings are untouched. Lint now runs in the Unit Tests workflow so it can't regress.
 - **Fixed:** repo-health workflow pinned to shared kit `nitsuah/.github@a0df883`; the older `7d3c243` kit shipped its own `uv.lock` with msgpack 1.2.1, which the scan reported as this repo's advisory (GHSA-j586-36cw-2gc2).
 - **Fixed:** cleared the moderate `glob` (GHSA-3g3m-2fjr-6pw4) and low `deepmerge` advisories in netlify-cli's dependency tree with overrides (`glob` `^14.0.6`, `deepmerge` `4.1.2`). Playwright moves to 1.65.0 in the package and the Journeys image together.
 - **Fixed:** the production `ignore` command now returns 1 (build) when `CACHED_COMMIT_REF` or `COMMIT_REF` is empty, and quotes both. Unquoted, an empty `CACHED_COMMIT_REF` made the shell drop the argument, so `git diff --quiet` compared a commit to the working tree and could exit 0, skipping a production deploy instead of failing open.
