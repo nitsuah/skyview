@@ -4,15 +4,38 @@ import { sql } from './utils/db.js'
 import { signToken, hashPassword, checkPassword, requireAuth } from './utils/auth.js'
 import { sendVerificationEmail, sendPasswordResetEmail } from './utils/email.js'
 import { json, error, cors, unauthorized, CORS_HEADERS } from './utils/response.js'
+import { throttle, requestIp } from './utils/rate-limit.js'
 import { googleRedirect, googleCallback } from './api-auth-google.mjs'
 
 export const config = { path: '/api/auth/*' }
+
+// Per-IP limits for credential-handling endpoints; /login and the email-sending
+// routes also get a per-account limit via accountLimit() below.
+const MIN = 60, HOUR = 3600
+const ROUTE_LIMITS = {
+  '/register':            (req) => [['register:ip', requestIp(req), { max: 10, windowSec: HOUR }]],
+  '/login':               (req) => [['login:ip', requestIp(req), { max: 30, windowSec: 10 * MIN }]],
+  '/forgot-password':     (req) => [['forgot:ip', requestIp(req), { max: 5, windowSec: 15 * MIN }]],
+  '/reset-password':      (req) => [['reset:ip', requestIp(req), { max: 10, windowSec: 15 * MIN }]],
+  '/resend-verification': (req) => [['resend:ip', requestIp(req), { max: 5, windowSec: 15 * MIN }]],
+}
+
+// Throttle repeated attempts against a single account regardless of source IP.
+async function accountLimit(scope, email, limits) {
+  if (typeof email !== 'string') return null
+  return throttle(sql, [[scope, email.toLowerCase().trim(), limits]])
+}
 
 export default async (req, context) => {
   if (req.method === 'OPTIONS') return cors()
 
   const url = new URL(req.url)
   const route = url.pathname.replace('/api/auth', '')
+
+  if (req.method === 'POST' && ROUTE_LIMITS[route]) {
+    const limited = await throttle(sql, ROUTE_LIMITS[route](req))
+    if (limited) return limited
+  }
 
   if (req.method === 'POST' && route === '/register')        return register(req)
   if (req.method === 'POST' && route === '/login')           return login(req)
@@ -76,6 +99,8 @@ async function login(req) {
 
   const { email, password } = body
   if (!email || !password) return error('email and password are required')
+  const limited = await accountLimit('login:acct', email, { max: 8, windowSec: 10 * MIN })
+  if (limited) return limited
 
   const [user] = await sql`
     SELECT id, email, role, name, password_hash, active, email_verified
@@ -133,6 +158,8 @@ async function resendVerification(req) {
   const body = await req.json().catch(() => null)
   const { email } = body ?? {}
   if (!email) return error('email is required')
+  const limited = await accountLimit('resend:acct', email, { max: 3, windowSec: HOUR })
+  if (limited) return limited
 
   const [user] = await sql`
     SELECT id, email_verified, active FROM users WHERE email = ${email.toLowerCase().trim()}
@@ -155,6 +182,8 @@ async function forgotPassword(req) {
 
   const { email } = body
   if (!email) return error('email is required')
+  const limited = await accountLimit('forgot:acct', email, { max: 3, windowSec: HOUR })
+  if (limited) return limited
 
   const [user] = await sql`SELECT id, active FROM users WHERE email = ${email.toLowerCase().trim()}`
   // Always return 200 to avoid email enumeration
