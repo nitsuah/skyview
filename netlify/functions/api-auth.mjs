@@ -66,8 +66,8 @@ async function register(req) {
     sendVerificationEmail(user.email, token).catch(console.error)
   }
 
-  const jwt = await signToken({ sub: user.id, role: user.role })
-  return json({ user, token: jwt }, 201)
+  // No session until the email address is verified.
+  return json({ user, verification_required: true }, 201)
 }
 
 async function login(req) {
@@ -201,7 +201,8 @@ async function resetPassword(req) {
   `
   if (!claimed) return error('Invalid or expired reset link', 400)
 
-  await sql`UPDATE users SET password_hash = ${password_hash} WHERE id = ${claimed.user_id}`
+  // Changing the password also invalidates every session issued before now.
+  await sql`UPDATE users SET password_hash = ${password_hash}, sessions_valid_after = NOW() WHERE id = ${claimed.user_id}`
 
   return json({ ok: true })
 }

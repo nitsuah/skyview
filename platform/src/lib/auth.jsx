@@ -32,9 +32,8 @@ export function AuthProvider({ children }) {
   }
 
   const register = async (data) => {
-    const { user, token } = await api.auth.register(data)
-    localStorage.setItem('skyview_token', token)
-    setUser(user)
+    // Registration does not start a session; the email must be verified first.
+    const { user } = await api.auth.register(data)
     return user
   }
 

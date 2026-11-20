@@ -96,10 +96,21 @@ export async function googleCallback(req, url) {
 
   if (!user) {
     const [existing] = await sql`
-      SELECT id, email, role, name, active FROM users WHERE email = ${email.toLowerCase().trim()}
+      SELECT id, email, role, name, active, email_verified FROM users WHERE email = ${email.toLowerCase().trim()}
     `
     if (existing) {
-      await sql`UPDATE users SET google_id = ${google_id}, email_verified = true WHERE id = ${existing.id}`
+      if (existing.email_verified) {
+        await sql`UPDATE users SET google_id = ${google_id} WHERE id = ${existing.id}`
+      } else {
+        // The existing account never proved ownership of this address: drop any
+        // password set at registration and end sessions issued before now.
+        await sql`
+          UPDATE users
+          SET google_id = ${google_id}, email_verified = true,
+              password_hash = NULL, sessions_valid_after = NOW()
+          WHERE id = ${existing.id}
+        `
+      }
       user = existing
     } else {
       const [created] = await sql`

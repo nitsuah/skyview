@@ -38,11 +38,18 @@ export async function requireAuth(req, sql) {
   try {
     const payload = await verifyToken(token)
     const [user] = await sql`
-      SELECT id, email, role, name
+      SELECT id, email, role, name, email_verified, sessions_valid_after
       FROM users
       WHERE id = ${payload.sub} AND active = true
     `
-    return user || null
+    if (!user || !user.email_verified) return null
+    // Reject sessions issued before the last credential change.
+    if (user.sessions_valid_after) {
+      const validAfter = Math.floor(new Date(user.sessions_valid_after).getTime() / 1000)
+      if (!payload.iat || payload.iat < validAfter) return null
+    }
+    const { email_verified: _v, sessions_valid_after: _s, ...safe } = user
+    return safe
   } catch {
     return null
   }
