@@ -118,7 +118,7 @@
 </div>
 
 <script>
-const S = window.SPOT || { scenes: [['hook', 0, 2.5], ['outro', 2.5, 5]], duration: 5, outroLine: '', url: 'skyviewd.netlify.app' };
+const S = window.SPOT || { scenes: [['hook', 0, 2.5], ['outro', 2.5, 5]], duration: 5, outroLine: '', url: 'nitsuah.github.io/skyview' };
 const SS = '../../docs/screenshots/';
 const FW = 1000, FH = 1100;
 const LINE = (id) => ((S.narration || {}).lines || []).find((l) => l.scene === id);
@@ -200,7 +200,7 @@ const T = (id, t) => {
 
 const $ = (id) => document.getElementById(id);
 document.getElementById('outroLine').textContent = S.outroLine || '';
-document.getElementById('outroUrl').textContent = S.url || 'skyviewd.netlify.app';
+document.getElementById('outroUrl').textContent = S.url || 'nitsuah.github.io/skyview';
 
 window.render = (t) => {
   let chip = '';
