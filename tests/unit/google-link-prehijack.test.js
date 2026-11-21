@@ -47,12 +47,17 @@ describe('google callback linking an existing local account', () => {
     stub({ ...base, email_verified: false });
     const res = await callback();
     expect(res.status).toBe(302);
-    expect(statements.some((s) => s.includes('UPDATE users') && s.includes('password_hash = NULL'))).toBe(true);
+    expect(statements.some((s) => s.includes('UPDATE users') && s.includes('google_id'))).toBe(true);
+    expect(statements.some((s) => s.includes('UPDATE users') && s.includes('email_verified'))).toBe(true);
+    expect(statements.some((s) => s.includes('password_hash = NULL'))).toBe(true);
   });
 
   it('keeps the password of an already verified local account', async () => {
     stub({ ...base, email_verified: true });
-    await callback();
+    const res = await callback();
+    expect(res.status).toBe(302);
+    expect(statements.some((s) => s.includes('UPDATE users') && s.includes('google_id'))).toBe(true);
+    expect(statements.some((s) => s.includes('UPDATE users') && s.includes('email_verified'))).toBe(true);
     expect(statements.some((s) => s.includes('password_hash = NULL'))).toBe(false);
   });
 });
