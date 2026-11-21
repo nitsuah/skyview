@@ -96,10 +96,15 @@ export async function googleCallback(req, url) {
 
   if (!user) {
     const [existing] = await sql`
-      SELECT id, email, role, name, active FROM users WHERE email = ${email.toLowerCase().trim()}
+      SELECT id, email, role, name, active, email_verified FROM users WHERE email = ${email.toLowerCase().trim()}
     `
     if (existing) {
-      await sql`UPDATE users SET google_id = ${google_id}, email_verified = true WHERE id = ${existing.id}`
+      if (existing.email_verified) {
+        await sql`UPDATE users SET google_id = ${google_id}, email_verified = true WHERE id = ${existing.id}`
+      } else {
+        // Unverified local account: its password may belong to whoever registered first. Drop it.
+        await sql`UPDATE users SET google_id = ${google_id}, email_verified = true, password_hash = NULL WHERE id = ${existing.id}`
+      }
       user = existing
     } else {
       const [created] = await sql`
