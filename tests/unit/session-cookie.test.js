@@ -111,6 +111,11 @@ describe('requireAuth with the session cookie', () => {
     expect(await requireAuth(await cookieRequest('DELETE', { origin: 'https://evil.example' }), sqlMock)).toBeNull();
   });
 
+  it('treats a malformed cookie value as signed out instead of throwing', async () => {
+    const req = new Request(`${ORIGIN}/api/jobs`, { headers: { cookie: 'skyview_session=%E0%A4%A' } });
+    expect(await requireAuth(req, sqlMock)).toBeNull();
+  });
+
   it('still accepts a bearer header from non-browser clients', async () => {
     const req = new Request(`${ORIGIN}/api/jobs`, {
       method: 'POST',

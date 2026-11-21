@@ -34,7 +34,12 @@ function extractCredential(req) {
   // Browser sessions use the HttpOnly session cookie
   const cookie = req.headers.get('cookie') || ''
   const match  = cookie.match(/(?:^|;\s*)skyview_session=([^;]+)/)
-  return match ? { token: decodeURIComponent(match[1]), source: 'cookie' } : null
+  if (!match) return null
+  try {
+    return { token: decodeURIComponent(match[1]), source: 'cookie' }
+  } catch {
+    return null // malformed cookie value: treat as signed out, not a 500
+  }
 }
 
 const UNSAFE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
