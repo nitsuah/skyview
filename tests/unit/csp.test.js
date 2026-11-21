@@ -9,11 +9,24 @@ const SERVED_HTML = [
     'platform/index.html',
 ];
 
+/** Attribute name -> unquoted value ('' when the attribute has no value). */
+function parseAttributes(attrs) {
+    const out = new Map();
+    for (const m of attrs.matchAll(/([^\s"'=<>/]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g)) {
+        out.set(m[1].toLowerCase(), m[2] ?? m[3] ?? m[4] ?? '');
+    }
+    return out;
+}
+
 /** Opening <script> tags that would execute inline code (no src, not JSON data). */
 function inlineScripts(html) {
     return [...html.matchAll(/<script\b([^>]*)>/gi)]
         .map((m) => m[1])
-        .filter((attrs) => !/\bsrc\s*=/i.test(attrs) && !/type\s*=\s*["']application\/(ld\+)?json["']/i.test(attrs));
+        .filter((attrs) => {
+            const a = parseAttributes(attrs);
+            const type = (a.get('type') ?? '').trim().toLowerCase();
+            return !a.has('src') && type !== 'application/ld+json' && type !== 'application/json';
+        });
 }
 
 /** Inline event-handler attributes such as onclick="..." inside tags. */
@@ -96,6 +109,10 @@ describe('CSP sanitization (#213)', () => {
         expect(inlineScripts('<script>alert(1)</script>')).toHaveLength(1);
         expect(inlineScripts('<script type="module">x()</script>')).toHaveLength(1);
         expect(inlineScripts('<script src="/a.js"></script><script type="application/ld+json">{}</script>')).toEqual([]);
+        // data-src / data-type are not src / type: these still run inline
+        expect(inlineScripts('<script data-src="/a.js">alert(1)</script>')).toHaveLength(1);
+        expect(inlineScripts('<script data-type="application/json">x()</script>')).toHaveLength(1);
+        expect(inlineScripts('<script SRC=/a.js referrerpolicy="no-referrer"></script>')).toEqual([]);
         expect(inlineHandlers('<button onclick="x()">')).toEqual(['onclick']);
     });
 });

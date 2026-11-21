@@ -98,25 +98,32 @@
         submitBtn.textContent = locked ? 'Too many attempts' : 'Access Your Files';
     }
 
-    function checkInitialLockout() {
-        if (isLockedOut()) {
-            var mins = getLockoutMinutesRemaining();
-            showWarning('Too many failed attempts. Please wait ' + mins + ' minute' + (mins === 1 ? '' : 's') + ' before trying again.');
-            setLocked(true);
+    var lockoutTimer = null;
 
-            var timer = setInterval(function () {
-                if (!isLockedOut()) {
-                    clearInterval(timer);
-                    setLocked(false);
-                    warningMessage.classList.remove('show');
-                    clearAttempts();
-                    updateAttemptUI();
-                } else {
-                    var m = getLockoutMinutesRemaining();
-                    showWarning('Too many failed attempts. Please wait ' + m + ' minute' + (m === 1 ? '' : 's') + ' before trying again.');
-                }
-            }, 30000);
-        }
+    // Lock the form and keep one timer that unlocks it when the lockout ends.
+    // Used at startup and when a failed submission triggers a lockout.
+    function startLockout() {
+        var mins = getLockoutMinutesRemaining();
+        showWarning('Too many failed attempts. Please wait ' + mins + ' minute' + (mins === 1 ? '' : 's') + ' before trying again.');
+        setLocked(true);
+        if (lockoutTimer !== null) return;
+        lockoutTimer = setInterval(function () {
+            if (!isLockedOut()) {
+                clearInterval(lockoutTimer);
+                lockoutTimer = null;
+                setLocked(false);
+                warningMessage.classList.remove('show');
+                clearAttempts();
+                updateAttemptUI();
+            } else {
+                var m = getLockoutMinutesRemaining();
+                showWarning('Too many failed attempts. Please wait ' + m + ' minute' + (m === 1 ? '' : 's') + ' before trying again.');
+            }
+        }, 30000);
+    }
+
+    function checkInitialLockout() {
+        if (isLockedOut()) startLockout();
         updateAttemptUI();
     }
 
@@ -208,7 +215,7 @@
             updateAttemptUI();
 
             if (isLockedOut()) {
-                setLocked(true);
+                startLockout();
                 var lockMins = getLockoutMinutesRemaining();
                 showError('Too many failed attempts. Please wait ' + lockMins + ' minute' + (lockMins === 1 ? '' : 's') + ' before trying again.');
                 showWarning('Account temporarily locked after ' + MAX_ATTEMPTS + ' failed attempts.');
