@@ -75,6 +75,8 @@ export async function googleCallback(req, url) {
     }),
   })
   if (!tokenRes.ok) {
+    // Status only: the response body can carry provider detail we do not log.
+    console.error('Google token exchange failed:', tokenRes.status)
     return Response.redirect(`${base}/app/login?error=oauth_failed`, 302)
   }
   const { access_token } = await tokenRes.json()
