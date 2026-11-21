@@ -38,11 +38,19 @@ export async function requireAuth(req, sql) {
   try {
     const payload = await verifyToken(token)
     const [user] = await sql`
-      SELECT id, email, role, name
+      SELECT id, email, role, name, sessions_valid_after
       FROM users
       WHERE id = ${payload.sub} AND active = true
     `
-    return user || null
+    if (!user) return null
+    // Reject tokens issued before the session revocation cutoff
+    const cutoff = user.sessions_valid_after
+      ? Math.floor(new Date(user.sessions_valid_after).getTime() / 1000)
+      : 0
+    if (payload.iat < cutoff) return null
+    // Exclude the cutoff column from the returned user object
+    const { sessions_valid_after: _cutoff, ...safe } = user
+    return safe
   } catch {
     return null
   }

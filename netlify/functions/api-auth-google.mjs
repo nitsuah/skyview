@@ -104,7 +104,7 @@ export async function googleCallback(req, url) {
         await sql`UPDATE users SET google_id = ${google_id}, email_verified = true WHERE id = ${existing.id}`
       } else {
         // Unverified local account: its password may belong to whoever registered first. Drop it.
-        await sql`UPDATE users SET google_id = ${google_id}, email_verified = true, password_hash = NULL WHERE id = ${existing.id}`
+        await sql`UPDATE users SET google_id = ${google_id}, email_verified = true, password_hash = NULL, sessions_valid_after = NOW() WHERE id = ${existing.id}`
       }
       user = existing
     } else {

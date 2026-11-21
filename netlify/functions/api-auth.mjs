@@ -21,7 +21,7 @@ export default async (req, context) => {
   if (req.method === 'POST' && route === '/forgot-password')         return forgotPassword(req)
   if (req.method === 'POST' && route === '/reset-password')          return resetPassword(req)
   if (req.method === 'POST' && route === '/resend-verification')     return resendVerification(req)
-  if (req.method === 'POST' && route === '/logout')                  return logout()
+  if (req.method === 'POST' && route === '/logout')                  return logout(req)
   if (req.method === 'GET'  && route === '/google')          return googleRedirect(req, url)
   if (req.method === 'GET'  && route === '/google/callback') return googleCallback(req, url)
 
@@ -201,12 +201,17 @@ async function resetPassword(req) {
   `
   if (!claimed) return error('Invalid or expired reset link', 400)
 
-  await sql`UPDATE users SET password_hash = ${password_hash} WHERE id = ${claimed.user_id}`
+  await sql`UPDATE users SET password_hash = ${password_hash}, sessions_valid_after = NOW() WHERE id = ${claimed.user_id}`
 
   return json({ ok: true })
 }
 
-function logout() {
+async function logout(req) {
+  const user = await requireAuth(req, sql)
+  if (user) {
+    // Revoke all sessions for this user (all devices) by moving the cutoff
+    await sql`UPDATE users SET sessions_valid_after = NOW() WHERE id = ${user.id}`
+  }
   const base   = process.env.DEPLOY_PRIME_URL || process.env.URL || 'https://skyviewd.netlify.app'
   const secure = base.startsWith('https') ? '; Secure' : ''
   const clear  = `skyview_session=; HttpOnly${secure}; SameSite=Lax; Path=/; Max-Age=0`
