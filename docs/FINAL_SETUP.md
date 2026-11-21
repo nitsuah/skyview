@@ -16,6 +16,7 @@ This guide covers everything you need to do manually before the marketplace plat
    ```bash
    DATABASE_URL="your-connection-string" node scripts/migrate.js
    ```
+   The build does not run migrations. When a change adds a migration, run this against production **before** merging it, because Netlify deploys the functions on merge (migration 007 adds `users.session_version`, which every authenticated request reads).
 6. Create your admin user directly in the DB:
    ```sql
    -- After running the migration, open the Neon SQL editor:
