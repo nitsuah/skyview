@@ -7,6 +7,8 @@ import {
   logPortalAccess,
 } from './utils/portal.js';
 import { getManifestForClient, findFile } from './utils/portal-manifest.js';
+import { sql } from './utils/db.js';
+import { throttle } from './utils/rate-limit.js';
 import { json, error, cors, redirect } from './utils/response.js';
 
 export const config = { path: '/api/portal/*' };
@@ -45,6 +47,16 @@ async function verify(req) {
   // request rather than falling back to a weaker (or no-op) check.
   const salt = process.env.PORTAL_SALT;
   if (!salt) {
+    return error('Client portal is not available', 503);
+  }
+
+  // Throttle access-code guessing per client address (fail closed if the
+  // limiter store is unavailable).
+  try {
+    const limited = await throttle(sql, [['portal:ip', requestIp(req), { max: 10, windowSec: 600 }]]);
+    if (limited) return limited;
+  } catch (err) {
+    console.error('portal rate limiter unavailable:', err.message);
     return error('Client portal is not available', 503);
   }
 
