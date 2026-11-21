@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The client portal, client gallery and thank-you pages load their scripts from files, and the site and app Content-Security-Policy no longer allows inline scripts; a unit test keeps served pages free of inline scripts and handlers (#213).
 - Google sign-in hardens account linking: when linking a verified Google identity to an existing unverified local account, the local password hash is cleared and the email is marked verified — preventing pre-hijack by whoever registered the email first. Session revocation is tracked in #235.
 - README and promo copy no longer show the broken Netlify badge or link to the dead `skyviewd.netlify.app` host (#238).
 - **Fixed:** `npm run lint:js` exits 0 again: the 5 errors are gone (`@ts-ignore` became `@ts-expect-error` in `tests/journeys/portal.spec.ts`; `require()` is allowed in `.cjs` scripts; `platform/dist/` build output is ignored). Warnings are untouched. Lint now runs in the Unit Tests workflow so it can't regress.
