@@ -6,6 +6,11 @@ import { sendVerificationEmail, sendPasswordResetEmail } from './utils/email.js'
 import { json, error, cors, unauthorized, CORS_HEADERS } from './utils/response.js'
 import { googleRedirect, googleCallback } from './api-auth-google.mjs'
 
+const BASE   = () => process.env.DEPLOY_PRIME_URL || process.env.URL || 'https://skyviewd.netlify.app'
+const isHttps  = () => BASE().startsWith('https')
+const secureFl = () => isHttps() ? '; Secure' : ''
+const COOKIE_ATTRS = `HttpOnly${secureFl()}; SameSite=Lax; Path=/; Max-Age=604800`
+
 export const config = { path: '/api/auth/*' }
 
 export default async (req, context) => {
@@ -13,6 +18,12 @@ export default async (req, context) => {
 
   const url = new URL(req.url)
   const route = url.pathname.replace('/api/auth', '')
+
+  // CSRF protection: cookie-authenticated state-changing requests must send JSON
+  // (register/login are exempt since they set cookies, not use them)
+  if (isStateChanging(req.method) && isCookieAuth(req) && !isAuthRoute(route) && !isJsonContentType(req)) {
+    return error('Content-Type must be application/json', 415)
+  }
 
   if (req.method === 'POST' && route === '/register')        return register(req)
   if (req.method === 'POST' && route === '/login')           return login(req)
@@ -27,6 +38,24 @@ export default async (req, context) => {
   if (req.method === 'GET'  && route === '/google/callback') return googleCallback(req, url)
 
   return error('Not found', 404)
+}
+
+function isStateChanging(method) {
+  return ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
+}
+
+function isCookieAuth(req) {
+  const cookie = req.headers.get('cookie') || ''
+  return cookie.includes('skyview_session=')
+}
+
+function isJsonContentType(req) {
+  const ct = req.headers.get('content-type') || ''
+  return ct.startsWith('application/json')
+}
+
+function isAuthRoute(route) {
+  return route === '/register' || route === '/login'
 }
 
 async function register(req) {
@@ -68,7 +97,9 @@ async function register(req) {
   }
 
   const jwt = await signToken({ sub: user.id, role: user.role })
-  return json({ user, token: jwt }, 201)
+  const cookie = `skyview_session=${encodeURIComponent(jwt)}; ${COOKIE_ATTRS}`
+  const headers = { ...CORS_HEADERS, 'Set-Cookie': cookie }
+  return new Response(JSON.stringify({ user }), { status: 201, headers })
 }
 
 async function login(req) {
@@ -92,7 +123,9 @@ async function login(req) {
 
   const { password_hash: _, ...safeUser } = user
   const jwt = await signToken({ sub: user.id, role: user.role })
-  return json({ user: safeUser, token: jwt })
+  const cookie = `skyview_session=${encodeURIComponent(jwt)}; ${COOKIE_ATTRS}`
+  const headers = { ...CORS_HEADERS, 'Set-Cookie': cookie }
+  return new Response(JSON.stringify({ user: safeUser }), { status: 200, headers })
 }
 
 async function me(req) {

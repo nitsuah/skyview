@@ -8,44 +8,43 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // If the OAuth callback redirected here with ?oauth=1, flush any stale bearer
-    // token so it can't mask the new HttpOnly session cookie.
+    // If the OAuth callback redirected here with ?oauth=1, flush any stale
+    // skyview_token from localStorage so it can't mask the new HttpOnly session
+    // cookie on subsequent requests.
     const params = new URLSearchParams(window.location.search)
     if (params.get('oauth') === '1') {
       localStorage.removeItem('skyview_token')
       window.history.replaceState({}, '', window.location.pathname)
     }
-    // Always call /me — covers both localStorage tokens (email/password) and
-    // HttpOnly session cookies (Google OAuth). The cookie is sent automatically
-    // for same-origin requests; no JS token read required.
+    // Legacy migration: remove any leftover skyview_token from the old
+    // email/password flow (we now use HttpOnly cookies for all auth).
+    if (localStorage.getItem('skyview_token')) {
+      localStorage.removeItem('skyview_token')
+    }
+    // Call /me — the HttpOnly session cookie is sent automatically for
+    // same-origin requests; no JS token read required.
     api.auth.me()
       .then(setUser)
-      .catch(() => localStorage.removeItem('skyview_token'))
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
   const login = async (email, password) => {
-    const { user, token } = await api.auth.login({ email, password })
-    localStorage.setItem('skyview_token', token)
+    const { user } = await api.auth.login({ email, password })
     setUser(user)
     return user
   }
 
   const register = async (data) => {
-    const { user, token } = await api.auth.register(data)
-    localStorage.setItem('skyview_token', token)
+    const { user } = await api.auth.register(data)
     setUser(user)
     return user
   }
 
   const logout = async () => {
-    // Try server-side cookie removal first. Use try/finally so local state is
-    // always cleared (user can always navigate away), but the error still
-    // propagates to callers that need to show a retry path.
     try {
       await api.auth.logout()
     } finally {
-      localStorage.removeItem('skyview_token')
       setUser(null)
     }
   }
