@@ -1,5 +1,7 @@
 -- SkyView Platform: Session Revocation
--- Adds a cutoff timestamp; tokens issued before it are rejected.
--- Run via: node scripts/migrate.js
+-- Each token carries the user's session_version (claim "sv"). Revoking sessions
+-- increments it, so every earlier token stops matching. An atomic increment
+-- cannot move backward under concurrent writers and needs no clock.
+-- Apply BEFORE deploying the functions that read it: node scripts/migrate.js
 
-ALTER TABLE users ADD COLUMN IF NOT EXISTS sessions_valid_after TIMESTAMPTZ;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS session_version INTEGER NOT NULL DEFAULT 0;

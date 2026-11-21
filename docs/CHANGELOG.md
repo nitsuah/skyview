@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Google sign-in hardens account linking: when linking a verified Google identity to an existing unverified local account, the local password hash is cleared and the email is marked verified — preventing pre-hijack by whoever registered the email first. Session revocation is tracked in #235.
-- Server-side session revocation: password reset, Google linking of an unverified local account, and the new "sign out everywhere" (`POST /api/auth/logout-all`) move `users.sessions_valid_after`, so every earlier token for that user stops working; plain logout still clears only this device (#235).
+- Server-side session revocation: password reset, Google linking of an unverified local account, and the new "sign out everywhere" (`POST /api/auth/logout-all`) increment `users.session_version`, so every earlier token for that user stops working; plain logout still clears only this device. Apply migration 007 before deploying (#235).
 - Email/password sign-in uses the same HttpOnly session cookie as Google sign-in, so the browser no longer stores the session token; cookie-authenticated changes must come from the site itself (#213).
 - README and promo copy no longer show the broken Netlify badge or link to the dead `skyviewd.netlify.app` host (#238).
 - **Fixed:** `npm run lint:js` exits 0 again: the 5 errors are gone (`@ts-ignore` became `@ts-expect-error` in `tests/journeys/portal.spec.ts`; `require()` is allowed in `.cjs` scripts; `platform/dist/` build output is ignored). Warnings are untouched. Lint now runs in the Unit Tests workflow so it can't regress.

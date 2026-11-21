@@ -28,7 +28,7 @@ beforeEach(() => {
     if (text.includes('SELECT id FROM users WHERE email')) return [];
     if (text.includes('INSERT INTO users')) return [USER];
     if (text.includes('FROM users')) {
-      return [{ ...USER, password_hash: 'h', active: true, email_verified: true, sessions_valid_after: null }];
+      return [{ ...USER, password_hash: 'h', active: true, email_verified: true, session_version: 0 }];
     }
     return [];
   });

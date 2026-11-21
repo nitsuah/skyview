@@ -1,7 +1,7 @@
 import { randomBytes, createHash } from 'crypto'
 const hashToken = (t) => createHash('sha256').update(t).digest('hex')
 import { sql } from './utils/db.js'
-import { signToken, hashPassword, checkPassword, requireAuth, revokeCutoff } from './utils/auth.js'
+import { signToken, hashPassword, checkPassword, requireAuth } from './utils/auth.js'
 import { sendVerificationEmail, sendPasswordResetEmail } from './utils/email.js'
 import { json, error, cors, unauthorized, CORS_HEADERS } from './utils/response.js'
 import { googleRedirect, googleCallback } from './api-auth-google.mjs'
@@ -57,7 +57,7 @@ async function register(req) {
   const [user] = await sql`
     INSERT INTO users (email, password_hash, role, name)
     VALUES (${email.toLowerCase().trim()}, ${password_hash}, ${role}, ${name.trim()})
-    RETURNING id, email, role, name
+    RETURNING id, email, role, name, session_version
   `
 
   if (role === 'operator') {
@@ -72,10 +72,10 @@ async function register(req) {
     sendVerificationEmail(user.email, token).catch(console.error)
   }
 
-  const jwt = await signToken({ sub: user.id, role: user.role })
-  const cookie = sessionCookie(jwt)
-  const headers = { ...CORS_HEADERS, 'Set-Cookie': cookie }
-  return new Response(JSON.stringify({ user }), { status: 201, headers })
+  const { session_version: sv, ...publicUser } = user
+  const jwt = await signToken({ sub: user.id, role: user.role, sv })
+  const headers = { ...CORS_HEADERS, 'Set-Cookie': sessionCookie(jwt) }
+  return new Response(JSON.stringify({ user: publicUser }), { status: 201, headers })
 }
 
 async function login(req) {
@@ -86,7 +86,7 @@ async function login(req) {
   if (!email || !password) return error('email and password are required')
 
   const [user] = await sql`
-    SELECT id, email, role, name, password_hash, active, email_verified
+    SELECT id, email, role, name, password_hash, active, email_verified, session_version
     FROM users WHERE email = ${email.toLowerCase().trim()}
   `
   if (!user || !user.active) return error('Invalid email or password', 401)
@@ -97,10 +97,9 @@ async function login(req) {
 
   if (!user.email_verified) return error('Please verify your email before signing in. Check your inbox or use the resend option on the verify page.', 403)
 
-  const { password_hash: _, ...safeUser } = user
-  const jwt = await signToken({ sub: user.id, role: user.role })
-  const cookie = sessionCookie(jwt)
-  const headers = { ...CORS_HEADERS, 'Set-Cookie': cookie }
+  const { password_hash: _, session_version: sv, ...safeUser } = user
+  const jwt = await signToken({ sub: user.id, role: user.role, sv })
+  const headers = { ...CORS_HEADERS, 'Set-Cookie': sessionCookie(jwt) }
   return new Response(JSON.stringify({ user: safeUser }), { status: 200, headers })
 }
 
@@ -211,18 +210,18 @@ async function resetPassword(req) {
   `
   if (!claimed) return error('Invalid or expired reset link', 400)
 
-  await sql`UPDATE users SET password_hash = ${password_hash}, sessions_valid_after = ${revokeCutoff()} WHERE id = ${claimed.user_id}`
+  await sql`UPDATE users SET password_hash = ${password_hash}, session_version = session_version + 1 WHERE id = ${claimed.user_id}`
 
   return json({ ok: true })
 }
 
 // Plain logout clears this device's cookie. "Sign out everywhere" (/logout-all)
-// also moves the user's cutoff so every token issued before now is rejected.
+// also bumps the user's session version so every earlier token is rejected.
 async function logout(req, { everywhere = false } = {}) {
   if (everywhere) {
     const user = await requireAuth(req, sql)
     if (!user) return json({ error: 'Unauthorized' }, 401)
-    await sql`UPDATE users SET sessions_valid_after = ${revokeCutoff()} WHERE id = ${user.id}`
+    await sql`UPDATE users SET session_version = session_version + 1 WHERE id = ${user.id}`
   }
   const base   = process.env.DEPLOY_PRIME_URL || process.env.URL || 'https://skyviewd.netlify.app'
   const secure = base.startsWith('https') ? '; Secure' : ''
