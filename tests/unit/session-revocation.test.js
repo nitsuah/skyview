@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Server-side session revocation: a JWT whose sv claim is not the user's current
@@ -92,10 +93,13 @@ describe('revoking routes', () => {
   it('login issues a token that carries the current version', async () => {
     withUser({ session_version: 5, password_hash: 'h', active: true, email_verified: true });
     const res = await handler(new Request('http://localhost/api/auth/login', {
-      method: 'POST', body: JSON.stringify({ email: 'a@example.com', password: 'longenough1' }),
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: 'a@example.com', password: 'longenough1' }),
     }));
-    const { token, user } = await res.json();
+    // The token travels only in the HttpOnly cookie (#213)
+    const { user } = await res.json();
     expect(user).not.toHaveProperty('session_version');
+    const token = decodeURIComponent((res.headers.get('set-cookie') || '').match(/skyview_session=([^;]+)/)?.[1] ?? '');
     const { verifyToken } = await import('../../netlify/functions/utils/auth.js');
     expect((await verifyToken(token)).sv).toBe(5);
   });

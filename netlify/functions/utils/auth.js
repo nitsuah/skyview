@@ -22,19 +22,51 @@ export async function verifyToken(token) {
 }
 
 export function extractToken(req) {
-  // Prefer Authorization header (email/password login)
-  const auth = req.headers.get('authorization') || ''
-  if (auth.startsWith('Bearer ')) return auth.slice(7)
+  return extractCredential(req)?.token ?? null
+}
 
-  // Fall back to HttpOnly session cookie (Google OAuth)
+// Returns the session token and where it came from ('header' or 'cookie').
+function extractCredential(req) {
+  // An explicit Authorization header wins (API clients)
+  const auth = req.headers.get('authorization') || ''
+  if (auth.startsWith('Bearer ')) return { token: auth.slice(7), source: 'header' }
+
+  // Browser sessions use the HttpOnly session cookie
   const cookie = req.headers.get('cookie') || ''
   const match  = cookie.match(/(?:^|;\s*)skyview_session=([^;]+)/)
-  return match ? decodeURIComponent(match[1]) : null
+  if (!match) return null
+  try {
+    return { token: decodeURIComponent(match[1]), source: 'cookie' }
+  } catch {
+    return null // malformed cookie value: treat as signed out, not a 500
+  }
+}
+
+const UNSAFE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
+
+// True when a browser says the request came from another site. Uses
+// Sec-Fetch-Site when sent, else compares Origin with the request's own origin.
+// Requests with neither header (non-browser clients) are not cross-site.
+export function isCrossSiteRequest(req) {
+  const site = req.headers.get('sec-fetch-site')
+  if (site) return site !== 'same-origin' && site !== 'none'
+  const origin = req.headers.get('origin')
+  if (!origin) return false
+  try {
+    return origin !== new URL(req.url).origin
+  } catch {
+    return true
+  }
 }
 
 export async function requireAuth(req, sql) {
-  const token = extractToken(req)
-  if (!token) return null
+  const credential = extractCredential(req)
+  if (!credential) return null
+  // CSRF: a cookie must not authorize a state-changing request from another site
+  if (credential.source === 'cookie' && UNSAFE_METHODS.has(req.method) && isCrossSiteRequest(req)) {
+    return null
+  }
+  const { token } = credential
   try {
     const payload = await verifyToken(token)
     const [user] = await sql`

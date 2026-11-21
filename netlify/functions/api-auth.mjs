@@ -1,10 +1,15 @@
 import { randomBytes, createHash } from 'crypto'
 const hashToken = (t) => createHash('sha256').update(t).digest('hex')
 import { sql } from './utils/db.js'
-import { signToken, hashPassword, checkPassword, requireAuth } from './utils/auth.js'
+import { signToken, hashPassword, checkPassword, requireAuth, isCrossSiteRequest } from './utils/auth.js'
 import { sendVerificationEmail, sendPasswordResetEmail } from './utils/email.js'
 import { json, error, cors, unauthorized, CORS_HEADERS } from './utils/response.js'
 import { googleRedirect, googleCallback } from './api-auth-google.mjs'
+
+// Same attributes as the Google sign-in session cookie (api-auth-google.mjs).
+const baseUrl = () => process.env.DEPLOY_PRIME_URL || process.env.URL || 'https://skyviewd.netlify.app'
+export const sessionCookie = (jwt) =>
+  `skyview_session=${encodeURIComponent(jwt)}; HttpOnly${baseUrl().startsWith('https') ? '; Secure' : ''}; SameSite=Lax; Path=/; Max-Age=604800`
 
 export const config = { path: '/api/auth/*' }
 
@@ -13,6 +18,15 @@ export default async (req, context) => {
 
   const url = new URL(req.url)
   const route = url.pathname.replace('/api/auth', '')
+
+  // Login and register set the session cookie, so they only accept same-site
+  // JSON requests: a cross-site form must not sign the browser into an account.
+  if (req.method === 'POST' && (route === '/register' || route === '/login')) {
+    if (isCrossSiteRequest(req)) return error('Forbidden', 403)
+    if (!(req.headers.get('content-type') || '').toLowerCase().startsWith('application/json')) {
+      return error('Content-Type must be application/json', 415)
+    }
+  }
 
   if (req.method === 'POST' && route === '/register')        return register(req)
   if (req.method === 'POST' && route === '/login')           return login(req)
@@ -69,7 +83,8 @@ async function register(req) {
 
   const { session_version: sv, ...publicUser } = user
   const jwt = await signToken({ sub: user.id, role: user.role, sv })
-  return json({ user: publicUser, token: jwt }, 201)
+  const headers = { ...CORS_HEADERS, 'Set-Cookie': sessionCookie(jwt) }
+  return new Response(JSON.stringify({ user: publicUser }), { status: 201, headers })
 }
 
 async function login(req) {
@@ -93,7 +108,8 @@ async function login(req) {
 
   const { password_hash: _, session_version: sv, ...safeUser } = user
   const jwt = await signToken({ sub: user.id, role: user.role, sv })
-  return json({ user: safeUser, token: jwt })
+  const headers = { ...CORS_HEADERS, 'Set-Cookie': sessionCookie(jwt) }
+  return new Response(JSON.stringify({ user: safeUser }), { status: 200, headers })
 }
 
 async function me(req) {
