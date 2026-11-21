@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { api } from './api'
+import { startSession, signOut } from './session'
 
 const AuthContext = createContext(null)
 
@@ -8,22 +9,15 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Sessions live in the HttpOnly cookie only. Drop the token older builds
-    // kept in localStorage, and the ?oauth=1 marker from the Google redirect.
-    try {
-      localStorage.removeItem('skyview_token')
-    } catch {
-      // Storage blocked by browser policy: nothing to clean up.
-    }
-    if (new URLSearchParams(window.location.search).get('oauth') === '1') {
-      window.history.replaceState({}, '', window.location.pathname)
-    }
-    // Call /me — the HttpOnly session cookie is sent automatically for
-    // same-origin requests; no JS token read required.
-    api.auth.me()
-      .then(setUser)
-      .catch(() => {})
-      .finally(() => setLoading(false))
+    // Sessions live in the HttpOnly cookie only; the browser never stores a token.
+    startSession({
+      getStorage: () => window.localStorage,
+      location: window.location,
+      history: window.history,
+      me: api.auth.me,
+      setUser,
+      setLoading,
+    })
   }, [])
 
   const login = async (email, password) => {
@@ -38,13 +32,7 @@ export function AuthProvider({ children }) {
     return user
   }
 
-  // Clear local state only once the server has cleared the session cookie, so
-  // the UI never shows signed-out while the server session is still valid.
-  // On failure the error propagates and the user stays signed in.
-  const logout = async () => {
-    await api.auth.logout()
-    setUser(null)
-  }
+  const logout = () => signOut({ logout: api.auth.logout, setUser })
 
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout }}>

@@ -17,6 +17,7 @@ process.env.DATABASE_URL ??= 'postgres://user:pass@localhost:5432/db';
 process.env.URL = 'https://skyview.example';
 const { signToken, requireAuth, isCrossSiteRequest } = await import('../../netlify/functions/utils/auth.js');
 const { default: handler } = await import('../../netlify/functions/api-auth.mjs');
+const { startSession, signOut } = await import('../../platform/src/lib/session.js');
 
 const USER = { id: 'u1', email: 'a@example.com', role: 'client', name: 'A' };
 const ORIGIN = 'https://skyview.example';
@@ -140,9 +141,64 @@ describe('platform code keeps the token out of page storage', () => {
     expect(api).not.toMatch(/localStorage|Authorization/);
     expect(api).toContain("credentials: 'include'");
     expect(auth).not.toMatch(/localStorage\.(setItem|getItem)\(\s*['"]skyview_token/);
-    // Blocked storage cannot stop session start-up, and a failed logout keeps the user signed in.
-    expect(auth).toMatch(/try\s*\{\s*localStorage\.removeItem\('skyview_token'\)/);
-    expect(auth).not.toMatch(/finally\s*\{\s*setUser\(null\)/);
+    // The provider delegates start-up and sign-out to the tested session helpers.
+    expect(auth).toMatch(/startSession\(/);
+    expect(auth).toMatch(/signOut\(/);
     expect(readFileSync(resolve('scripts/conversion-tracking.js'), 'utf-8')).not.toContain('skyview_token');
+  });
+});
+
+describe('platform session start-up and sign-out', () => {
+  const base = (over = {}) => ({
+    getStorage: () => ({ removeItem: vi.fn() }),
+    location: { search: '', pathname: '/app' },
+    history: { replaceState: vi.fn() },
+    me: vi.fn(async () => USER),
+    setUser: vi.fn(),
+    setLoading: vi.fn(),
+    ...over,
+  });
+
+  it('removes the legacy token, loads the user and finishes loading', async () => {
+    const removeItem = vi.fn();
+    const deps = base({ getStorage: () => ({ removeItem }) });
+    await startSession(deps);
+    expect(removeItem).toHaveBeenCalledWith('skyview_token');
+    expect(deps.setUser).toHaveBeenCalledWith(USER);
+    expect(deps.setLoading).toHaveBeenCalledWith(false);
+  });
+
+  it.each([
+    ['reading storage throws', () => { throw new Error('SecurityError'); }],
+    ['removeItem throws', () => ({ removeItem: () => { throw new Error('SecurityError'); } })],
+  ])('still calls /me and finishes loading when %s', async (_label, getStorage) => {
+    const deps = base({ getStorage });
+    await expect(startSession(deps)).resolves.toBeUndefined();
+    expect(deps.me).toHaveBeenCalled();
+    expect(deps.setUser).toHaveBeenCalledWith(USER);
+    expect(deps.setLoading).toHaveBeenCalledWith(false);
+  });
+
+  it('finishes loading signed out when /me fails', async () => {
+    const deps = base({ me: vi.fn(async () => { throw new Error('401'); }) });
+    await startSession(deps);
+    expect(deps.setUser).not.toHaveBeenCalled();
+    expect(deps.setLoading).toHaveBeenCalledWith(false);
+  });
+
+  it('clears the user only after a successful logout', async () => {
+    const order = [];
+    const logout = vi.fn(async () => { order.push('server'); });
+    const setUser = vi.fn(() => order.push('local'));
+    await signOut({ logout, setUser });
+    expect(setUser).toHaveBeenCalledWith(null);
+    expect(order).toEqual(['server', 'local']);
+  });
+
+  it('keeps the user signed in and rethrows when logout fails', async () => {
+    const setUser = vi.fn();
+    const failure = new Error('network');
+    await expect(signOut({ logout: async () => { throw failure; }, setUser })).rejects.toBe(failure);
+    expect(setUser).not.toHaveBeenCalled();
   });
 });
