@@ -8,18 +8,11 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // If the OAuth callback redirected here with ?oauth=1, flush any stale
-    // skyview_token from localStorage so it can't mask the new HttpOnly session
-    // cookie on subsequent requests.
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('oauth') === '1') {
-      localStorage.removeItem('skyview_token')
+    // Sessions live in the HttpOnly cookie only. Drop the token older builds
+    // kept in localStorage, and the ?oauth=1 marker from the Google redirect.
+    localStorage.removeItem('skyview_token')
+    if (new URLSearchParams(window.location.search).get('oauth') === '1') {
       window.history.replaceState({}, '', window.location.pathname)
-    }
-    // Legacy migration: remove any leftover skyview_token from the old
-    // email/password flow (we now use HttpOnly cookies for all auth).
-    if (localStorage.getItem('skyview_token')) {
-      localStorage.removeItem('skyview_token')
     }
     // Call /me — the HttpOnly session cookie is sent automatically for
     // same-origin requests; no JS token read required.
