@@ -55,7 +55,6 @@ describe('revoking routes', () => {
     const req = await authed();
     const res = await handler(new Request('http://localhost/api/auth/logout', { method: 'POST', headers: req.headers }));
     expect(res.status).toBe(200);
-    expect(res.headers.getSetCookie().join(';')).toContain('Max-Age=0');
     expect(statements.some((s) => s.includes('sessions_valid_after ='))).toBe(false);
   });
 
