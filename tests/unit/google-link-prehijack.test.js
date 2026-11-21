@@ -4,7 +4,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // was set on an unverified local account by whoever registered it first.
 const { sqlMock } = vi.hoisted(() => ({ sqlMock: vi.fn() }));
 vi.mock('../../netlify/functions/utils/db.js', () => ({ sql: sqlMock }));
-vi.mock('../../netlify/functions/utils/auth.js', () => ({ signToken: vi.fn().mockResolvedValue('jwt') }));
+vi.mock('../../netlify/functions/utils/auth.js', () => ({
+  signToken: vi.fn().mockResolvedValue('jwt'),
+}));
 
 const { googleCallback } = await import('../../netlify/functions/api-auth-google.mjs');
 
@@ -50,6 +52,8 @@ describe('google callback linking an existing local account', () => {
     expect(statements.some((s) => s.includes('UPDATE users') && s.includes('google_id'))).toBe(true);
     expect(statements.some((s) => s.includes('UPDATE users') && s.includes('email_verified'))).toBe(true);
     expect(statements.some((s) => s.includes('password_hash = NULL'))).toBe(true);
+    // ...and signs out every session the old password opened
+    expect(statements.some((s) => s.includes('session_version = session_version + 1'))).toBe(true);
   });
 
   it('keeps the password of an already verified local account', async () => {

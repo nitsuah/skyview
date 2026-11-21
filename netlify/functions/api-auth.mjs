@@ -21,7 +21,8 @@ export default async (req, context) => {
   if (req.method === 'POST' && route === '/forgot-password')         return forgotPassword(req)
   if (req.method === 'POST' && route === '/reset-password')          return resetPassword(req)
   if (req.method === 'POST' && route === '/resend-verification')     return resendVerification(req)
-  if (req.method === 'POST' && route === '/logout')                  return logout()
+  if (req.method === 'POST' && route === '/logout')                  return logout(req)
+  if (req.method === 'POST' && route === '/logout-all')              return logout(req, { everywhere: true })
   if (req.method === 'GET'  && route === '/google')          return googleRedirect(req, url)
   if (req.method === 'GET'  && route === '/google/callback') return googleCallback(req, url)
 
@@ -51,7 +52,7 @@ async function register(req) {
   const [user] = await sql`
     INSERT INTO users (email, password_hash, role, name)
     VALUES (${email.toLowerCase().trim()}, ${password_hash}, ${role}, ${name.trim()})
-    RETURNING id, email, role, name
+    RETURNING id, email, role, name, session_version
   `
 
   if (role === 'operator') {
@@ -66,8 +67,9 @@ async function register(req) {
     sendVerificationEmail(user.email, token).catch(console.error)
   }
 
-  const jwt = await signToken({ sub: user.id, role: user.role })
-  return json({ user, token: jwt }, 201)
+  const { session_version: sv, ...publicUser } = user
+  const jwt = await signToken({ sub: user.id, role: user.role, sv })
+  return json({ user: publicUser, token: jwt }, 201)
 }
 
 async function login(req) {
@@ -78,7 +80,7 @@ async function login(req) {
   if (!email || !password) return error('email and password are required')
 
   const [user] = await sql`
-    SELECT id, email, role, name, password_hash, active, email_verified
+    SELECT id, email, role, name, password_hash, active, email_verified, session_version
     FROM users WHERE email = ${email.toLowerCase().trim()}
   `
   if (!user || !user.active) return error('Invalid email or password', 401)
@@ -89,8 +91,8 @@ async function login(req) {
 
   if (!user.email_verified) return error('Please verify your email before signing in. Check your inbox or use the resend option on the verify page.', 403)
 
-  const { password_hash: _, ...safeUser } = user
-  const jwt = await signToken({ sub: user.id, role: user.role })
+  const { password_hash: _, session_version: sv, ...safeUser } = user
+  const jwt = await signToken({ sub: user.id, role: user.role, sv })
   return json({ user: safeUser, token: jwt })
 }
 
@@ -201,12 +203,19 @@ async function resetPassword(req) {
   `
   if (!claimed) return error('Invalid or expired reset link', 400)
 
-  await sql`UPDATE users SET password_hash = ${password_hash} WHERE id = ${claimed.user_id}`
+  await sql`UPDATE users SET password_hash = ${password_hash}, session_version = session_version + 1 WHERE id = ${claimed.user_id}`
 
   return json({ ok: true })
 }
 
-function logout() {
+// Plain logout clears this device's cookie. "Sign out everywhere" (/logout-all)
+// also bumps the user's session version so every earlier token is rejected.
+async function logout(req, { everywhere = false } = {}) {
+  if (everywhere) {
+    const user = await requireAuth(req, sql)
+    if (!user) return json({ error: 'Unauthorized' }, 401)
+    await sql`UPDATE users SET session_version = session_version + 1 WHERE id = ${user.id}`
+  }
   const base   = process.env.DEPLOY_PRIME_URL || process.env.URL || 'https://skyviewd.netlify.app'
   const secure = base.startsWith('https') ? '; Secure' : ''
   const clear  = `skyview_session=; HttpOnly${secure}; SameSite=Lax; Path=/; Max-Age=0`

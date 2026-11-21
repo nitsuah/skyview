@@ -93,25 +93,32 @@ export async function googleCallback(req, url) {
   if (!verified_email) return Response.redirect(`${base}/app/login?error=email_not_verified`, 302)
 
   // Find existing user by Google ID
-  let [user] = await sql`SELECT id, email, role, name, active FROM users WHERE google_id = ${google_id}`
+  let [user] = await sql`SELECT id, email, role, name, active, session_version FROM users WHERE google_id = ${google_id}`
 
   if (!user) {
     const [existing] = await sql`
-      SELECT id, email, role, name, active, email_verified FROM users WHERE email = ${email.toLowerCase().trim()}
+      SELECT id, email, role, name, active, email_verified, session_version FROM users WHERE email = ${email.toLowerCase().trim()}
     `
     if (existing) {
       if (existing.email_verified) {
         await sql`UPDATE users SET google_id = ${google_id}, email_verified = true WHERE id = ${existing.id}`
       } else {
         // Unverified local account: its password may belong to whoever registered first. Drop it.
-        await sql`UPDATE users SET google_id = ${google_id}, email_verified = true, password_hash = NULL WHERE id = ${existing.id}`
+        // Bumping the session version also signs out every session the old password opened.
+        const [bumped] = await sql`
+          UPDATE users SET google_id = ${google_id}, email_verified = true, password_hash = NULL,
+            session_version = session_version + 1
+          WHERE id = ${existing.id}
+          RETURNING session_version
+        `
+        existing.session_version = bumped?.session_version ?? existing.session_version
       }
       user = existing
     } else {
       const [created] = await sql`
         INSERT INTO users (email, password_hash, role, name, google_id, email_verified)
         VALUES (${email.toLowerCase().trim()}, NULL, ${role}, ${name ?? email.split('@')[0]}, ${google_id}, true)
-        RETURNING id, email, role, name, active
+        RETURNING id, email, role, name, active, session_version
       `
       user = created
       if (role === 'operator') {
@@ -122,7 +129,7 @@ export async function googleCallback(req, url) {
 
   if (!user.active) return Response.redirect(`${base}/app/login?error=account_disabled`, 302)
 
-  const jwt = await signToken({ sub: user.id, role: user.role })
+  const jwt = await signToken({ sub: user.id, role: user.role, sv: user.session_version ?? 0 })
   const sf  = secureFl()
   // Clear the short-lived state cookie and set the session cookie (HttpOnly — never readable by JS)
   const clearState  = `oauth_state=; HttpOnly${sf}; SameSite=Lax; Path=/api/auth/google; Max-Age=0`
