@@ -1,7 +1,7 @@
 import { randomBytes, createHash } from 'crypto'
 const hashToken = (t) => createHash('sha256').update(t).digest('hex')
 import { sql } from './utils/db.js'
-import { signToken, hashPassword, checkPassword, requireAuth } from './utils/auth.js'
+import { signToken, hashPassword, checkPassword, requireAuth, revokeCutoff } from './utils/auth.js'
 import { sendVerificationEmail, sendPasswordResetEmail } from './utils/email.js'
 import { json, error, cors, unauthorized, CORS_HEADERS } from './utils/response.js'
 import { googleRedirect, googleCallback } from './api-auth-google.mjs'
@@ -22,6 +22,7 @@ export default async (req, context) => {
   if (req.method === 'POST' && route === '/reset-password')          return resetPassword(req)
   if (req.method === 'POST' && route === '/resend-verification')     return resendVerification(req)
   if (req.method === 'POST' && route === '/logout')                  return logout(req)
+  if (req.method === 'POST' && route === '/logout-all')              return logout(req, { everywhere: true })
   if (req.method === 'GET'  && route === '/google')          return googleRedirect(req, url)
   if (req.method === 'GET'  && route === '/google/callback') return googleCallback(req, url)
 
@@ -201,16 +202,18 @@ async function resetPassword(req) {
   `
   if (!claimed) return error('Invalid or expired reset link', 400)
 
-  await sql`UPDATE users SET password_hash = ${password_hash}, sessions_valid_after = NOW() WHERE id = ${claimed.user_id}`
+  await sql`UPDATE users SET password_hash = ${password_hash}, sessions_valid_after = ${revokeCutoff()} WHERE id = ${claimed.user_id}`
 
   return json({ ok: true })
 }
 
-async function logout(req) {
-  const user = await requireAuth(req, sql)
-  if (user) {
-    // Revoke all sessions for this user (all devices) by moving the cutoff
-    await sql`UPDATE users SET sessions_valid_after = NOW() WHERE id = ${user.id}`
+// Plain logout clears this device's cookie. "Sign out everywhere" (/logout-all)
+// also moves the user's cutoff so every token issued before now is rejected.
+async function logout(req, { everywhere = false } = {}) {
+  if (everywhere) {
+    const user = await requireAuth(req, sql)
+    if (!user) return json({ error: 'Unauthorized' }, 401)
+    await sql`UPDATE users SET sessions_valid_after = ${revokeCutoff()} WHERE id = ${user.id}`
   }
   const base   = process.env.DEPLOY_PRIME_URL || process.env.URL || 'https://skyviewd.netlify.app'
   const secure = base.startsWith('https') ? '; Secure' : ''

@@ -4,7 +4,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // was set on an unverified local account by whoever registered it first.
 const { sqlMock } = vi.hoisted(() => ({ sqlMock: vi.fn() }));
 vi.mock('../../netlify/functions/utils/db.js', () => ({ sql: sqlMock }));
-vi.mock('../../netlify/functions/utils/auth.js', () => ({ signToken: vi.fn().mockResolvedValue('jwt') }));
+vi.mock('../../netlify/functions/utils/auth.js', () => ({
+  signToken: vi.fn().mockResolvedValue('jwt'),
+  revokeCutoff: () => '2026-11-21T00:00:00.000Z',
+}));
 
 const { googleCallback } = await import('../../netlify/functions/api-auth-google.mjs');
 

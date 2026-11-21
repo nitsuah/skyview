@@ -8,6 +8,11 @@ const getSecret = () => {
   return new TextEncoder().encode(s)
 }
 
+// Session revocation cutoff, taken from this function's clock (the same clock
+// that stamps token iat), so a DB clock running ahead cannot reject the token
+// issued right after a password reset or account link.
+export const revokeCutoff = () => new Date().toISOString()
+
 export async function signToken(payload) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })

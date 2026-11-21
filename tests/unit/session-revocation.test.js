@@ -50,12 +50,26 @@ describe('requireAuth honours sessions_valid_after', () => {
 });
 
 describe('revoking routes', () => {
-  it('POST /logout moves the cutoff for the signed-in user', async () => {
+  it('POST /logout clears this device only and leaves other sessions valid', async () => {
     withUser({ sessions_valid_after: null });
     const req = await authed();
     const res = await handler(new Request('http://localhost/api/auth/logout', { method: 'POST', headers: req.headers }));
     expect(res.status).toBe(200);
-    expect(statements.some((s) => s.includes('UPDATE users') && s.includes('sessions_valid_after = NOW()'))).toBe(true);
+    expect(res.headers.getSetCookie().join(';')).toContain('Max-Age=0');
+    expect(statements.some((s) => s.includes('sessions_valid_after ='))).toBe(false);
+  });
+
+  it('POST /logout-all moves the cutoff for the signed-in user', async () => {
+    withUser({ sessions_valid_after: null });
+    const req = await authed();
+    const res = await handler(new Request('http://localhost/api/auth/logout-all', { method: 'POST', headers: req.headers }));
+    expect(res.status).toBe(200);
+    expect(statements.some((s) => s.includes('UPDATE users') && s.includes('sessions_valid_after ='))).toBe(true);
+  });
+
+  it('POST /logout-all without a valid session is 401', async () => {
+    const res = await handler(new Request('http://localhost/api/auth/logout-all', { method: 'POST' }));
+    expect(res.status).toBe(401);
   });
 
   it('POST /reset-password moves the cutoff for the reset user', async () => {
@@ -64,6 +78,6 @@ describe('revoking routes', () => {
       method: 'POST', body: JSON.stringify({ token: 't', password: 'longenough1' }),
     }));
     expect(res.status).toBe(200);
-    expect(statements.some((s) => s.includes('UPDATE users') && s.includes('sessions_valid_after = NOW()'))).toBe(true);
+    expect(statements.some((s) => s.includes('UPDATE users') && s.includes('sessions_valid_after ='))).toBe(true);
   });
 });
