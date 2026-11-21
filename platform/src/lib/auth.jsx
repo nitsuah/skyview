@@ -10,7 +10,11 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // Sessions live in the HttpOnly cookie only. Drop the token older builds
     // kept in localStorage, and the ?oauth=1 marker from the Google redirect.
-    localStorage.removeItem('skyview_token')
+    try {
+      localStorage.removeItem('skyview_token')
+    } catch {
+      // Storage blocked by browser policy: nothing to clean up.
+    }
     if (new URLSearchParams(window.location.search).get('oauth') === '1') {
       window.history.replaceState({}, '', window.location.pathname)
     }
@@ -34,12 +38,12 @@ export function AuthProvider({ children }) {
     return user
   }
 
+  // Clear local state only once the server has cleared the session cookie, so
+  // the UI never shows signed-out while the server session is still valid.
+  // On failure the error propagates and the user stays signed in.
   const logout = async () => {
-    try {
-      await api.auth.logout()
-    } finally {
-      setUser(null)
-    }
+    await api.auth.logout()
+    setUser(null)
   }
 
   return (

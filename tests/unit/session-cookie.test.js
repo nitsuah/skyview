@@ -65,6 +65,35 @@ describe('email/password sign-in sets the session cookie', () => {
   });
 });
 
+describe('login and register refuse requests that could plant a session', () => {
+  const attempt = (path, headers, body) => handler(new Request(`${ORIGIN}/api/auth${path}`, {
+    method: 'POST', headers, body: typeof body === 'string' ? body : JSON.stringify(body),
+  }));
+  const creds = { email: 'a@example.com', password: 'longenough' };
+
+  it.each(['/login', '/register'])('%s rejects a cross-site request with 403 and no cookie', async (path) => {
+    for (const headers of [
+      { 'content-type': 'application/json', 'sec-fetch-site': 'cross-site' },
+      { 'content-type': 'application/json', origin: 'https://evil.example' },
+    ]) {
+      const res = await attempt(path, headers, { ...creds, role: 'client', name: 'A' });
+      expect(res.status).toBe(403);
+      expect(res.headers.get('set-cookie')).toBeNull();
+    }
+  });
+
+  it.each(['/login', '/register'])('%s rejects a non-JSON body (form post) with 415', async (path) => {
+    const res = await attempt(path, { 'content-type': 'text/plain' }, JSON.stringify(creds));
+    expect(res.status).toBe(415);
+    expect(res.headers.get('set-cookie')).toBeNull();
+  });
+
+  it('still accepts a same-origin JSON login', async () => {
+    const res = await attempt('/login', { 'content-type': 'application/json', origin: ORIGIN, 'sec-fetch-site': 'same-origin' }, creds);
+    expect(res.status).toBe(200);
+  });
+});
+
 describe('requireAuth with the session cookie', () => {
   const cookieRequest = async (method, headers = {}) => new Request(`${ORIGIN}/api/jobs`, {
     method,
@@ -106,6 +135,9 @@ describe('platform code keeps the token out of page storage', () => {
     expect(api).not.toMatch(/localStorage|Authorization/);
     expect(api).toContain("credentials: 'include'");
     expect(auth).not.toMatch(/localStorage\.(setItem|getItem)\(\s*['"]skyview_token/);
+    // Blocked storage cannot stop session start-up, and a failed logout keeps the user signed in.
+    expect(auth).toMatch(/try\s*\{\s*localStorage\.removeItem\('skyview_token'\)/);
+    expect(auth).not.toMatch(/finally\s*\{\s*setUser\(null\)/);
     expect(readFileSync(resolve('scripts/conversion-tracking.js'), 'utf-8')).not.toContain('skyview_token');
   });
 });

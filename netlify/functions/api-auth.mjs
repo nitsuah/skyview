@@ -1,7 +1,7 @@
 import { randomBytes, createHash } from 'crypto'
 const hashToken = (t) => createHash('sha256').update(t).digest('hex')
 import { sql } from './utils/db.js'
-import { signToken, hashPassword, checkPassword, requireAuth } from './utils/auth.js'
+import { signToken, hashPassword, checkPassword, requireAuth, isCrossSiteRequest } from './utils/auth.js'
 import { sendVerificationEmail, sendPasswordResetEmail } from './utils/email.js'
 import { json, error, cors, unauthorized, CORS_HEADERS } from './utils/response.js'
 import { googleRedirect, googleCallback } from './api-auth-google.mjs'
@@ -18,6 +18,15 @@ export default async (req, context) => {
 
   const url = new URL(req.url)
   const route = url.pathname.replace('/api/auth', '')
+
+  // Login and register set the session cookie, so they only accept same-site
+  // JSON requests: a cross-site form must not sign the browser into an account.
+  if (req.method === 'POST' && (route === '/register' || route === '/login')) {
+    if (isCrossSiteRequest(req)) return error('Forbidden', 403)
+    if (!(req.headers.get('content-type') || '').toLowerCase().startsWith('application/json')) {
+      return error('Content-Type must be application/json', 415)
+    }
+  }
 
   if (req.method === 'POST' && route === '/register')        return register(req)
   if (req.method === 'POST' && route === '/login')           return login(req)

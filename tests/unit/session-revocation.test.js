@@ -93,7 +93,8 @@ describe('revoking routes', () => {
   it('login issues a token that carries the current version', async () => {
     withUser({ session_version: 5, password_hash: 'h', active: true, email_verified: true });
     const res = await handler(new Request('http://localhost/api/auth/login', {
-      method: 'POST', body: JSON.stringify({ email: 'a@example.com', password: 'longenough1' }),
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: 'a@example.com', password: 'longenough1' }),
     }));
     // The token travels only in the HttpOnly cookie (#213)
     const { user } = await res.json();
