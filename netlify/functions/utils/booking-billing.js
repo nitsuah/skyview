@@ -62,13 +62,14 @@ export async function releasePayment(booking) {
 
 // Captures the held funds. Returns the captured PaymentIntent, or null when
 // there is nothing to capture. Throws on Stripe failure. The capture is
-// idempotent per booking, and if it errors but the PaymentIntent has in fact
+// idempotent per attempt (each retry has its own key, so Stripe never replays an
+// earlier attempt's cached error), and if it errors but the PaymentIntent has in fact
 // succeeded (e.g. a retry after a lost response), that intent is returned.
 export async function capturePayment(booking) {
   if (!stripe || !booking.stripe_payment_intent_id) return null
   const piId = booking.stripe_payment_intent_id
   try {
-    return await stripe.paymentIntents.capture(piId, {}, { idempotencyKey: `capture-${booking.id}` })
+    return await stripe.paymentIntents.capture(piId, {}, { idempotencyKey: `capture-${booking.id}-${booking.capture_attempts ?? 0}` })
   } catch (err) {
     let intent = null
     try {
@@ -77,6 +78,13 @@ export async function capturePayment(booking) {
     if (intent?.status === 'succeeded') return intent
     throw err
   }
+}
+
+// Current PaymentIntent for a booking, or null when payments are off or none was
+// created. Throws if Stripe cannot be reached.
+export async function retrievePayment(booking) {
+  if (!stripe || !booking.stripe_payment_intent_id) return null
+  return stripe.paymentIntents.retrieve(booking.stripe_payment_intent_id)
 }
 
 export async function payoutAndInvoice(booking, chargeId = null) {

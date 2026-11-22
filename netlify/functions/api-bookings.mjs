@@ -5,7 +5,7 @@ import { sendBookingConfirmedEmail, sendBookingDeclinedEmail, sendBookingComplet
 import { checkOperatorAvailability } from './utils/scheduling.js'
 import {
   MIN_CHARGE_CENTS, paymentsEnabled, splitTotal, priceBooking,
-  authorizePayment, releasePayment, capturePayment, payoutAndInvoice,
+  authorizePayment, releasePayment, capturePayment, retrievePayment, payoutAndInvoice,
 } from './utils/booking-billing.js'
 
 export const config = { path: '/api/bookings*' }
@@ -263,6 +263,28 @@ async function cancelBooking(req, id) {
   if (!booking) return notFound()
   if (booking.client_id !== user.id && user.role !== 'admin') return forbidden()
 
+  if (booking.status !== 'capture_failed') return error('Booking is not in a cancellable state', 409)
+
+  // Never release a hold (or reopen the job) without first checking the funds
+  // were not in fact captured. If Stripe cannot be reached, change nothing.
+  let intent
+  try {
+    intent = await retrievePayment(booking)
+  } catch (err) {
+    console.error('Stripe retrieve failed for booking', booking.id, err.message)
+    return error('Could not verify the payment status; please try again', 503)
+  }
+  if (intent?.status === 'succeeded') {
+    // Funds were captured after all: reconcile to completed instead of cancelling.
+    const [reconciled] = await sql`
+      UPDATE bookings SET status = 'completed', completed_at = NOW()
+      WHERE id = ${id} AND status = 'capture_failed'
+      RETURNING *
+    `
+    if (!reconciled) return error('Booking is not in a cancellable state', 409)
+    return finishCompletion(reconciled, intent)
+  }
+
   const [updated] = await sql`
     UPDATE bookings SET status = 'cancelled', cancelled_at = NOW()
     WHERE id = ${id} AND status = 'capture_failed'
@@ -300,7 +322,8 @@ async function completeBooking(req, id) {
   // statement so a concurrent change between the SELECT and here cannot slip through.
   // The correlated subquery re-reads jobs.status at UPDATE time, eliminating the race.
   const [updated] = await sql`
-    UPDATE bookings SET status = 'completed', completed_at = NOW()
+    UPDATE bookings SET status = 'completed', completed_at = NOW(),
+      capture_attempts = capture_attempts + 1
     WHERE id = ${id}
       AND status = ANY(${COMPLETABLE_STATUSES})
       AND (SELECT status FROM jobs WHERE id = job_id) != 'cancelled'
@@ -324,9 +347,14 @@ async function completeBooking(req, id) {
     return json({ error: 'Payment capture failed; completion can be retried', booking: { ...updated, status: 'capture_failed', completed_at: null } }, 402)
   }
 
+  return finishCompletion(updated, capturedPi)
+}
+
+// Post-capture steps shared by completion and cancel-time reconciliation.
+async function finishCompletion(updated, capturedPi) {
   // Update job only after payment is confirmed (or when Stripe is not configured).
   // Exclude 'cancelled' so a concurrent job cancellation is never overwritten.
-  await sql`UPDATE jobs SET status = 'completed' WHERE id = ${booking.job_id} AND status NOT IN ('completed', 'cancelled')`
+  await sql`UPDATE jobs SET status = 'completed' WHERE id = ${updated.job_id} AND status NOT IN ('completed', 'cancelled')`
 
   if (capturedPi) {
     await sql`UPDATE bookings SET payout_status = 'pending' WHERE id = ${updated.id}`
