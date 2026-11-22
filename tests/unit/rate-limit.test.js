@@ -68,13 +68,19 @@ describe('auth endpoints are throttled', () => {
     expect(last.headers.get('retry-after')).toBeTruthy();
   });
 
-  it('limits password reset requests per account', async () => {
-    let last;
-    for (let i = 0; i < 4; i++) {
-      last = await authHandler(post('/forgot-password', { email: 'a@b.co' }, `8.8.8.${i}`));
-    }
-    expect(last.status).toBe(429);
-  });
+  for (const route of ['/forgot-password', '/resend-verification']) {
+    it(`limits ${route} per account without revealing it (200, no lookup)`, async () => {
+      const lookups = () =>
+        sqlMock.mock.calls.filter(([strings]) => /FROM users/.test(strings.join('?'))).length;
+      const statuses = [];
+      for (let i = 0; i < 4; i++) {
+        statuses.push((await authHandler(post(route, { email: 'a@b.co' }, `8.8.8.${i}`))).status);
+      }
+      // Same answer as an unknown address, and the over-limit request stops before the lookup.
+      expect(statuses).toEqual([200, 200, 200, 200]);
+      expect(lookups()).toBe(3);
+    });
+  }
 
   it('limits login attempts per address', async () => {
     let last;

@@ -176,8 +176,9 @@ async function resendVerification(req) {
   const body = await req.json().catch(() => null)
   const { email } = body ?? {}
   if (!email) return error('email is required')
-  const limited = await accountLimit('resend:acct', email, { max: 3, windowSec: HOUR })
-  if (limited) return limited
+  // Over the per-account limit: answer like any other request (no 429), so the
+  // response says nothing about the address; just don't send anything.
+  if (await accountLimit('resend:acct', email, { max: 3, windowSec: HOUR })) return json({ ok: true })
 
   const [user] = await sql`
     SELECT id, email_verified, active FROM users WHERE email = ${email.toLowerCase().trim()}
@@ -200,8 +201,8 @@ async function forgotPassword(req) {
 
   const { email } = body
   if (!email) return error('email is required')
-  const limited = await accountLimit('forgot:acct', email, { max: 3, windowSec: HOUR })
-  if (limited) return limited
+  // Same as resend: over the per-account limit looks like a normal request.
+  if (await accountLimit('forgot:acct', email, { max: 3, windowSec: HOUR })) return json({ ok: true })
 
   const [user] = await sql`SELECT id, active FROM users WHERE email = ${email.toLowerCase().trim()}`
   // Always return 200 to avoid email enumeration

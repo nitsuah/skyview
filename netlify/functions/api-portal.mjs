@@ -7,7 +7,6 @@ import {
   logPortalAccess,
 } from './utils/portal.js';
 import { getManifestForClient, findFile } from './utils/portal-manifest.js';
-import { sql } from './utils/db.js';
 import { throttle, requestIp } from './utils/rate-limit.js';
 import { json, error, cors, redirect } from './utils/response.js';
 
@@ -49,6 +48,8 @@ async function verify(req) {
   // Throttle access-code guessing per client address (fail closed if the
   // limiter store is unavailable).
   try {
+    // Loaded here so the other portal routes don't need the database.
+    const { sql } = await import('./utils/db.js');
     const limited = await throttle(sql, [['portal:ip', requestIp(req), { max: 10, windowSec: 600 }]]);
     if (limited) return limited;
   } catch (err) {
