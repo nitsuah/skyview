@@ -231,6 +231,12 @@
     var urlParams = new URLSearchParams(window.location.search);
     var codeFromUrl = urlParams.get('code');
     if (codeFromUrl) {
+        // Drop the code from the address bar and history entry before anything else.
+        urlParams.delete('code');
+        var remainingQuery = urlParams.toString();
+        try {
+            window.history.replaceState(null, '', window.location.pathname + (remainingQuery ? '?' + remainingQuery : '') + window.location.hash);
+        } catch { /* ignore history errors */ }
         document.getElementById('accessCode').value = codeFromUrl;
         if (isTokenExpired(codeFromUrl)) {
             showError('This access link has expired. Please contact us to request a new one.');
