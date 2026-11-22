@@ -42,7 +42,7 @@ async function pendingOperators() {
     SELECT
       u.id, u.name, u.email, u.created_at,
       op.faa_cert_number, op.faa_cert_expires_at, op.faa_cert_blob_key,
-      op.verification_status, op.service_types, op.bio, op.equipment
+      op.cert_revision, op.verification_status, op.service_types, op.bio, op.equipment
     FROM operator_profiles op
     JOIN users u ON op.user_id = u.id
     WHERE op.verification_status IN ('pending', 'under_review')

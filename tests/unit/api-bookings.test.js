@@ -352,6 +352,13 @@ describe('POST /api/bookings/:id/confirm', () => {
     for (const fn of allStripeFns()) expect(fn).not.toHaveBeenCalled();
   });
 
+  it('409s when payment setup has not finished', async () => {
+    requireAuthMock.mockResolvedValue(OPERATOR);
+    responses = [[/^SELECT \* FROM bookings WHERE id/, [{ ...baseBooking, stripe_payment_intent_id: null }]]];
+    expect((await call('POST', `/${BOOKING_ID}/confirm`)).status).toBe(409);
+    expect(ran(/SET status = 'confirmed'/)).toBe(false);
+  });
+
   it('409s when the booking is no longer pending', async () => {
     requireAuthMock.mockResolvedValue(OPERATOR);
     responses = [confirmResponses()[0]];
@@ -419,7 +426,7 @@ describe('POST /api/bookings/:id/decline', () => {
 });
 
 describe('POST /api/bookings/:id/complete', () => {
-  const completeResponses = ({ booking = baseBooking, opProfile = { stripe_account_id: 'acct_op', stripe_onboarded: true }, customerId = null } = {}) => [
+  const completeResponses = ({ booking = { ...baseBooking, status: 'confirmed' }, opProfile = { stripe_account_id: 'acct_op', stripe_onboarded: true }, customerId = null } = {}) => [
     [/^SELECT b\.\*, j\.status AS job_status/, [{ ...booking, job_status: 'booked' }]],
     [/^UPDATE bookings SET status = 'completed'/, [{ ...booking, status: 'completed' }]],
     [/FROM operator_profiles WHERE user_id/, opProfile ? [opProfile] : []],
@@ -495,18 +502,61 @@ describe('POST /api/bookings/:id/complete', () => {
     expect(emailMocks.sendBookingCompletedEmail).toHaveBeenCalledWith('otto@example.com', OPERATOR.name, { title: 'Roof survey' }, 8500);
   });
 
-  it('marks the booking disputed and leaves the job alone when capture fails', async () => {
+  it('moves to capture_failed, not completed or disputed, and leaves the job alone when capture fails', async () => {
     responses = completeResponses();
     stripeMock.paymentIntents.capture.mockRejectedValue(new Error('authorization expired'));
 
     const res = await call('POST', `/${BOOKING_ID}/complete`);
 
-    expect(res.status).toBe(200);
-    expect(res.body.status).toBe('disputed');
-    expect(ran(/^UPDATE bookings SET status = 'disputed'/)).toBe(true);
+    expect(res.status).toBe(402);
+    expect(res.body.booking.status).toBe('capture_failed');
+    expect(ran(/^UPDATE bookings SET status = 'capture_failed'/)).toBe(true);
+    expect(ran(/'disputed'/)).toBe(false);
     expect(ran(/^UPDATE jobs/)).toBe(false);
     expect(stripeMock.transfers.create).not.toHaveBeenCalled();
     expect(payoutStatuses()).toEqual([]);
+  });
+
+  it('treats a null capture result as a failure when payments are enabled', async () => {
+    responses = completeResponses();
+    stripeMock.paymentIntents.capture.mockResolvedValue(null);
+    const res = await call('POST', `/${BOOKING_ID}/complete`);
+    expect(res.status).toBe(402);
+    expect(ran(/^UPDATE bookings SET status = 'capture_failed'/)).toBe(true);
+    expect(ran(/^UPDATE jobs/)).toBe(false);
+  });
+
+  it('refuses completion without a PaymentIntent when payments are enabled', async () => {
+    responses = completeResponses({ booking: { ...baseBooking, status: 'confirmed', stripe_payment_intent_id: null } });
+    const res = await call('POST', `/${BOOKING_ID}/complete`);
+    expect(res.status).toBe(409);
+    expect(ran(/^UPDATE bookings SET status = 'completed'/)).toBe(false);
+    expect(ran(/^UPDATE jobs/)).toBe(false);
+  });
+
+  // [status, completion allowed]
+  it.each([
+    ['pending', false],
+    ['confirmed', true],
+    ['in_progress', true],
+    ['capture_failed', true],
+    ['completed', false],
+    ['cancelled', false],
+    ['disputed', false],
+  ])('booking status %s -> completion allowed: %s', async (status, allowed) => {
+    responses = completeResponses({ booking: { ...baseBooking, status } });
+    const res = await call('POST', `/${BOOKING_ID}/complete`);
+    expect(res.status).toBe(allowed ? 200 : 409);
+    expect(ran(/^UPDATE bookings SET status = 'completed'/)).toBe(allowed);
+    expect(stripeMock.paymentIntents.capture).toHaveBeenCalledTimes(allowed ? 1 : 0);
+  });
+
+  it('retries a capture_failed booking through to completion', async () => {
+    responses = completeResponses({ booking: { ...baseBooking, status: 'capture_failed' } });
+    const res = await call('POST', `/${BOOKING_ID}/complete`);
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('completed');
+    expect(ran(/^UPDATE jobs SET status = 'completed'/)).toBe(true);
   });
 
   it('keeps the completion but marks payout failed when the transfer fails', async () => {
@@ -546,8 +596,9 @@ describe('POST /api/bookings/:id/complete', () => {
     expect(stripeMock.invoices.create.mock.calls[0][0].customer).toBe('cus_existing');
   });
 
-  it('completes the job without any payment calls when the booking has no PaymentIntent', async () => {
-    responses = completeResponses({ booking: { ...baseBooking, stripe_payment_intent_id: null } });
+  it('completes the job without any payment calls when payments are off and the booking has no PaymentIntent', async () => {
+    stripeState.client = null;
+    responses = completeResponses({ booking: { ...baseBooking, status: 'confirmed', stripe_payment_intent_id: null } });
     const res = await call('POST', `/${BOOKING_ID}/complete`);
     expect(res.status).toBe(200);
     expect(ran(/^UPDATE jobs SET status = 'completed'/)).toBe(true);

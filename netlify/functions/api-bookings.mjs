@@ -10,6 +10,11 @@ import {
 
 export const config = { path: '/api/bookings*' }
 
+// Booking states from which completion may start. 'pending' is deliberately
+// absent: the operator must have accepted first. 'capture_failed' is the retry
+// path after a payment capture did not go through.
+export const COMPLETABLE_STATUSES = ['confirmed', 'in_progress', 'capture_failed']
+
 export default async (req, context) => {
   if (req.method === 'OPTIONS') return cors()
 
@@ -182,6 +187,10 @@ async function confirmBooking(req, id) {
   if (!booking) return notFound()
   if (booking.operator_id !== user.id) return forbidden()
 
+  // Payment setup must have finished before the operator can accept.
+  if (paymentsEnabled() && !booking.stripe_payment_intent_id)
+    return error('Payment setup for this booking has not finished', 409)
+
   // Re-check for a conflict with another booking this operator already confirmed
   // since this one was created — two pending requests can overlap; only one
   // may be accepted. checkOperatorAvailability only compares against
@@ -254,13 +263,19 @@ async function completeBooking(req, id) {
   if (!booking) return notFound()
   if (booking.client_id !== user.id && user.role !== 'admin') return forbidden()
 
-  // Atomic conditional update: fold the job-status guard into the same statement
-  // so a concurrent job cancellation between the SELECT and here cannot slip through.
+  if (!COMPLETABLE_STATUSES.includes(booking.status))
+    return error('Booking cannot be completed from its current status', 409)
+  // With payments on, a booking without an initialized payment cannot complete.
+  if (paymentsEnabled() && !booking.stripe_payment_intent_id)
+    return error('Payment setup for this booking has not finished', 409)
+
+  // Atomic conditional update: fold the status and job-status guards into the same
+  // statement so a concurrent change between the SELECT and here cannot slip through.
   // The correlated subquery re-reads jobs.status at UPDATE time, eliminating the race.
   const [updated] = await sql`
     UPDATE bookings SET status = 'completed', completed_at = NOW()
     WHERE id = ${id}
-      AND status IN ('pending', 'confirmed', 'in_progress')
+      AND status = ANY(${COMPLETABLE_STATUSES})
       AND (SELECT status FROM jobs WHERE id = job_id) != 'cancelled'
     RETURNING *
   `
@@ -269,11 +284,17 @@ async function completeBooking(req, id) {
   let capturedPi
   try {
     capturedPi = await capturePayment(updated)
+    // A required capture that returned nothing is a failure, not a completion.
+    if (paymentsEnabled() && !capturedPi) throw new Error('no payment captured')
   } catch (err) {
     console.error('Stripe capture failed for booking', updated.id, err.message)
-    await sql`UPDATE bookings SET status = 'disputed' WHERE id = ${updated.id}`
+    // Distinct failure state; completion can be retried from it.
+    await sql`
+      UPDATE bookings SET status = 'capture_failed', completed_at = NULL
+      WHERE id = ${updated.id} AND status = 'completed'
+    `
     // Job stays in its previous state since payment did not succeed
-    return json({ ...updated, status: 'disputed' })
+    return json({ error: 'Payment capture failed; completion can be retried', booking: { ...updated, status: 'capture_failed', completed_at: null } }, 402)
   }
 
   // Update job only after payment is confirmed (or when Stripe is not configured).

@@ -51,7 +51,8 @@ async function uploadCert(req) {
   const [updated] = await sql`
     UPDATE operator_profiles SET
       faa_cert_blob_key   = ${key},
-      verification_status = 'under_review'
+      verification_status = 'under_review',
+      cert_revision       = cert_revision + 1
     WHERE user_id = ${user.id}
     RETURNING id
   `

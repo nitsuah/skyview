@@ -178,7 +178,8 @@ async function updateProfile(req, id) {
       booking_url        = COALESCE(${booking_url ?? null}, booking_url),
       faa_cert_number    = COALESCE(${faa_cert_number ?? null}, faa_cert_number),
       faa_cert_expires_at = COALESCE(${faa_cert_expires_at ?? null}, faa_cert_expires_at),
-      verification_status = CASE WHEN ${certChanging} THEN 'pending' ELSE verification_status END
+      verification_status = CASE WHEN ${certChanging} THEN 'pending' ELSE verification_status END,
+      cert_revision       = cert_revision + CASE WHEN ${certChanging} THEN 1 ELSE 0 END
     WHERE user_id = ${targetId}
     RETURNING *
   `
@@ -253,6 +254,11 @@ async function verifyOperator(req, id) {
   const newStatus = statusMap[action]
   if (!newStatus) return error("action must be 'approve', 'reject', or 'suspend'")
 
+  // Approval is bound to the certificate revision the administrator reviewed.
+  const certRevision = body?.cert_revision
+  if (action === 'approve' && !Number.isInteger(certRevision))
+    return error('cert_revision is required to approve')
+
   const [op] = await sql`
     UPDATE operator_profiles SET
       verification_status = ${newStatus},
@@ -260,9 +266,14 @@ async function verifyOperator(req, id) {
       verified_at         = ${action === 'approve' ? new Date() : null},
       verified_by         = ${action === 'approve' ? user.id : null}
     WHERE user_id = ${id}
+      AND (${action !== 'approve'} OR cert_revision = ${certRevision ?? null})
     RETURNING *
   `
-  if (!op) return notFound()
+  if (!op) {
+    const [exists] = await sql`SELECT 1 FROM operator_profiles WHERE user_id = ${id}`
+    if (!exists) return notFound()
+    return error('Certificate details changed since review; please review again', 409)
+  }
 
   if (action === 'approve' && process.env.RESEND_API_KEY) {
     const [u] = await sql`SELECT email, name FROM users WHERE id = ${id}`
