@@ -7,6 +7,7 @@ import {
   logPortalAccess,
 } from './utils/portal.js';
 import { getManifestForClient, findFile } from './utils/portal-manifest.js';
+import { throttle, requestIp } from './utils/rate-limit.js';
 import { json, error, cors, redirect } from './utils/response.js';
 
 export const config = { path: '/api/portal/*' };
@@ -25,10 +26,6 @@ export default async (req) => {
   return error('Not found', 404);
 };
 
-function requestIp(req) {
-  return req.headers.get('x-nf-client-connection-ip') || req.headers.get('x-forwarded-for') || 'unknown';
-}
-
 function bearerToken(req) {
   const auth = req.headers.get('authorization') || '';
   return auth.startsWith('Bearer ') ? auth.slice(7) : null;
@@ -45,6 +42,18 @@ async function verify(req) {
   // request rather than falling back to a weaker (or no-op) check.
   const salt = process.env.PORTAL_SALT;
   if (!salt) {
+    return error('Client portal is not available', 503);
+  }
+
+  // Throttle access-code guessing per client address (fail closed if the
+  // limiter store is unavailable).
+  try {
+    // Loaded here so the other portal routes don't need the database.
+    const { sql } = await import('./utils/db.js');
+    const limited = await throttle(sql, [['portal:ip', requestIp(req), { max: 10, windowSec: 600 }]]);
+    if (limited) return limited;
+  } catch (err) {
+    console.error('portal rate limiter unavailable:', err.message);
     return error('Client portal is not available', 503);
   }
 

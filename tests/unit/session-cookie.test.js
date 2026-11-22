@@ -1,5 +1,8 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// These tests mock sql per statement; the rate limiter is covered in rate-limit.test.js.
+process.env.RATE_LIMIT_DISABLED = '1';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
