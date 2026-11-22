@@ -27,8 +27,8 @@ export function AuthProvider({ children }) {
   }
 
   const register = async (data) => {
+    // Registration does not start a session; the email must be verified first.
     const { user } = await api.auth.register(data)
-    setUser(user)
     return user
   }
 

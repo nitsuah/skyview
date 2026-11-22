@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Registration no longer starts a session, and every authenticated request requires a verified email, so an unverified account cannot act through an old or replayed session (#236).
 - The client portal, client gallery and thank-you pages load their scripts from files, and the site and app Content-Security-Policy no longer allows inline scripts; a unit test keeps served pages free of inline scripts and handlers (#213).
 - Google sign-in hardens account linking: when linking a verified Google identity to an existing unverified local account, the local password hash is cleared and the email is marked verified — preventing pre-hijack by whoever registered the email first. Session revocation is tracked in #235.
 - Server-side session revocation: password reset, Google linking of an unverified local account, and the new "sign out everywhere" (`POST /api/auth/logout-all`) increment `users.session_version`, so every earlier token for that user stops working; plain logout still clears only this device. Apply migration 007 before deploying (#235).

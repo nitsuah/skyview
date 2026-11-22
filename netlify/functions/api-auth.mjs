@@ -89,7 +89,7 @@ async function register(req) {
   const [user] = await sql`
     INSERT INTO users (email, password_hash, role, name)
     VALUES (${email.toLowerCase().trim()}, ${password_hash}, ${role}, ${name.trim()})
-    RETURNING id, email, role, name, session_version
+    RETURNING id, email, role, name
   `
 
   if (role === 'operator') {
@@ -104,10 +104,9 @@ async function register(req) {
     sendVerificationEmail(user.email, token).catch(console.error)
   }
 
-  const { session_version: sv, ...publicUser } = user
-  const jwt = await signToken({ sub: user.id, role: user.role, sv })
-  const headers = { ...CORS_HEADERS, 'Set-Cookie': sessionCookie(jwt) }
-  return new Response(JSON.stringify({ user: publicUser }), { status: 201, headers })
+  // No session until the email address is verified: sign-in happens after the
+  // verification link, through login.
+  return json({ user, verification_required: true }, 201)
 }
 
 async function login(req) {

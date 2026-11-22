@@ -18,14 +18,13 @@ const ROLES = [
 ]
 
 export default function Register() {
-  const { register, logout } = useAuth()
+  const { register } = useAuth()
   const navigate = useNavigate()
   const initialRole = new URLSearchParams(window.location.search).get('role') === 'operator' ? 'operator' : 'client'
   const [form, setForm]     = useState({ name: '', email: '', password: '', role: initialRole })
   const [error, setError]   = useState('')
   const [busy, setBusy]     = useState(false)
   const [verifyEmail, setVerifyEmail]       = useState('')
-  const [sessionClearFailed, setSessionClearFailed] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -38,15 +37,7 @@ export default function Register() {
       setBusy(false)
       return
     }
-    // Registration succeeded — clear the session so the unverified account
-    // can't be used until email is confirmed.
-    try {
-      await logout()
-    } catch {
-      // Cookie clear failed, so the session is still active and the user still
-      // signed in. Surface a retry so the user can attempt cleanup again.
-      setSessionClearFailed(true)
-    }
+    // Registration starts no session; the user signs in after verifying.
     setVerifyEmail(form.email)
     setBusy(false)
   }
@@ -61,15 +52,6 @@ export default function Register() {
           </a>
           <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📬</div>
           <h1 style={{ marginBottom: '0.5rem' }}>Check your inbox</h1>
-          {sessionClearFailed && (
-            <div className="alert alert-warning" style={{ textAlign: 'left', marginBottom: '1rem' }}>
-              Session cleanup failed — your browser session may remain active until it expires.{' '}
-              <button className="btn btn-ghost btn-sm"
-                onClick={() => logout().then(() => setSessionClearFailed(false)).catch(() => {})}>
-                Retry
-              </button>
-            </div>
-          )}
           <p className="text-muted" style={{ fontSize: 14, marginBottom: '1.5rem' }}>
             We sent a verification link to <strong>{verifyEmail}</strong>.<br />
             Click it to activate your account.
