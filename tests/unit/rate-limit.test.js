@@ -33,7 +33,7 @@ beforeEach(() => {
 const post = (path, body, ip = '1.1.1.1') =>
   new Request(`http://localhost/api/auth${path}`, {
     method: 'POST',
-    headers: { 'x-nf-client-connection-ip': ip },
+    headers: { 'x-nf-client-connection-ip': ip, 'content-type': 'application/json' },
     body: JSON.stringify(body),
   });
 

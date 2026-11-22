@@ -1,6 +1,9 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+// These tests mock sql per statement; the rate limiter is covered in rate-limit.test.js.
+process.env.RATE_LIMIT_DISABLED = '1';
+
 // Server-side session revocation: a JWT whose sv claim is not the user's current
 // users.session_version must stop working, and reset and logout-all must bump it.
 const { sqlMock } = vi.hoisted(() => ({ sqlMock: vi.fn() }));
