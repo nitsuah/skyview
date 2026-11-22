@@ -32,6 +32,24 @@ describe('portal token (HMAC-SHA256, fail-closed)', () => {
     });
 
     describe('verifyPortalToken', () => {
+        it.each([
+            ['a suffixed expiry', (a, b, s) => `${a}.${b}abc.${s}`],
+            ['a leading-zero expiry', (a, b, s) => `${a}.0${b}.${s}`],
+            ['a decimal expiry', (a, b, s) => `${a}.${b}.0.${s}`],
+            ['a decimal-fraction expiry', (a, b, s) => `${a}.${b}.5.${s}`],
+            ['a plus-signed expiry', (a, b, s) => `${a}.+${b}.${s}`],
+        ])('rejects %s even though parseInt would accept it', (_l, mutate) => {
+            const [a, b, s] = generatePortalToken('client-1', 30, SALT).split('.');
+            expect(verifyPortalToken(mutate(a, b, s), SALT).valid).toBe(false);
+        });
+
+        it('returns one canonical spelling, lowercasing the signature', () => {
+            const [a, b, s] = generatePortalToken('client-1', 30, SALT).split('.');
+            const r = verifyPortalToken(`${a}.${b}.${s.toUpperCase()}`, SALT);
+            expect(r.valid).toBe(true);
+            expect(r.canonical).toBe(`${a}.${b}.${s}`);
+        });
+
         it('fails closed when the salt is missing, even for an otherwise valid token', () => {
             const token = generatePortalToken('client-1', 30, SALT);
             const result = verifyPortalToken(token, undefined);

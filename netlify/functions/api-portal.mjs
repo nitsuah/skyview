@@ -83,7 +83,7 @@ async function verify(req) {
   // verification (the unique key makes this atomic) and refuse any replay.
   // The row is kept until the code's own expiry, then pruned.
   try {
-    const codeHash = createHash('sha256').update(code).digest('hex');
+    const codeHash = createHash('sha256').update(result.canonical).digest('hex');
     const [consumed] = await sql`
       INSERT INTO portal_code_uses (code_hash, client_id, expires_at)
       VALUES (${codeHash}, ${result.clientId}, to_timestamp(${result.expiresAt}))

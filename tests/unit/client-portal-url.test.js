@@ -20,12 +20,16 @@ beforeEach(() => {
 describe('client portal ?code= handling', () => {
   const future = Math.floor(Date.now() / 1000) + 3600;
 
-  it('removes the code from the URL before submitting it', async () => {
+  it('removes the code from the URL and waits for a click before submitting it', async () => {
     const spy = vi.spyOn(window.history, 'replaceState');
     await loadPortalScript(`?code=Y2xpZW50.${future}.abcdef`);
     expect(window.location.search).toBe('');
     expect(window.location.href).not.toContain('abcdef');
     expect(spy).toHaveBeenCalled();
+    expect(document.getElementById('accessCode').value).toBe(`Y2xpZW50.${future}.abcdef`);
+    // Not spent on page load; only an explicit submit sends it.
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+    document.getElementById('loginForm').dispatchEvent(new Event('submit', { cancelable: true }));
     expect(JSON.parse(globalThis.fetch.mock.calls[0][1].body).code).toBe(`Y2xpZW50.${future}.abcdef`);
   });
 

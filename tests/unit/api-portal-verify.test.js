@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { createHash } from 'crypto';
 import { generatePortalToken } from '../../netlify/functions/utils/portal.js';
 
 // POST /api/portal/verify: access codes are accepted once, then refused.
@@ -47,6 +48,14 @@ describe('portal access code single use', () => {
     expect((await verify(code)).status).toBe(401);
   });
 
+  it.each([
+    ['uppercase signature', (c) => { const [a, b, s] = c.split('.'); return `${a}.${b}.${s.toUpperCase()}`; }],
+  ])('treats a %s as the same code', async (_l, mutate) => {
+    const code = generatePortalToken('client-1', 30, SALT);
+    expect((await verify(code)).status).toBe(200);
+    expect((await verify(mutate(code))).status).toBe(401);
+  });
+
   it('does not consume codes with a bad signature', async () => {
     const code = generatePortalToken('client-1', 30, SALT);
     const forged = code.slice(0, -2) + (code.endsWith('00') ? '11' : '00');
@@ -62,6 +71,8 @@ describe('portal access code single use', () => {
     expect(insert.slice(1)).not.toContain(code);
     expect(insert[1]).toMatch(/^[a-f0-9]{64}$/);
     expect(insert[3]).toBe(Number(code.split('.')[1]));
+    const [a, b, sig] = code.split('.');
+    expect(insert[1]).toBe(createHash('sha256').update(`${a}.${b}.${sig}`).digest('hex'));
   });
 
   it('fails closed when the code store is unavailable', async () => {
