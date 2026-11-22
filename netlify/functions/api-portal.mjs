@@ -8,7 +8,7 @@ import {
 } from './utils/portal.js';
 import { getManifestForClient, findFile } from './utils/portal-manifest.js';
 import { sql } from './utils/db.js';
-import { throttle } from './utils/rate-limit.js';
+import { throttle, requestIp } from './utils/rate-limit.js';
 import { json, error, cors, redirect } from './utils/response.js';
 
 export const config = { path: '/api/portal/*' };
@@ -26,10 +26,6 @@ export default async (req) => {
 
   return error('Not found', 404);
 };
-
-function requestIp(req) {
-  return req.headers.get('x-nf-client-connection-ip') || req.headers.get('x-forwarded-for') || 'unknown';
-}
 
 function bearerToken(req) {
   const auth = req.headers.get('authorization') || '';
