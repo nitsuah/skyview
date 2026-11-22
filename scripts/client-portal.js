@@ -221,7 +221,7 @@
                 showWarning('Account temporarily locked after ' + MAX_ATTEMPTS + ' failed attempts.');
             } else {
                 var remaining = MAX_ATTEMPTS - state.count;
-                showError('Invalid access code. Please check your email or contact us for help.' +
+                showError('Invalid or already-used access code. Check your email, or use "Contact us" on the main site to request a new link.' +
                     (remaining > 0 ? ' (' + remaining + ' attempt' + (remaining === 1 ? '' : 's') + ' remaining)' : ''));
             }
         });
@@ -231,11 +231,19 @@
     var urlParams = new URLSearchParams(window.location.search);
     var codeFromUrl = urlParams.get('code');
     if (codeFromUrl) {
+        // Drop the code from the address bar and history entry before anything else.
+        urlParams.delete('code');
+        var remainingQuery = urlParams.toString();
+        try {
+            window.history.replaceState(null, '', window.location.pathname + (remainingQuery ? '?' + remainingQuery : '') + window.location.hash);
+        } catch { /* ignore history errors */ }
         document.getElementById('accessCode').value = codeFromUrl;
+        // Prefill only: the code is spent when the visitor clicks, not on page
+        // load, so link previews and mail scanners cannot use it up.
         if (isTokenExpired(codeFromUrl)) {
             showError('This access link has expired. Please contact us to request a new one.');
         } else {
-            form.dispatchEvent(new Event('submit'));
+            showWarning('Click "Access Your Files" to continue.');
         }
     }
 

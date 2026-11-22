@@ -83,6 +83,8 @@ test.describe('client portal — server-side token verification (mocked backend)
         const fakeCode = `dGVzdA.${futureExpiry}.${'a'.repeat(64)}`;
 
         await page.goto(`/pages/client-portal.html?code=${encodeURIComponent(fakeCode)}`);
+        // The code is prefilled but only spent on an explicit click.
+        await page.getByRole('button', { name: /access your files/i }).click();
         await page.waitForURL(/client-gallery\.html/, { timeout: 5000 });
 
         // The CWE-598 fix: the access token/session must never ride in the

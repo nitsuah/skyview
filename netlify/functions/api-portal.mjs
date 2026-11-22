@@ -7,6 +7,7 @@ import {
   logPortalAccess,
 } from './utils/portal.js';
 import { getManifestForClient, findFile } from './utils/portal-manifest.js';
+import { createHash } from 'crypto';
 import { throttle, requestIp } from './utils/rate-limit.js';
 import { json, error, cors, redirect } from './utils/response.js';
 
@@ -47,9 +48,10 @@ async function verify(req) {
 
   // Throttle access-code guessing per client address (fail closed if the
   // limiter store is unavailable).
+  let sql;
   try {
     // Loaded here so the other portal routes don't need the database.
-    const { sql } = await import('./utils/db.js');
+    ({ sql } = await import('./utils/db.js'));
     const limited = await throttle(sql, [['portal:ip', requestIp(req), { max: 10, windowSec: 600 }]]);
     if (limited) return limited;
   } catch (err) {
@@ -75,6 +77,29 @@ async function verify(req) {
     // Deliberately generic — don't leak whether the code was malformed,
     // expired, or tampered with.
     return error('Invalid or expired access code', 401);
+  }
+
+  // Access codes are single-use: record the code on first successful
+  // verification (the unique key makes this atomic) and refuse any replay.
+  // The row is kept until the code's own expiry, then pruned.
+  try {
+    const codeHash = createHash('sha256').update(result.canonical).digest('hex');
+    const [consumed] = await sql`
+      INSERT INTO portal_code_uses (code_hash, client_id, expires_at)
+      VALUES (${codeHash}, ${result.clientId}, to_timestamp(${result.expiresAt}))
+      ON CONFLICT (code_hash) DO NOTHING
+      RETURNING code_hash
+    `;
+    if (!consumed) {
+      logPortalAccess('login_attempt', { valid: false, reason: 'already_used', clientId: result.clientId, ip: requestIp(req) });
+      return error('Invalid or expired access code', 401);
+    }
+    if (Math.random() < 0.01) {
+      await sql`DELETE FROM portal_code_uses WHERE expires_at < now()`.catch(() => {});
+    }
+  } catch (err) {
+    console.error('portal code store unavailable:', err.message);
+    return error('Client portal is not available', 503);
   }
 
   // Exchange the (long-lived, 30-day) access code for a short-lived (1

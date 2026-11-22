@@ -67,11 +67,15 @@ export function verifyPortalToken(code, salt) {
         return { valid: false, reason: 'malformed' };
     }
 
-    const [clientB64, expiryStr, signature] = parts;
-    const expiryUnix = Number.parseInt(expiryStr, 10);
-    if (!Number.isFinite(expiryUnix) || !/^[A-Za-z0-9_-]+$/.test(clientB64) || !/^[a-f0-9]+$/i.test(signature)) {
+    const [clientB64, expiryStr, rawSignature] = parts;
+    // The expiry must be the canonical decimal form (digits only, no sign,
+    // suffix, decimal point or leading zeros), so one token has exactly one
+    // accepted spelling.
+    const expiryUnix = /^(0|[1-9]\d*)$/.test(expiryStr) ? Number(expiryStr) : NaN;
+    if (!Number.isSafeInteger(expiryUnix) || !/^[A-Za-z0-9_-]+$/.test(clientB64) || !/^[a-f0-9]+$/i.test(rawSignature)) {
         return { valid: false, reason: 'malformed' };
     }
+    const signature = rawSignature.toLowerCase();
 
     const expectedSignature = sign(clientB64, expiryUnix, salt);
     const provided = Buffer.from(signature, 'utf8');
@@ -92,7 +96,8 @@ export function verifyPortalToken(code, salt) {
         return { valid: false, reason: 'malformed' };
     }
 
-    return { valid: true, clientId, expiresAt: expiryUnix };
+    // canonical is the single spelling used to record one-time use.
+    return { valid: true, clientId, expiresAt: expiryUnix, canonical: `${clientB64}.${expiryUnix}.${signature}` };
 }
 
 /**
