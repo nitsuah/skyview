@@ -18,7 +18,7 @@ process.env.DATABASE_URL ??= 'postgres://user:pass@localhost:5432/db';
 const { signToken, requireAuth } = await import('../../netlify/functions/utils/auth.js');
 const { default: handler } = await import('../../netlify/functions/api-auth.mjs');
 
-const USER = { id: 'u1', email: 'a@example.com', role: 'client', name: 'A' };
+const USER = { id: 'u1', email: 'a@example.com', role: 'client', name: 'A', email_verified: true };
 const statements = [];
 const withUser = (extra = {}) => sqlMock.mockImplementation(async (strings) => {
   const text = strings.join('?');

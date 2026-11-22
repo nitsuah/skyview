@@ -61,11 +61,13 @@ describe('email/password sign-in sets the session cookie', () => {
     expect(body.user).not.toHaveProperty('password_hash');
   });
 
-  it('register sets the cookie and returns no token', async () => {
+  it('register starts no session until the email is verified', async () => {
     const res = await post('/register', { email: 'a@example.com', password: 'longenough', role: 'client', name: 'A' });
     expect(res.status).toBe(201);
-    expectSessionCookie(res);
-    expect(await res.json()).not.toHaveProperty('token');
+    expect(res.headers.get('set-cookie')).toBeNull();
+    const body = await res.json();
+    expect(body).not.toHaveProperty('token');
+    expect(body.verification_required).toBe(true);
   });
 });
 

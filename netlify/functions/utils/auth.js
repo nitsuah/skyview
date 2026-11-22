@@ -70,16 +70,17 @@ export async function requireAuth(req, sql) {
   try {
     const payload = await verifyToken(token)
     const [user] = await sql`
-      SELECT id, email, role, name, session_version
+      SELECT id, email, role, name, email_verified, session_version
       FROM users
       WHERE id = ${payload.sub} AND active = true
     `
-    if (!user) return null
+    // Unverified accounts hold no session, whatever token is presented
+    if (!user || !user.email_verified) return null
     // Reject tokens from before the last revocation (tokens without sv predate
     // versioning and count as version 0)
     if ((payload.sv ?? 0) !== user.session_version) return null
     // Keep the version out of the returned user object
-    const { session_version: _version, ...safe } = user
+    const { session_version: _version, email_verified: _verified, ...safe } = user
     return safe
   } catch {
     return null
