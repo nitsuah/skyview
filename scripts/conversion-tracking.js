@@ -92,11 +92,8 @@ function shouldShowDashboard() {
 
 async function isAdminSession() {
     try {
-        const token = window.localStorage?.getItem('skyview_token');
-        const res = await fetch('/api/auth/me', {
-            credentials: 'same-origin',
-            headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
+        // The HttpOnly session cookie identifies the user (#213).
+        const res = await fetch('/api/auth/me', { credentials: 'same-origin' });
         if (!res.ok) {
             return false;
         }

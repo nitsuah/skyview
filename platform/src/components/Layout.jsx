@@ -43,7 +43,13 @@ export default function Layout({ children }) {
   const links = NAV[user?.role] || []
 
   const handleLogout = async () => {
-    try { await logout() } catch {}
+    try {
+      await logout()
+    } catch {
+      // The server session is still valid, so stay signed in and say so.
+      window.alert('Sign-out failed. Check your connection and try again.')
+      return
+    }
     navigate('/app/login', { replace: true })
   }
 

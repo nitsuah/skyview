@@ -1,13 +1,15 @@
 const BASE = '/api'
 
 async function request(path, options = {}) {
-  const token = localStorage.getItem('skyview_token')
   const headers = {
     ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers
   }
-  const res = await fetch(`${BASE}${path}`, { ...options, headers })
+  const res = await fetch(`${BASE}${path}`, {
+    ...options,
+    headers,
+    credentials: 'include',
+  })
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
     throw new Error(body.error || `HTTP ${res.status}`)

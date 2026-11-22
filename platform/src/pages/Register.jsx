@@ -43,8 +43,8 @@ export default function Register() {
     try {
       await logout()
     } catch {
-      // Cookie clear failed; local state is still cleared by logout's finally block.
-      // Surface a retry so the user can attempt cleanup again.
+      // Cookie clear failed, so the session is still active and the user still
+      // signed in. Surface a retry so the user can attempt cleanup again.
       setSessionClearFailed(true)
     }
     setVerifyEmail(form.email)
