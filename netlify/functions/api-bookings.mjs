@@ -32,6 +32,8 @@ export default async (req, context) => {
     if (req.method === 'POST') return declineBooking(req, id)
   } else if (action === 'complete') {
     if (req.method === 'POST') return completeBooking(req, id)
+  } else if (action === 'cancel') {
+    if (req.method === 'POST') return cancelBooking(req, id)
   } else {
     if (req.method === 'GET') return getBooking(req, id)
   }
@@ -248,6 +250,31 @@ async function declineBooking(req, id) {
   // Release the payment authorization (non-fatal on failure)
   await releasePayment(booking)
 
+  return json(updated)
+}
+
+// Exit from capture_failed: the client or an admin abandons the booking, which
+// releases the payment hold and reopens the job.
+async function cancelBooking(req, id) {
+  const user = await requireAuth(req, sql)
+  if (!user) return unauthorized()
+
+  const [booking] = await sql`SELECT * FROM bookings WHERE id = ${id}`
+  if (!booking) return notFound()
+  if (booking.client_id !== user.id && user.role !== 'admin') return forbidden()
+
+  const [updated] = await sql`
+    UPDATE bookings SET status = 'cancelled', cancelled_at = NOW()
+    WHERE id = ${id} AND status = 'capture_failed'
+    RETURNING *
+  `
+  if (!updated) return error('Booking is not in a cancellable state', 409)
+
+  await sql`
+    UPDATE jobs SET status = 'open', assigned_operator_id = NULL
+    WHERE id = ${booking.job_id} AND status = 'booked'
+  `
+  await releasePayment(booking)
   return json(updated)
 }
 

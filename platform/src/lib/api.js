@@ -48,6 +48,7 @@ export const api = {
     create:   (data)  => request('/bookings',                { method: 'POST', body: JSON.stringify(data) }),
     confirm:  (id)    => request(`/bookings/${id}/confirm`,  { method: 'POST' }),
     decline:  (id)    => request(`/bookings/${id}/decline`,  { method: 'POST' }),
+    cancel:   (id)    => request(`/bookings/${id}/cancel`,   { method: 'POST' }),
     complete: (id)    => request(`/bookings/${id}/complete`, { method: 'POST' })
   },
   admin: {
