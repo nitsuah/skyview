@@ -17,6 +17,18 @@ export function splitTotal(totalCents) {
   return { fee, payout: totalCents - fee }
 }
 
+// Server-side booking price from the operator's own rates only: hourly rate x
+// hours when the operator has an hourly rate (hours are then required), else
+// the operator's base rate. The client-editable job budget is never a price
+// source. Returns null when the operator has no usable rate or hours are missing.
+export function priceBooking({ hourly_rate_cents, base_rate_cents }, hours) {
+  if (hourly_rate_cents > 0) {
+    return Number.isFinite(hours) && hours > 0 ? Math.round(hourly_rate_cents * hours) : null
+  }
+  if (base_rate_cents > 0) return base_rate_cents
+  return null
+}
+
 // Places a manual-capture hold for the booking total and records the
 // PaymentIntent on the booking. Returns the client secret for the browser to
 // confirm the card, or null when payments are off. Throws on Stripe failure.

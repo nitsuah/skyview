@@ -148,7 +148,7 @@ describe('GET /api/bookings and /api/bookings/:id', () => {
 describe('POST /api/bookings (create)', () => {
   const body = { job_id: JOB_ID, operator_id: OPERATOR.id, total_cents: 10000, scheduled_at: '2027-03-01T15:00:00Z', duration_hours: 2 };
   const happyResponses = () => [
-    [/FROM operator_profiles WHERE user_id = \? AND verification_status/, [{ id: 'profile-1' }]],
+    [/FROM operator_profiles WHERE user_id = \? AND verification_status/, [{ id: 'profile-1', hourly_rate_cents: 5000, base_rate_cents: 3000 }]],
     [/^UPDATE jobs SET status = 'booked'/, [{ id: JOB_ID, status: 'booked' }]],
     [/^INSERT INTO bookings/, [{ ...baseBooking, stripe_payment_intent_id: null }]],
   ];
@@ -163,13 +163,75 @@ describe('POST /api/bookings (create)', () => {
   it.each([
     ['invalid JSON', 'not json', 400],
     ['missing fields', { job_id: JOB_ID }, 400],
-    ['a non-integer amount', { ...body, total_cents: 10.5 }, 400],
-    ['a negative amount', { ...body, total_cents: -5 }, 400],
-    ['an amount past int4', { ...body, total_cents: 2_147_483_648 }, 400],
-    ['under Stripe\'s 50-cent minimum', { ...body, total_cents: 49 }, 422],
+    ['a non-positive duration', { ...body, duration_hours: -2 }, 400],
+    ['an absurd duration', { ...body, duration_hours: 1000 }, 400],
   ])('rejects %s', async (_label, payload, status) => {
     expect((await call('POST', '', payload)).status).toBe(status);
     expect(stripeMock.paymentIntents.create).not.toHaveBeenCalled();
+  });
+
+  describe('server-side pricing', () => {
+    const insertValues = () => queries().find((q) => /^INSERT INTO bookings/.test(q.text)).values;
+    const setup = (op) => {
+      responses = happyResponses();
+      responses[0] = [responses[0][0], [{ id: 'profile-1', ...op }]];
+      // Echo the priced values the handler inserted, like the database would.
+      responses[2] = [responses[2][0], (v) => [{ ...baseBooking, stripe_payment_intent_id: null, total_cents: v[v.length - 3] }]];
+      stripeMock.paymentIntents.create.mockResolvedValue({ id: 'pi_new', client_secret: 's' });
+    };
+    const both = { hourly_rate_cents: 5000, base_rate_cents: 3000 };
+
+    it.each([
+      ['hourly rate x hours', both, { duration_hours: 2.5 }, 12500],
+      ['hours given as a numeric string', both, { duration_hours: '2' }, 10000],
+      ['base rate when the operator has no hourly rate', { hourly_rate_cents: null, base_rate_cents: 3000 }, { duration_hours: null }, 3000],
+    ])('prices from %s', async (_label, op, extra, expected) => {
+      setup(op);
+      const res = await call('POST', '', { ...body, ...extra });
+      expect(res.status).toBe(201);
+      const v = insertValues();
+      expect(v.slice(-3)).toEqual([expected, Math.round(expected * 0.15), expected - Math.round(expected * 0.15)]);
+      expect(stripeMock.paymentIntents.create.mock.calls[0][0].amount).toBe(expected);
+    });
+
+    it('stores duration_hours as a finite number', async () => {
+      setup(both);
+      await call('POST', '', { ...body, duration_hours: '1.5' });
+      expect(insertValues()).toContain(1.5);
+    });
+
+    it('requires duration_hours when the operator bills hourly', async () => {
+      setup(both);
+      const res = await call('POST', '', { ...body, duration_hours: null });
+      expect(res.status).toBe(400);
+      expect(ran(/^UPDATE jobs/)).toBe(false);
+    });
+
+    it.each(['abc', 'Infinity', 0, -1])('rejects duration_hours %s', async (duration_hours) => {
+      setup(both);
+      expect((await call('POST', '', { ...body, duration_hours })).status).toBe(400);
+    });
+
+    it.each([1, 49, 999999999, -5, 10.5])('ignores a client-supplied total of %s', async (total_cents) => {
+      setup(both);
+      const res = await call('POST', '', { ...body, total_cents });
+      expect(res.status).toBe(201);
+      expect(insertValues().slice(-3)[0]).toBe(10000);
+    });
+
+    it('does not price from the job budget when the operator has no rates', async () => {
+      setup({ hourly_rate_cents: null, base_rate_cents: null });
+      const res = await call('POST', '', { ...body, budget_cents: 20000 });
+      expect(res.status).toBe(422);
+      expect(ran(/budget_cents/)).toBe(false);
+      expect(ran(/^UPDATE jobs/)).toBe(false);
+    });
+
+    it('422s under the minimum charge when payments are enabled', async () => {
+      setup({ hourly_rate_cents: null, base_rate_cents: 20 });
+      expect((await call('POST', '', body)).status).toBe(422);
+      expect(ran(/^INSERT INTO bookings/)).toBe(false);
+    });
   });
 
   it('409s when the operator is not verified', async () => {
@@ -188,6 +250,7 @@ describe('POST /api/bookings (create)', () => {
 
   it('treats blank scheduled_at/duration_hours as not provided', async () => {
     responses = happyResponses();
+    responses[0] = [responses[0][0], [{ id: 'profile-1', hourly_rate_cents: null, base_rate_cents: 3000 }]];
     stripeMock.paymentIntents.create.mockResolvedValue({ id: 'pi_new', client_secret: 'secret_new' });
     await call('POST', '', { ...body, scheduled_at: '', duration_hours: '' });
     expect(availabilityMock).toHaveBeenCalledWith(OPERATOR.id, null, null);
@@ -243,7 +306,7 @@ describe('POST /api/bookings (create)', () => {
   it('skips payments entirely when Stripe is not configured', async () => {
     stripeState.client = null;
     responses = happyResponses();
-    const res = await call('POST', '', { ...body, total_cents: 20 });
+    const res = await call('POST', '', body);
     expect(res.status).toBe(201);
     expect(res.body.stripe_client_secret).toBeNull();
     expect(ran(/stripe_payment_intent_id/)).toBe(false);
