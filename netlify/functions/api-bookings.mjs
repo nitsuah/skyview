@@ -91,10 +91,12 @@ async function createBooking(req) {
   // and the INSERT always see the same values (an empty scheduled_at would
   // otherwise skip the check and then fail as an invalid timestamp at INSERT).
   const scheduled_at   = body.scheduled_at === '' ? null : (body.scheduled_at ?? null)
-  const duration_hours = body.duration_hours === '' ? null : (body.duration_hours ?? null)
+  const rawDuration    = body.duration_hours === '' ? null : (body.duration_hours ?? null)
+  // Coerce to a finite number (two decimals, as stored) before it is priced or stored.
+  const duration_hours = rawDuration === null ? null : Math.round(Number(rawDuration) * 100) / 100
   if (!job_id || !operator_id)
     return error('job_id and operator_id are required')
-  if (duration_hours != null && !(Number(duration_hours) > 0 && Number(duration_hours) < 100))
+  if (duration_hours !== null && !(Number.isFinite(duration_hours) && duration_hours > 0 && duration_hours < 100))
     return error('duration_hours must be a positive number under 100')
 
   // Validate operator is verified before creating booking
@@ -105,11 +107,12 @@ async function createBooking(req) {
   if (!opProfile) return error('Operator is not available', 409)
 
   // The total is always computed here; any client-supplied total_cents is ignored.
-  const [jobRow] = await sql`SELECT budget_cents FROM jobs WHERE id = ${job_id} AND client_id = ${user.id}`
-  if (!jobRow) return error('This job is no longer available', 409)
-  const total_cents = priceBooking({ ...opProfile, budget_cents: jobRow.budget_cents }, duration_hours)
+  // Prices come only from the operator's rates, never from the job budget.
+  if (opProfile.hourly_rate_cents > 0 && duration_hours === null)
+    return error('duration_hours is required for this operator', 400)
+  const total_cents = priceBooking(opProfile, duration_hours)
   if (!Number.isInteger(total_cents) || total_cents <= 0 || total_cents > 2_147_483_647)
-    return error('A price could not be determined for this booking', 422)
+    return error('This operator has not set a rate, so the booking cannot be priced', 422)
   if (paymentsEnabled() && total_cents < MIN_CHARGE_CENTS)
     return error(`total_cents must be at least ${MIN_CHARGE_CENTS} cents when payments are enabled`, 422)
 

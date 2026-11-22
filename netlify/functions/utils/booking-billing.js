@@ -17,14 +17,15 @@ export function splitTotal(totalCents) {
   return { fee, payout: totalCents - fee }
 }
 
-// Server-side booking price: operator hourly rate x hours when both are known,
-// else the operator's base rate, else the job budget. Client-supplied totals are
-// never used. Returns null when no price can be determined.
-export function priceBooking({ hourly_rate_cents, base_rate_cents, budget_cents }, durationHours) {
-  const hours = durationHours == null ? null : Number(durationHours)
-  if (hourly_rate_cents > 0 && hours > 0) return Math.round(hourly_rate_cents * hours)
+// Server-side booking price from the operator's own rates only: hourly rate x
+// hours when the operator has an hourly rate (hours are then required), else
+// the operator's base rate. The client-editable job budget is never a price
+// source. Returns null when the operator has no usable rate or hours are missing.
+export function priceBooking({ hourly_rate_cents, base_rate_cents }, hours) {
+  if (hourly_rate_cents > 0) {
+    return Number.isFinite(hours) && hours > 0 ? Math.round(hourly_rate_cents * hours) : null
+  }
   if (base_rate_cents > 0) return base_rate_cents
-  if (budget_cents > 0) return budget_cents
   return null
 }
 
