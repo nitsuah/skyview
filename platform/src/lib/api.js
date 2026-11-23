@@ -12,7 +12,9 @@ async function request(path, options = {}) {
   })
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
-    throw new Error(body.error || `HTTP ${res.status}`)
+    const err = new Error(body.error || `HTTP ${res.status}`)
+    err.status = res.status
+    throw err
   }
   return res.json()
 }
@@ -37,7 +39,7 @@ export const api = {
     list:            (params = {}) => request(`/operators?${new URLSearchParams(params)}`),
     get:             (id)          => request(`/operators/${id}`),
     updateProfile:   (id, data)    => request(`/operators/${id}`,         { method: 'PUT',  body: JSON.stringify(data) }),
-    verify:          (id, action)  => request(`/operators/${id}/verify`,  { method: 'POST', body: JSON.stringify({ action }) }),
+    verify:          (id, action, certRevision) => request(`/operators/${id}/verify`,  { method: 'POST', body: JSON.stringify({ action, cert_revision: certRevision }) }),
     connect:         (id)          => request(`/operators/${id}/connect`,  { method: 'POST' }),
     getConnectStatus:(id)          => request(`/operators/${id}/connect`),
     getAvailability: (id)          => request(`/operators/${id}/availability`),
@@ -48,6 +50,7 @@ export const api = {
     create:   (data)  => request('/bookings',                { method: 'POST', body: JSON.stringify(data) }),
     confirm:  (id)    => request(`/bookings/${id}/confirm`,  { method: 'POST' }),
     decline:  (id)    => request(`/bookings/${id}/decline`,  { method: 'POST' }),
+    cancel:   (id)    => request(`/bookings/${id}/cancel`,   { method: 'POST' }),
     complete: (id)    => request(`/bookings/${id}/complete`, { method: 'POST' })
   },
   admin: {

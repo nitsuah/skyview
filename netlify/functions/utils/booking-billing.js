@@ -49,22 +49,45 @@ export async function authorizePayment(booking) {
   return intent.client_secret
 }
 
-// Releases the hold on a declined booking. Never throws: uncaptured
-// PaymentIntents auto-expire after 7 days, so a failure here is only logged.
+// Releases the hold on a declined booking. Returns true on success, false on failure.
+// Uncaptured PaymentIntents auto-expire after 7 days, but we report failure so the
+// caller can keep the booking in a retryable state (release_failed).
 export async function releasePayment(booking) {
-  if (!stripe || !booking.stripe_payment_intent_id) return
+  if (!stripe || !booking.stripe_payment_intent_id) return true
   try {
     await stripe.paymentIntents.cancel(booking.stripe_payment_intent_id)
+    return true
   } catch (err) {
     console.error('PI cancel failed for booking', booking.id, err.message)
+    return false
   }
 }
 
 // Captures the held funds. Returns the captured PaymentIntent, or null when
-// there is nothing to capture. Throws on Stripe failure.
+// there is nothing to capture. Throws on Stripe failure. The capture is
+// idempotent per attempt (each retry has its own key, so Stripe never replays an
+// earlier attempt's cached error), and if it errors but the PaymentIntent has in fact
+// succeeded (e.g. a retry after a lost response), that intent is returned.
 export async function capturePayment(booking) {
   if (!stripe || !booking.stripe_payment_intent_id) return null
-  return stripe.paymentIntents.capture(booking.stripe_payment_intent_id)
+  const piId = booking.stripe_payment_intent_id
+  try {
+    return await stripe.paymentIntents.capture(piId, {}, { idempotencyKey: `capture-${booking.id}-${booking.capture_attempts ?? 0}` })
+  } catch (err) {
+    let intent = null
+    try {
+      intent = await stripe.paymentIntents.retrieve(piId)
+    } catch { /* fall through to the original error */ }
+    if (intent?.status === 'succeeded') return intent
+    throw err
+  }
+}
+
+// Current PaymentIntent for a booking, or null when payments are off or none was
+// created. Throws if Stripe cannot be reached.
+export async function retrievePayment(booking) {
+  if (!stripe || !booking.stripe_payment_intent_id) return null
+  return stripe.paymentIntents.retrieve(booking.stripe_payment_intent_id)
 }
 
 export async function payoutAndInvoice(booking, chargeId = null) {

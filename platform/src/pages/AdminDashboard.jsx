@@ -72,10 +72,10 @@ export default function AdminDashboard() {
     if (tab === 'users' && users.length === 0) loadUsers(0)
   }, [tab])
 
-  const verifyOp = async (id, action) => {
+  const verifyOp = async (id, action, certRevision) => {
     setActionBusy(b => ({ ...b, [id]: action }))
     try {
-      await api.operators.verify(id, action)
+      await api.operators.verify(id, action, certRevision)
       setPending(p => p.filter(op => op.id !== id))
     } catch (e) {
       alert(e.message)
@@ -197,11 +197,11 @@ export default function AdminDashboard() {
 
               <div className="flex gap-1">
                 <button className="btn btn-green btn-sm" disabled={!!actionBusy[op.id]}
-                  onClick={() => verifyOp(op.id, 'approve')}>
+                  onClick={() => verifyOp(op.id, 'approve', op.cert_revision)}>
                   {actionBusy[op.id] === 'approve' ? 'Approving…' : '✓ Approve'}
                 </button>
                 <button className="btn btn-ghost btn-sm" disabled={!!actionBusy[op.id]}
-                  onClick={() => verifyOp(op.id, 'reject')}>
+                  onClick={() => verifyOp(op.id, 'reject', op.cert_revision)}>
                   {actionBusy[op.id] === 'reject' ? 'Rejecting…' : 'Reject'}
                 </button>
                 <button className="btn btn-danger btn-sm" disabled={!!actionBusy[op.id]}
