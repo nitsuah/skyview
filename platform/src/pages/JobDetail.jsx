@@ -11,6 +11,7 @@ export default function JobDetail() {
   const [bookings, setBookings] = useState([])
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState('')
+  const [actionError, setActionError] = useState('')
 
   // Review form state
   const [reviewBookingId, setReviewBookingId] = useState(null)
@@ -38,22 +39,26 @@ export default function JobDetail() {
   useEffect(load, [id])
 
   const markComplete = async (bookingId) => {
+    setActionError('')
     try {
       await api.bookings.complete(bookingId)
       load()
     } catch (e) {
+      // Keep the page (and its retry controls) on screen; show the failure inline.
       if (e.status === 402) load()
-      setError(e.message)
+      setActionError(e.message)
     }
   }
 
   const cancelBooking = async (bookingId) => {
+    setActionError('')
     try {
       await api.bookings.cancel(bookingId)
       load()
     } catch (e) {
+      // Keep the page (and its retry controls) on screen; show the failure inline.
       if (e.status === 402) load()
-      setError(e.message)
+      setActionError(e.message)
     }
   }
 
@@ -204,6 +209,9 @@ export default function JobDetail() {
                 Browse operators and book one for this job.
               </p>
             )}
+            {actionError && (
+              <div className="alert alert-error" style={{ fontSize: 12.5 }}>{actionError}</div>
+            )}
             {activeBooking && (
               <div className="alert alert-info" style={{ fontSize: 12.5 }}>
                 Booking confirmed with <strong>{activeBooking.operator_name}</strong>. Mark complete when finished.
@@ -227,6 +235,16 @@ export default function JobDetail() {
               .map(b => (
                 <div key={b.id} className="alert alert-warning" style={{ fontSize: 12.5, marginTop: '0.5rem' }}>
                   <strong>Releasing the payment hold failed</strong> for booking with {b.operator_name}.
+                  <button className="btn btn-sm btn-ghost" style={{ marginLeft: '0.5rem' }} onClick={() => cancelBooking(b.id)}>
+                    Retry Cancellation
+                  </button>
+                </div>
+              ))}
+            {bookings
+              .filter(b => b.status === 'cancelling')
+              .map(b => (
+                <div key={b.id} className="alert alert-warning" style={{ fontSize: 12.5, marginTop: '0.5rem' }}>
+                  <strong>Cancellation in progress</strong> for booking with {b.operator_name}.
                   <button className="btn btn-sm btn-ghost" style={{ marginLeft: '0.5rem' }} onClick={() => cancelBooking(b.id)}>
                     Retry Cancellation
                   </button>

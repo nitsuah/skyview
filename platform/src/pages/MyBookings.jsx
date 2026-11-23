@@ -15,7 +15,7 @@ const STATUS_COLOR = {
 }
 
 const COMPLETABLE_STATUSES = ['confirmed', 'in_progress', 'capture_failed']
-const CANCELLABLE_STATUSES = ['capture_failed', 'release_failed']
+const CANCELLABLE_STATUSES = ['capture_failed', 'release_failed', 'cancelling']
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState([])

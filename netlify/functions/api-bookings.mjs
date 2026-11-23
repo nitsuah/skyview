@@ -18,6 +18,10 @@ export const COMPLETABLE_STATUSES = ['confirmed', 'in_progress', 'capture_failed
 // Statuses that can be cancelled (exit path for client/admin when payment failed)
 export const CANCELLABLE_STATUSES = ['capture_failed', 'release_failed']
 
+// A 'cancelling' claim older than this is treated as abandoned (the function
+// stopped mid-cancellation) and may be re-claimed by a retry.
+export const STALE_CANCEL_CLAIM = '2 minutes'
+
 export default async (req, context) => {
   if (req.method === 'OPTIONS') return cors()
 
@@ -272,18 +276,31 @@ async function cancelBooking(req, id) {
   if (!booking) return notFound()
   if (booking.client_id !== user.id && user.role !== 'admin') return forbidden()
 
-  if (!CANCELLABLE_STATUSES.includes(booking.status))
+  const reclaiming = booking.status === 'cancelling'
+  if (!CANCELLABLE_STATUSES.includes(booking.status) && !reclaiming)
     return error('Booking is not in a cancellable state', 409)
 
+  // A row left in 'cancelling' by an attempt that stopped part-way can be
+  // re-claimed once the claim is stale; the steps below are all retry-safe
+  // because the payment is checked before anything is released or reopened.
   const prevStatus = booking.status
   const [claimed] = await sql`
     UPDATE bookings SET status = 'cancelling'
     WHERE id = ${id} AND status = ${prevStatus}
+      AND (status <> 'cancelling' OR updated_at IS NULL
+           OR updated_at < NOW() - ${STALE_CANCEL_CLAIM}::interval)
     RETURNING *
   `
-  if (!claimed) return error('Booking is not in a cancellable state', 409)
+  if (!claimed) {
+    return reclaiming
+      ? error('Cancellation is already in progress; try again in a few minutes', 409)
+      : error('Booking is not in a cancellable state', 409)
+  }
+  // A re-claimed row has no earlier failure state to return to; release_failed
+  // is the cancellable state whose retry re-checks the payment first.
+  const restoreTo = reclaiming ? 'release_failed' : prevStatus
   const restore = () => sql`
-    UPDATE bookings SET status = ${prevStatus}
+    UPDATE bookings SET status = ${restoreTo}
     WHERE id = ${id} AND status = 'cancelling'
   `
 

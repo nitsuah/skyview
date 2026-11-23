@@ -788,6 +788,39 @@ describe('POST /api/bookings/:id/cancel (exit from capture_failed / release_fail
     expect(stripeMock.paymentIntents.cancel).not.toHaveBeenCalled();
   });
 
+  it('re-claims a stale cancelling row left by an interrupted attempt and finishes the cancellation', async () => {
+    requireAuthMock.mockResolvedValue(CLIENT);
+    responses = cancelResponses({ ...baseBooking, status: 'cancelling' });
+    const res = await call('POST', `/${BOOKING_ID}/cancel`);
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('cancelled');
+    const claim = queries().find((q) => /^UPDATE bookings SET status = 'cancelling'/.test(q.text));
+    expect(claim.text).toMatch(/updated_at < NOW\(\)/);
+    expect(claim.values).toContain('2 minutes');
+    expect(stripeMock.paymentIntents.retrieve.mock.invocationCallOrder[0])
+      .toBeLessThan(callOrderOfQuery(/^UPDATE bookings SET status = 'cancelled'/));
+  });
+
+  it('409s without touching Stripe while a fresh cancelling claim is still in progress', async () => {
+    requireAuthMock.mockResolvedValue(CLIENT);
+    responses = [[/^SELECT \* FROM bookings WHERE id/, [{ ...baseBooking, status: 'cancelling' }]]];
+    const res = await call('POST', `/${BOOKING_ID}/cancel`);
+    expect(res.status).toBe(409);
+    expect(JSON.stringify(res.body)).toMatch(/already in progress/);
+    expect(stripeMock.paymentIntents.retrieve).not.toHaveBeenCalled();
+    expect(stripeMock.paymentIntents.cancel).not.toHaveBeenCalled();
+  });
+
+  it('restores a re-claimed row to release_failed (still cancellable) when Stripe cannot be reached', async () => {
+    requireAuthMock.mockResolvedValue(CLIENT);
+    responses = cancelResponses({ ...baseBooking, status: 'cancelling' });
+    stripeMock.paymentIntents.retrieve.mockRejectedValue(new Error('network'));
+    const res = await call('POST', `/${BOOKING_ID}/cancel`);
+    expect(res.status).toBe(503);
+    const restore = queries().find((q) => /^UPDATE bookings SET status = \? WHERE id = \? AND status = 'cancelling'/.test(q.text));
+    expect(restore.values[0]).toBe('release_failed');
+  });
+
   it('500s and restores the prior status when the cancel transaction fails', async () => {
     requireAuthMock.mockResolvedValue(CLIENT);
     responses = cancelResponses();
