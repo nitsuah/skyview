@@ -53,4 +53,23 @@ describe('campaign', () => {
         const subline = document.querySelector('.hero-subline');
         expect(subline.textContent).toBe('Default tagline');
     });
+
+    it('personalizes the real hero subtitle element from index.html', async () => {
+        document.body.innerHTML = '<p class="hero-subtitle">Authored subtitle</p>';
+        window.history.replaceState({}, '', '/?utm_source=instagram');
+        const { initCampaignTracking } = await import('../../scripts/campaign.js?t=' + Date.now());
+        initCampaignTracking();
+        const subtitle = document.querySelector('.hero-subtitle');
+        expect(subtitle.textContent).toBe('Cinematic aerial content your followers will love.');
+        expect(subtitle.dataset.campaignSource).toBe('instagram');
+    });
+
+    it('keeps the authored subtitle for organic visitors', async () => {
+        document.body.innerHTML = '<p class="hero-subtitle">Authored subtitle</p>';
+        window.history.replaceState({}, '', '/');
+        const { initCampaignTracking } = await import('../../scripts/campaign.js?t=' + Date.now());
+        initCampaignTracking();
+        const subtitle = document.querySelector('.hero-subtitle');
+        expect(subtitle.textContent).toBe('Authored subtitle');
+    });
 });

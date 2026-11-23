@@ -70,7 +70,7 @@ function getUtmSession() {
 
 function applyHeroSublineVariant(source) {
     const message = HERO_SUBLINE_VARIANTS[source] || HERO_SUBLINE_VARIANTS.default;
-    const subline = document.querySelector('.hero-subline, [data-campaign-subline]');
+    const subline = document.querySelector('.hero-subline, .hero-subtitle, [data-campaign-subline]');
     if (subline) {
         subline.textContent = message;
         subline.dataset.campaignSource = source || 'organic';
@@ -94,7 +94,8 @@ export function initCampaignTracking() {
     const data = getCampaignData();
 
     const personalizationConfig = window.SKYVIEW_CONFIG?.campaign;
-    if (personalizationConfig?.personalize !== false && data.effectiveSource) {
+    // Organic visitors keep the authored hero subtitle; only campaign or referral traffic gets a variant.
+    if (personalizationConfig?.personalize !== false && data.effectiveSource && data.effectiveSource !== 'organic') {
         applyHeroSublineVariant(data.effectiveSource);
     }
 

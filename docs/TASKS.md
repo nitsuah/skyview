@@ -32,6 +32,7 @@ Open 2026 items are tracked below and in `docs/ROADMAP.md` 2027 Q1.
   - Priority: P2
   - Campaign personalization never applies: `scripts/campaign.js` targets `.hero-subline, [data-campaign-subline]`, but `index.html`'s hero uses `.hero-subtitle` (the unit test builds its own `.hero-subline` markup, so it passes). Decide whether organic visitors keep the authored subtitle before wiring it up.
   - The dashboard's CSV / JSON buttons and funnel drop-off rows have no CSS (`.conversion-dashboard__export`, `__actions`, `__funnel*`): the buttons render dark-on-dark.
+  - Done: campaign personalization now targets `.hero-subtitle` and leaves organic visitors on the authored text. Remaining: the dashboard CSS and the two screenshot captures.
   - Acceptance Criteria: both render correctly; add `campaign-personalization` and `csv-json-export` captures to `tests/visual-docs/screenshots.spec.ts` and link them in `promo/spots.json`.
 
 - [ ] Trim `docs/FEATURES.md` to what users can see or do.
