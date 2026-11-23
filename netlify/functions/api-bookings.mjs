@@ -15,6 +15,9 @@ export const config = { path: '/api/bookings*' }
 // path after a payment capture did not go through.
 export const COMPLETABLE_STATUSES = ['confirmed', 'in_progress', 'capture_failed']
 
+// Statuses that can be cancelled (exit path for client/admin when payment failed)
+export const CANCELLABLE_STATUSES = ['capture_failed', 'release_failed']
+
 export default async (req, context) => {
   if (req.method === 'OPTIONS') return cors()
 
@@ -253,8 +256,14 @@ async function declineBooking(req, id) {
   return json(updated)
 }
 
-// Exit from capture_failed: the client or an admin abandons the booking, which
-// releases the payment hold and reopens the job.
+// Exit from capture_failed / release_failed: the client or an admin abandons the
+// booking, which releases the payment hold and reopens the job.
+//
+// Order matters. The row is claimed as 'cancelling' first (committed, so a
+// concurrent completion retry cannot claim it: 'cancelling' is not completable),
+// and only then is the payment checked. A capture that landed earlier, even one
+// whose response was lost, is therefore always seen, and the booking reconciles
+// to completed instead of being cancelled.
 async function cancelBooking(req, id) {
   const user = await requireAuth(req, sql)
   if (!user) return unauthorized()
@@ -263,7 +272,20 @@ async function cancelBooking(req, id) {
   if (!booking) return notFound()
   if (booking.client_id !== user.id && user.role !== 'admin') return forbidden()
 
-  if (booking.status !== 'capture_failed') return error('Booking is not in a cancellable state', 409)
+  if (!CANCELLABLE_STATUSES.includes(booking.status))
+    return error('Booking is not in a cancellable state', 409)
+
+  const prevStatus = booking.status
+  const [claimed] = await sql`
+    UPDATE bookings SET status = 'cancelling'
+    WHERE id = ${id} AND status = ${prevStatus}
+    RETURNING *
+  `
+  if (!claimed) return error('Booking is not in a cancellable state', 409)
+  const restore = () => sql`
+    UPDATE bookings SET status = ${prevStatus}
+    WHERE id = ${id} AND status = 'cancelling'
+  `
 
   // Never release a hold (or reopen the job) without first checking the funds
   // were not in fact captured. If Stripe cannot be reached, change nothing.
@@ -272,32 +294,54 @@ async function cancelBooking(req, id) {
     intent = await retrievePayment(booking)
   } catch (err) {
     console.error('Stripe retrieve failed for booking', booking.id, err.message)
+    await restore()
     return error('Could not verify the payment status; please try again', 503)
   }
   if (intent?.status === 'succeeded') {
     // Funds were captured after all: reconcile to completed instead of cancelling.
     const [reconciled] = await sql`
       UPDATE bookings SET status = 'completed', completed_at = NOW()
-      WHERE id = ${id} AND status = 'capture_failed'
+      WHERE id = ${id} AND status = 'cancelling'
       RETURNING *
     `
     if (!reconciled) return error('Booking is not in a cancellable state', 409)
     return finishCompletion(reconciled, intent)
   }
 
-  const [updated] = await sql`
-    UPDATE bookings SET status = 'cancelled', cancelled_at = NOW()
-    WHERE id = ${id} AND status = 'capture_failed'
-    RETURNING *
-  `
-  if (!updated) return error('Booking is not in a cancellable state', 409)
+  // A hold already released by an earlier attempt is not released again.
+  if (intent?.status !== 'canceled') {
+    const released = await releasePayment(booking)
+    if (!released) {
+      const [failed] = await sql`
+        UPDATE bookings SET status = 'release_failed'
+        WHERE id = ${id} AND status = 'cancelling'
+        RETURNING *
+      `
+      return json({ error: 'Releasing the payment hold failed; cancellation can be retried', booking: failed }, 402)
+    }
+  }
 
-  await sql`
-    UPDATE jobs SET status = 'open', assigned_operator_id = NULL
-    WHERE id = ${booking.job_id} AND status = 'booked'
-  `
-  await releasePayment(booking)
-  return json(updated)
+  // Cancel the booking and reopen the job together, or neither.
+  try {
+    const [[updated]] = await sql.transaction(txn => [
+      txn`
+        UPDATE bookings SET status = 'cancelled', cancelled_at = NOW()
+        WHERE id = ${id} AND status = 'cancelling'
+        RETURNING *
+      `,
+      txn`
+        UPDATE jobs SET status = 'open', assigned_operator_id = NULL
+        WHERE id = ${booking.job_id} AND status = 'booked'
+      `,
+    ])
+    if (!updated) return error('Booking is not in a cancellable state', 409)
+    return json(updated)
+  } catch (err) {
+    console.error('Cancellation commit failed for booking', booking.id, err.message)
+    // The hold is released; a retry sees the canceled intent and only commits.
+    await restore()
+    return error('Cancellation failed; please try again', 500)
+  }
 }
 
 async function completeBooking(req, id) {

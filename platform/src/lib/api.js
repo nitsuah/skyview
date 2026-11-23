@@ -12,7 +12,9 @@ async function request(path, options = {}) {
   })
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
-    throw new Error(body.error || `HTTP ${res.status}`)
+    const err = new Error(body.error || `HTTP ${res.status}`)
+    err.status = res.status
+    throw err
   }
   return res.json()
 }

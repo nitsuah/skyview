@@ -3,31 +3,51 @@ import { Link } from 'react-router-dom'
 import { api } from '../lib/api'
 
 const STATUS_COLOR = {
-  pending:     'badge-open',
-  confirmed:   'badge-booked',
-  in_progress: 'badge-booked',
-  completed:   'badge-completed',
-  cancelled:   'badge-cancelled',
-  disputed:    'badge-cancelled'
+  pending:         'badge-open',
+  confirmed:       'badge-booked',
+  in_progress:     'badge-booked',
+  completed:       'badge-completed',
+  cancelled:       'badge-cancelled',
+  disputed:        'badge-cancelled',
+  capture_failed:  'badge-cancelled',
+  release_failed:  'badge-cancelled',
+  cancelling:      'badge-open'
 }
+
+const COMPLETABLE_STATUSES = ['confirmed', 'in_progress', 'capture_failed']
+const CANCELLABLE_STATUSES = ['capture_failed', 'release_failed']
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState([])
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState('')
 
-  useEffect(() => {
+  const loadBookings = () => {
+    setLoading(true)
     api.bookings.list()
       .then(setBookings)
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
-  }, [])
+  }
+
+  useEffect(loadBookings, [])
 
   const complete = async (id) => {
     try {
       await api.bookings.complete(id)
-      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'completed' } : b))
+      loadBookings()
     } catch (e) {
+      if (e.status === 402) loadBookings()
+      setError(e.message)
+    }
+  }
+
+  const cancel = async (id) => {
+    try {
+      await api.bookings.cancel(id)
+      loadBookings()
+    } catch (e) {
+      if (e.status === 402) loadBookings()
       setError(e.message)
     }
   }
@@ -84,9 +104,18 @@ export default function MyBookings() {
                       </span>
                     </td>
                     <td>
-                      {b.status === 'confirmed' && (
+                      {COMPLETABLE_STATUSES.includes(b.status) && (
                         <button className="btn btn-sm btn-primary" onClick={() => complete(b.id)}>
                           Mark Complete
+                        </button>
+                      )}
+                      {CANCELLABLE_STATUSES.includes(b.status) && (
+                        <button
+                          className="btn btn-sm btn-ghost"
+                          style={{ marginLeft: '0.5rem' }}
+                          onClick={() => cancel(b.id)}
+                        >
+                          Cancel Booking
                         </button>
                       )}
                       {b.status === 'completed' && (

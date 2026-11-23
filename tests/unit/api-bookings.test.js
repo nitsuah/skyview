@@ -5,7 +5,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // paths: PaymentIntent create on booking, cancel on decline, capture before the
 // job is marked completed, and payout + invoice after capture.
 const sqlMock = vi.fn();
-vi.mock('../../netlify/functions/utils/db.js', () => ({ sql: sqlMock }));
+const transactionMock = vi.fn();
+vi.mock('../../netlify/functions/utils/db.js', () => ({
+  sql: Object.assign(sqlMock, { transaction: transactionMock }),
+}));
 
 const requireAuthMock = vi.fn();
 vi.mock('../../netlify/functions/utils/auth.js', () => ({ requireAuth: requireAuthMock }));
@@ -94,6 +97,8 @@ beforeEach(() => {
   responses = [];
   stripeState.client = stripeMock;
   sqlMock.mockClear();
+  // sql.transaction(fn): fn builds the queries; the mock runs them and returns every result.
+  transactionMock.mockReset().mockImplementation(async (fn) => Promise.all(fn(sqlMock)));
   requireAuthMock.mockReset();
   availabilityMock.mockReset().mockResolvedValue({ ok: true });
   for (const fn of Object.values(emailMocks)) fn.mockReset().mockResolvedValue(undefined);
@@ -652,12 +657,33 @@ describe('POST /api/bookings/:id/complete', () => {
   });
 });
 
-describe('POST /api/bookings/:id/cancel (exit from capture_failed)', () => {
+describe('POST /api/bookings/:id/cancel (exit from capture_failed / release_failed)', () => {
   const failed = { ...baseBooking, status: 'capture_failed' };
-  const cancelResponses = () => [
-    [/^SELECT \* FROM bookings WHERE id/, [failed]],
-    [/^UPDATE bookings SET status = 'cancelled'/, [{ ...failed, status: 'cancelled' }]],
+  const cancelResponses = (from = failed) => [
+    [/^SELECT \* FROM bookings WHERE id/, [from]],
+    [/^UPDATE bookings SET status = 'cancelling'/, [{ ...from, status: 'cancelling' }]],
+    [/^UPDATE bookings SET status = 'cancelled'/, [{ ...from, status: 'cancelled' }]],
+    [/^UPDATE bookings SET status = 'release_failed'/, [{ ...from, status: 'release_failed' }]],
+    [/^UPDATE jobs SET status = 'open'/, [{ id: JOB_ID, status: 'open' }]],
   ];
+  const completedResponses = (from) => [
+    [/^SELECT \* FROM bookings WHERE id/, [from]],
+    [/^UPDATE bookings SET status = 'cancelling'/, [{ ...from, status: 'cancelling' }]],
+    [/^UPDATE bookings SET status = 'completed'/, [{ ...from, status: 'completed' }]],
+    [/FROM operator_profiles WHERE user_id/, [{ stripe_account_id: 'acct_op', stripe_onboarded: true }]],
+  ];
+  const captured = () => {
+    stripeMock.paymentIntents.retrieve.mockResolvedValue({ id: 'pi_123', status: 'succeeded', latest_charge: 'ch_123' });
+    stripeMock.transfers.create.mockResolvedValue({ id: 'tr_1' });
+    stripeMock.customers.create.mockResolvedValue({ id: 'cus_1' });
+    stripeMock.invoices.create.mockResolvedValue({ id: 'in_1' });
+    stripeMock.invoices.finalizeInvoice.mockResolvedValue({ id: 'in_1' });
+  };
+
+  beforeEach(() => {
+    stripeMock.paymentIntents.retrieve.mockResolvedValue({ id: 'pi_123', status: 'requires_capture' });
+    stripeMock.paymentIntents.cancel.mockResolvedValue({ id: 'pi_123', status: 'canceled' });
+  });
 
   it.each([[CLIENT, 200], [ADMIN, 200], [OPERATOR, 403], [OTHER_OPERATOR, 403]])('as %o -> %i', async (user, status) => {
     requireAuthMock.mockResolvedValue(user);
@@ -665,69 +691,118 @@ describe('POST /api/bookings/:id/cancel (exit from capture_failed)', () => {
     expect((await call('POST', `/${BOOKING_ID}/cancel`)).status).toBe(status);
   });
 
-  beforeEach(() => {
-    stripeMock.paymentIntents.retrieve.mockResolvedValue({ id: 'pi_123', status: 'requires_capture' });
+  it('claims the row as cancelling before it checks the payment', async () => {
+    requireAuthMock.mockResolvedValue(CLIENT);
+    responses = cancelResponses();
+    await call('POST', `/${BOOKING_ID}/cancel`);
+    const claim = queries().find((q) => /^UPDATE bookings SET status = 'cancelling'/.test(q.text));
+    expect(claim.values).toContain('capture_failed');
+    expect(callOrderOfQuery(/^UPDATE bookings SET status = 'cancelling'/))
+      .toBeLessThan(stripeMock.paymentIntents.retrieve.mock.invocationCallOrder[0]);
+  });
+
+  it('cancels the booking and reopens the job in one transaction, after releasing the hold', async () => {
+    requireAuthMock.mockResolvedValue(CLIENT);
+    responses = cancelResponses();
+    const res = await call('POST', `/${BOOKING_ID}/cancel`);
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('cancelled');
+    expect(transactionMock).toHaveBeenCalledTimes(1);
+    expect(queries().find((q) => /^UPDATE bookings SET status = 'cancelled'/.test(q.text)).text).toMatch(/status = 'cancelling'/);
+    expect(ran(/^UPDATE jobs SET status = 'open'/)).toBe(true);
+    expect(stripeMock.paymentIntents.cancel).toHaveBeenCalledWith('pi_123');
+    expect(stripeMock.paymentIntents.cancel.mock.invocationCallOrder[0])
+      .toBeLessThan(callOrderOfQuery(/^UPDATE bookings SET status = 'cancelled'/));
+  });
+
+  it('409s when another request claimed the row first, without touching Stripe', async () => {
+    requireAuthMock.mockResolvedValue(CLIENT);
+    responses = [[/^SELECT \* FROM bookings WHERE id/, [failed]]];
+    expect((await call('POST', `/${BOOKING_ID}/cancel`)).status).toBe(409);
+    expect(stripeMock.paymentIntents.retrieve).not.toHaveBeenCalled();
+    expect(stripeMock.paymentIntents.cancel).not.toHaveBeenCalled();
+  });
+
+  it('409s for a booking that is not cancellable, before touching Stripe', async () => {
+    requireAuthMock.mockResolvedValue(CLIENT);
+    responses = [[/^SELECT \* FROM bookings WHERE id/, [{ ...baseBooking, status: 'confirmed' }]]];
+    expect((await call('POST', `/${BOOKING_ID}/cancel`)).status).toBe(409);
+    expect(ran(/^UPDATE/)).toBe(false);
+    expect(stripeMock.paymentIntents.retrieve).not.toHaveBeenCalled();
   });
 
   it('reconciles to completed, never reopening the job, when the funds were captured', async () => {
     requireAuthMock.mockResolvedValue(CLIENT);
-    responses = [
-      ...cancelResponses().slice(0, 1),
-      [/^UPDATE bookings SET status = 'completed'/, [{ ...failed, status: 'completed' }]],
-      [/FROM operator_profiles WHERE user_id/, [{ stripe_account_id: 'acct_op', stripe_onboarded: true }]],
-    ];
-    stripeMock.paymentIntents.retrieve.mockResolvedValue({ id: 'pi_123', status: 'succeeded', latest_charge: 'ch_123' });
-    stripeMock.transfers.create.mockResolvedValue({ id: 'tr_1' });
-    stripeMock.customers.create.mockResolvedValue({ id: 'cus_1' });
-    stripeMock.invoices.create.mockResolvedValue({ id: 'in_1' });
-    stripeMock.invoices.finalizeInvoice.mockResolvedValue({ id: 'in_1' });
+    responses = completedResponses(failed);
+    captured();
     const res = await call('POST', `/${BOOKING_ID}/cancel`);
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('completed');
+    expect(queries().find((q) => /^UPDATE bookings SET status = 'completed'/.test(q.text)).text).toMatch(/status = 'cancelling'/);
     expect(ran(/^UPDATE bookings SET status = 'cancelled'/)).toBe(false);
     expect(ran(/SET status = 'open'/)).toBe(false);
     expect(ran(/^UPDATE jobs SET status = 'completed'/)).toBe(true);
     expect(stripeMock.paymentIntents.cancel).not.toHaveBeenCalled();
   });
 
-  it('503s and changes nothing when the PaymentIntent cannot be retrieved', async () => {
+  it('reconciles from release_failed to completed when the funds were captured', async () => {
+    requireAuthMock.mockResolvedValue(CLIENT);
+    responses = completedResponses({ ...baseBooking, status: 'release_failed' });
+    captured();
+    const res = await call('POST', `/${BOOKING_ID}/cancel`);
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('completed');
+  });
+
+  it('503s and restores the prior status when the PaymentIntent cannot be retrieved', async () => {
     requireAuthMock.mockResolvedValue(CLIENT);
     responses = cancelResponses();
     stripeMock.paymentIntents.retrieve.mockRejectedValue(new Error('network'));
     const res = await call('POST', `/${BOOKING_ID}/cancel`);
     expect(res.status).toBe(503);
-    expect(queries().some((q) => /^UPDATE/.test(q.text))).toBe(false);
+    const restore = queries().find((q) => /^UPDATE bookings SET status = \? WHERE id = \? AND status = 'cancelling'/.test(q.text));
+    expect(restore.values[0]).toBe('capture_failed');
+    expect(ran(/^UPDATE bookings SET status = 'cancelled'/)).toBe(false);
     expect(stripeMock.paymentIntents.cancel).not.toHaveBeenCalled();
   });
 
-  it('409s for a booking that is not capture_failed, before touching Stripe', async () => {
-    requireAuthMock.mockResolvedValue(CLIENT);
-    responses = [[/^SELECT \* FROM bookings WHERE id/, [{ ...baseBooking, status: 'confirmed' }]]];
-    expect((await call('POST', `/${BOOKING_ID}/cancel`)).status).toBe(409);
-    expect(stripeMock.paymentIntents.retrieve).not.toHaveBeenCalled();
-  });
-
-  it('cancels, reopens the job and releases the hold', async () => {
+  it('marks release_failed and returns 402 when releasing the hold fails, leaving the job booked', async () => {
     requireAuthMock.mockResolvedValue(CLIENT);
     responses = cancelResponses();
+    stripeMock.paymentIntents.cancel.mockRejectedValue(new Error('stripe cancel failed'));
     const res = await call('POST', `/${BOOKING_ID}/cancel`);
-    expect(res.body.status).toBe('cancelled');
-    expect(ran(/^UPDATE jobs SET status = 'open'/)).toBe(true);
-    expect(stripeMock.paymentIntents.cancel).toHaveBeenCalledWith('pi_123');
+    expect(res.status).toBe(402);
+    expect(res.body.booking.status).toBe('release_failed');
+    expect(ran(/^UPDATE bookings SET status = 'cancelled'/)).toBe(false);
+    expect(ran(/^UPDATE jobs SET status = 'open'/)).toBe(false);
+    expect(transactionMock).not.toHaveBeenCalled();
   });
 
-  it('409s without side effects when the update matches nothing (any other status)', async () => {
+  it('retries from release_failed and does not release a hold that is already canceled', async () => {
     requireAuthMock.mockResolvedValue(CLIENT);
-    responses = [cancelResponses()[0]];
-    expect((await call('POST', `/${BOOKING_ID}/cancel`)).status).toBe(409);
-    expect(ran(/^UPDATE jobs/)).toBe(false);
+    responses = cancelResponses({ ...baseBooking, status: 'release_failed' });
+    stripeMock.paymentIntents.retrieve.mockResolvedValue({ id: 'pi_123', status: 'canceled' });
+    const res = await call('POST', `/${BOOKING_ID}/cancel`);
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('cancelled');
     expect(stripeMock.paymentIntents.cancel).not.toHaveBeenCalled();
   });
 
-  it('only updates from capture_failed', async () => {
+  it('500s and restores the prior status when the cancel transaction fails', async () => {
     requireAuthMock.mockResolvedValue(CLIENT);
     responses = cancelResponses();
-    await call('POST', `/${BOOKING_ID}/cancel`);
-    expect(queries().find((q) => /^UPDATE bookings SET status = 'cancelled'/.test(q.text)).text).toMatch(/status = 'capture_failed'/);
+    transactionMock.mockRejectedValue(new Error('db down'));
+    const res = await call('POST', `/${BOOKING_ID}/cancel`);
+    expect(res.status).toBe(500);
+    const restore = queries().find((q) => /^UPDATE bookings SET status = \? WHERE id = \? AND status = 'cancelling'/.test(q.text));
+    expect(restore.values[0]).toBe('capture_failed');
+  });
+
+  it('never lets completion claim a booking that is being cancelled', async () => {
+    requireAuthMock.mockResolvedValue(CLIENT);
+    responses = [[/^SELECT b\.\*, j\.status/, [{ ...baseBooking, status: 'cancelling' }]]];
+    const res = await call('POST', `/${BOOKING_ID}/complete`);
+    expect(res.status).toBe(409);
+    expect(ran(/^UPDATE bookings SET status = 'completed'/)).toBe(false);
   });
 });

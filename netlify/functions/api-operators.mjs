@@ -131,12 +131,6 @@ async function updateProfile(req, id) {
   const targetId = user.role === 'admin' ? id : user.id
   if (user.role === 'operator' && user.id !== id) return forbidden()
 
-  const [profile] = await sql`
-    SELECT id, faa_cert_number, faa_cert_expires_at
-    FROM operator_profiles WHERE user_id = ${targetId}
-  `
-  if (!profile) return notFound()
-
   const body = await req.json().catch(() => null)
   if (!body) return error('Invalid JSON')
 
@@ -159,12 +153,10 @@ async function updateProfile(req, id) {
     }
   }
 
-  // Only reset verification when cert values actually differ from what's stored
-  const certChanging = (
-    (faa_cert_number != null && faa_cert_number !== profile.faa_cert_number) ||
-    (faa_cert_expires_at != null && faa_cert_expires_at !== String(profile.faa_cert_expires_at ?? '').slice(0, 10))
-  )
-
+  // The certificate change is decided inside the UPDATE, against the row as it is
+  // at write time, so an interleaved save cannot change the certificate without
+  // bumping cert_revision. Omitted (null) fields are not changes. The SET
+  // expressions read the pre-update row, as Postgres evaluates them all against it.
   const [updated] = await sql`
     UPDATE operator_profiles SET
       bio                = COALESCE(${bio ?? null}, bio),
@@ -178,11 +170,18 @@ async function updateProfile(req, id) {
       booking_url        = COALESCE(${booking_url ?? null}, booking_url),
       faa_cert_number    = COALESCE(${faa_cert_number ?? null}, faa_cert_number),
       faa_cert_expires_at = COALESCE(${faa_cert_expires_at ?? null}, faa_cert_expires_at),
-      verification_status = CASE WHEN ${certChanging} THEN 'pending' ELSE verification_status END,
-      cert_revision       = cert_revision + CASE WHEN ${certChanging} THEN 1 ELSE 0 END
+      verification_status = CASE
+        WHEN (${faa_cert_number ?? null}::text IS NOT NULL AND ${faa_cert_number ?? null}::text IS DISTINCT FROM faa_cert_number)
+          OR (${faa_cert_expires_at ?? null}::date IS NOT NULL AND ${faa_cert_expires_at ?? null}::date IS DISTINCT FROM faa_cert_expires_at)
+        THEN 'pending' ELSE verification_status END,
+      cert_revision       = cert_revision + CASE
+        WHEN (${faa_cert_number ?? null}::text IS NOT NULL AND ${faa_cert_number ?? null}::text IS DISTINCT FROM faa_cert_number)
+          OR (${faa_cert_expires_at ?? null}::date IS NOT NULL AND ${faa_cert_expires_at ?? null}::date IS DISTINCT FROM faa_cert_expires_at)
+        THEN 1 ELSE 0 END
     WHERE user_id = ${targetId}
     RETURNING *
   `
+  if (!updated) return notFound()
   return json(updated)
 }
 

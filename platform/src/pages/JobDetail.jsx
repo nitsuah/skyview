@@ -42,6 +42,17 @@ export default function JobDetail() {
       await api.bookings.complete(bookingId)
       load()
     } catch (e) {
+      if (e.status === 402) load()
+      setError(e.message)
+    }
+  }
+
+  const cancelBooking = async (bookingId) => {
+    try {
+      await api.bookings.cancel(bookingId)
+      load()
+    } catch (e) {
+      if (e.status === 402) load()
       setError(e.message)
     }
   }
@@ -198,6 +209,29 @@ export default function JobDetail() {
                 Booking confirmed with <strong>{activeBooking.operator_name}</strong>. Mark complete when finished.
               </div>
             )}
+            {bookings
+              .filter(b => b.status === 'capture_failed')
+              .map(b => (
+                <div key={b.id} className="alert alert-warning" style={{ fontSize: 12.5, marginTop: '0.5rem' }}>
+                  <strong>Payment capture failed</strong> for booking with {b.operator_name}.
+                  <button className="btn btn-sm btn-primary" style={{ marginLeft: '0.5rem' }} onClick={() => markComplete(b.id)}>
+                    Retry Completion
+                  </button>
+                  <button className="btn btn-sm btn-ghost" style={{ marginLeft: '0.5rem' }} onClick={() => cancelBooking(b.id)}>
+                    Cancel Booking
+                  </button>
+                </div>
+              ))}
+            {bookings
+              .filter(b => b.status === 'release_failed')
+              .map(b => (
+                <div key={b.id} className="alert alert-warning" style={{ fontSize: 12.5, marginTop: '0.5rem' }}>
+                  <strong>Releasing the payment hold failed</strong> for booking with {b.operator_name}.
+                  <button className="btn btn-sm btn-ghost" style={{ marginLeft: '0.5rem' }} onClick={() => cancelBooking(b.id)}>
+                    Retry Cancellation
+                  </button>
+                </div>
+              ))}
             {job.status === 'completed' && (
               <div className="alert alert-info" style={{ fontSize: 12.5 }}>
                 This job is complete.

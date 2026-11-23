@@ -49,14 +49,17 @@ export async function authorizePayment(booking) {
   return intent.client_secret
 }
 
-// Releases the hold on a declined booking. Never throws: uncaptured
-// PaymentIntents auto-expire after 7 days, so a failure here is only logged.
+// Releases the hold on a declined booking. Returns true on success, false on failure.
+// Uncaptured PaymentIntents auto-expire after 7 days, but we report failure so the
+// caller can keep the booking in a retryable state (release_failed).
 export async function releasePayment(booking) {
-  if (!stripe || !booking.stripe_payment_intent_id) return
+  if (!stripe || !booking.stripe_payment_intent_id) return true
   try {
     await stripe.paymentIntents.cancel(booking.stripe_payment_intent_id)
+    return true
   } catch (err) {
     console.error('PI cancel failed for booking', booking.id, err.message)
+    return false
   }
 }
 
