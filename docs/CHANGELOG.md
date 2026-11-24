@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The funnel dashboard journey baseline is refreshed for the restyled CSV / JSON buttons and funnel rows (#258).
 - The local dashboard's CSV / JSON buttons and funnel drop-off rows are styled (they rendered dark-on-dark), and the screenshot suite captures them as `csv-json-export` (#253).
 - Campaign personalization now applies to the real hero subtitle; organic visitors keep the authored text.
 - CI runs browser tests in the Playwright image that matches the installed test runner.
