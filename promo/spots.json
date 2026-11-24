@@ -84,9 +84,10 @@
       "id": "csv-json-export",
       "title": "CSV / JSON Export",
       "category": "Funnel Reporting",
-      "screenshots": [],
-      "spots": [],
-      "note": "no screenshot: the CSV / JSON buttons have no CSS and render dark-on-dark in the dashboard"
+      "screenshots": [
+        "docs/screenshots/csv-json-export.png"
+      ],
+      "spots": []
     },
     {
       "id": "admin-hardening",

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The local dashboard's CSV / JSON buttons and funnel drop-off rows are styled (they rendered dark-on-dark), and the screenshot suite captures them as `csv-json-export` (#253).
 - Campaign personalization now applies to the real hero subtitle; organic visitors keep the authored text.
 - CI runs browser tests in the Playwright image that matches the installed test runner.
 - Booking completion and cancellation (#246): a failed payment capture leaves the booking in `capture_failed`, from which completion can be retried or the booking cancelled. Cancelling claims the booking first (`cancelling`), reconciles to completed if the payment was in fact captured, and cancels the booking and reopens the job in one transaction; a failed hold release stays retryable (`release_failed`). My Bookings and the job page offer both recovery actions. Operator certificate changes are decided inside the profile update, so a concurrent save cannot skip a re-verification. Migration `011` widens the booking status check. A cancellation that stops part-way can be retried once its claim is two minutes old, and action errors on the job page show inline so the retry controls stay visible.
