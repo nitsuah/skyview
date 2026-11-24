@@ -1398,6 +1398,89 @@ button {
     cursor: pointer;
 }
 
+.conversion-dashboard__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.35rem;
+}
+
+.conversion-dashboard__export {
+    padding: 0.35rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid rgba(124, 242, 255, 0.18);
+    background: rgba(124, 242, 255, 0.08);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.conversion-dashboard__export:hover,
+.conversion-dashboard__reset:hover {
+    background: rgba(124, 242, 255, 0.18);
+    border-color: rgba(124, 242, 255, 0.4);
+}
+
+.conversion-dashboard__export:focus-visible,
+.conversion-dashboard__reset:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+}
+
+.conversion-dashboard__funnel {
+    display: grid;
+    gap: 0.4rem;
+    margin-top: 0.8rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid rgba(124, 242, 255, 0.14);
+}
+
+.conversion-dashboard__funnel-label {
+    color: var(--color-secondary);
+    font-size: 0.68rem;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.conversion-dashboard__funnel-step {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+        "name pct"
+        "bar bar";
+    align-items: center;
+    gap: 0.2rem 0.75rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 12px;
+    background: rgba(124, 242, 255, 0.06);
+}
+
+.conversion-dashboard__funnel-name {
+    grid-area: name;
+    color: var(--color-text-secondary);
+    font-size: 0.78rem;
+}
+
+.conversion-dashboard__funnel-pct {
+    grid-area: pct;
+    color: var(--color-text-primary);
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.conversion-dashboard__funnel-bar {
+    grid-area: bar;
+    display: block;
+    min-width: 2px;
+    max-width: 100%;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-secondary);
+}
+
 .conversion-dashboard__grid {
     display: grid;
     gap: 0.55rem;

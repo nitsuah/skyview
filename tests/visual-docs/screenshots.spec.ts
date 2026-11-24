@@ -98,6 +98,8 @@ test.describe('marketing site', () => {
     await expect(page.locator('#skyview-conversion-dashboard')).toBeVisible();
     await page.waitForTimeout(600);
     await shot(page, 'local-dashboard');
+    // The export buttons and funnel rows live in this panel; capture it close up.
+    await shot(page.locator('#skyview-conversion-dashboard'), 'csv-json-export');
   });
 });
 
