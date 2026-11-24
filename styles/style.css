@@ -1388,16 +1388,6 @@ button {
     font-size: 0.8rem;
 }
 
-.conversion-dashboard__reset {
-    padding: 0.35rem 0.6rem;
-    border-radius: 999px;
-    border: 1px solid rgba(124, 242, 255, 0.18);
-    background: rgba(124, 242, 255, 0.08);
-    color: var(--color-text-primary);
-    font-size: 0.72rem;
-    cursor: pointer;
-}
-
 .conversion-dashboard__actions {
     display: flex;
     flex-wrap: wrap;
@@ -1405,7 +1395,8 @@ button {
     gap: 0.35rem;
 }
 
-.conversion-dashboard__export {
+.conversion-dashboard__export,
+.conversion-dashboard__reset {
     padding: 0.35rem 0.6rem;
     border-radius: 999px;
     border: 1px solid rgba(124, 242, 255, 0.18);
