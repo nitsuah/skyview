@@ -57,8 +57,9 @@ export default function ResetPassword() {
 
         <form onSubmit={submit}>
           <div className="form-group">
-            <label>New password</label>
+            <label htmlFor="reset-password">New password</label>
             <input
+              id="reset-password"
               type="password"
               autoFocus
               required
@@ -69,8 +70,9 @@ export default function ResetPassword() {
             />
           </div>
           <div className="form-group">
-            <label>Confirm password</label>
+            <label htmlFor="reset-password-confirm">Confirm password</label>
             <input
+              id="reset-password-confirm"
               type="password"
               required
               value={confirm}

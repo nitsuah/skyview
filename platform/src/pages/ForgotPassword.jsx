@@ -52,8 +52,9 @@ export default function ForgotPassword() {
 
         <form onSubmit={submit}>
           <div className="form-group">
-            <label>Email address</label>
+            <label htmlFor="forgot-email">Email address</label>
             <input
+              id="forgot-email"
               type="email"
               autoFocus
               required
