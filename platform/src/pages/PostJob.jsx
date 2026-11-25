@@ -94,13 +94,13 @@ export default function PostJob() {
         <div className="card mb-2">
           <div className="section-title">Job details</div>
           <div className="form-group">
-            <label>Job title</label>
-            <input type="text" value={form.title} placeholder="e.g. Real estate listing shoot — 3BR home"
+            <label htmlFor="job-title">Job title</label>
+            <input type="text" id="job-title" value={form.title} placeholder="e.g. Real estate listing shoot — 3BR home"
               required onChange={e => set('title', e.target.value)} />
           </div>
           <div className="form-group">
-            <label>Description <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
-            <textarea value={form.description} placeholder="Any specific requirements, shot list, access notes…"
+            <label htmlFor="job-description">Description <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
+            <textarea id="job-description" value={form.description} placeholder="Any specific requirements, shot list, access notes…"
               onChange={e => set('description', e.target.value)} />
           </div>
         </div>
@@ -108,8 +108,8 @@ export default function PostJob() {
         <div className="card mb-2">
           <div className="section-title">Location & timing</div>
           <div className="form-group">
-            <label>Location</label>
-            <input type="text" value={form.location_address}
+            <label htmlFor="job-location">Location</label>
+            <input type="text" id="job-location" value={form.location_address}
               placeholder="Street address or area (e.g. Downtown Austin, TX)"
               onChange={e => set('location_address', e.target.value)} />
             {geocoding && <small className="text-muted">Looking up coordinates…</small>}
@@ -117,14 +117,14 @@ export default function PostJob() {
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label>Preferred date</label>
-              <input type="date" value={form.preferred_date}
+              <label htmlFor="job-date">Preferred date</label>
+              <input type="date" id="job-date" value={form.preferred_date}
                 min={new Date().toLocaleDateString('en-CA')}
                 onChange={e => set('preferred_date', e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Time of day</label>
-              <select value={form.preferred_time} onChange={e => set('preferred_time', e.target.value)}>
+              <label htmlFor="job-time">Time of day</label>
+              <select id="job-time" value={form.preferred_time} onChange={e => set('preferred_time', e.target.value)}>
                 {TIMES.map(t => <option key={t} value={t} style={{ textTransform: 'capitalize' }}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
               </select>
             </div>
@@ -134,10 +134,10 @@ export default function PostJob() {
         <div className="card mb-3">
           <div className="section-title">Budget</div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label>Approximate budget <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
+            <label htmlFor="job-budget">Approximate budget <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
             <div className="currency-wrap">
               <span className="currency-prefix">$</span>
-              <input type="number" className="currency-input" value={form.budget_cents}
+              <input type="number" id="job-budget" className="currency-input" value={form.budget_cents}
                 placeholder="e.g. 400" min={0} step={10}
                 onChange={e => set('budget_cents', e.target.value)} />
             </div>

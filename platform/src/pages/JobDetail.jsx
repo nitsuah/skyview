@@ -184,8 +184,8 @@ export default function JobDetail() {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>Comment <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
-                  <textarea value={comment} onChange={e => setComment(e.target.value)}
+                  <label htmlFor="review-comment">Comment <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
+                  <textarea id="review-comment" value={comment} onChange={e => setComment(e.target.value)}
                     placeholder="How was the experience?" rows={3} />
                 </div>
                 <button className="btn btn-primary" disabled={reviewSaving}>
