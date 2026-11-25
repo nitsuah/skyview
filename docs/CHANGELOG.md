@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Unit tests for `netlify/functions/utils/booking-billing.js` (fee split, priceBooking, paymentsEnabled, authorizePayment, releasePayment, capturePayment, retrievePayment) in `tests/unit/booking-billing.test.js` (#269).
+
 ### Removed
 
 - The orphaned thank-you page left over from the removed contact form, with its script, redirect and sitemap entry (#263).
