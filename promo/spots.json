@@ -167,13 +167,6 @@
       ]
     },
     {
-      "id": "calendly-removed",
-      "title": "Calendly Removed",
-      "category": "Marketplace Platform",
-      "visual": "none",
-      "note": "a removal, covered by Native Operator Scheduling"
-    },
-    {
       "id": "content-security-policy",
       "title": "Content Security Policy",
       "category": "Security & Infrastructure",
@@ -207,13 +200,6 @@
       "category": "Security & Infrastructure",
       "visual": "none",
       "note": "test tooling"
-    },
-    {
-      "id": "netlify-forms",
-      "title": "Netlify Forms",
-      "category": "Security & Infrastructure",
-      "visual": "none",
-      "note": "claimed but not in the code: the contact form was removed (tests/site.spec.ts)"
     }
   ],
   "spots": [

@@ -38,6 +38,7 @@ Open 2026 items are tracked below and in `docs/ROADMAP.md` 2027 Q1.
 - [ ] Trim `docs/FEATURES.md` to what users can see or do.
   - Priority: P3
   - 11 of 24 entries have nothing to show (`"visual": "none"` in `promo/spots.json`). "Netlify Forms" is no longer true (the contact form was removed 2026-09-19); "Calendly Removed" is a changelog entry, not a feature.
+  - **Removed:** "Calendly Removed" and "Netlify Forms" entries deleted from `docs/FEATURES.md` and `promo/spots.json`.
 
 - [ ] Build a real per-client storage backend for the client portal.
   - Priority: P2

@@ -33,7 +33,6 @@
 
 - **Two-Sided Marketplace** — Netlify Functions + Neon DB + Stripe Connect + React SPA at `/app` matching clients to drone operators; the marketing site's booking CTAs (hero → `/app/register`, "Find a drone operator" / "Post a job" / "List as an operator") point into it
 - **Native Operator Scheduling** — recurring weekly availability windows and blocked dates (migration `006_operator_availability.sql`); `checkOperatorAvailability()` enforces no overlaps at booking creation and confirmation, backed by a DB-level exclusion constraint; onboarding Availability step and a booking modal that proposes a date/time with a live availability hint
-- **Calendly Removed** — the Calendly widget, script, CSP entries, config and CSS were removed on 2026-09-19 in favor of native platform scheduling
 
 ## Security & Infrastructure
 
@@ -43,7 +42,6 @@
 - **Docker/Netlify Parity** — the Docker preview image (`Dockerfile`) now runs the same `scripts/build.js` build as Netlify, so it serves the marketplace platform SPA at `/app` identically to production instead of only the static marketing pages
 - **Docker Validation** — `docker compose -f config/docker-compose.yml run --rm unit` runs the Vitest suite with coverage; web smoke build confirms zero import errors. See METRICS.md for the current test count.
 - **Nightly Journeys** — `tests/journeys/` drives the site, client portal and marketplace like a user (mocked `/api`, frozen clock, 9 journeys, visual baselines per step); `.github/workflows/journeys.yml` files and auto-closes `bot:journey` issues with no AI
-- **Netlify Forms** — zero-config contact form handling
 
 ## Planned
 
