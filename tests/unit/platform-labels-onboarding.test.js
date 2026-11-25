@@ -18,16 +18,25 @@ const pairs = [
   { label: 'Expiry date', id: 'op-cert-expiry' },
 ];
 
+const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 describe('OperatorOnboarding labels and ids', () => {
   for (const { label, id } of pairs) {
-    it(`has htmlFor="${id}" on label "${label}"`, () => {
-      const re = new RegExp(`htmlFor=["']${id}["']`);
+    it(`label "${label}" carries htmlFor="${id}"`, () => {
+      // htmlFor must sit on the <label> whose text is this label, not on any other label.
+      const re = new RegExp(`<label[^>]*htmlFor=["']${id}["'][^>]*>\\s*${escape(label)}`);
       expect(re.test(source)).toBe(true);
     });
 
-    it(`has id="${id}" on control after label "${label}"`, () => {
-      const re = new RegExp(`id=["']${id}["']`);
-      expect(re.test(source)).toBe(true);
+    it(`id="${id}" is unique and comes after its label`, () => {
+      const idRe = `\\bid=["']${id}["']`;
+      expect(source.match(new RegExp(idRe, 'g')) || []).toHaveLength(1);
+      const labelAt = source.search(new RegExp(`htmlFor=["']${id}["']`));
+      const idAt = source.search(new RegExp(idRe));
+      expect(labelAt).toBeGreaterThanOrEqual(0);
+      expect(idAt).toBeGreaterThan(labelAt);
+      // No other label may sit between this label and its control.
+      expect(source.slice(labelAt, idAt)).not.toMatch(/<label/);
     });
   }
 });
