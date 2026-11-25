@@ -91,7 +91,7 @@ describe('CSP sanitization (#213)', () => {
 
     it('scans the served pages', () => {
         expect(SERVED_HTML).toEqual(expect.arrayContaining([
-            'index.html', 'pages/client-portal.html', 'pages/client-gallery.html', 'pages/thank-you.html',
+            'index.html', 'pages/client-portal.html', 'pages/client-gallery.html',
         ]));
     });
 

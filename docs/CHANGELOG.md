@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- The orphaned thank-you page left over from the removed contact form, with its script, redirect and sitemap entry (#263).
+
 ### Fixed
 
 - Platform form labels are tied to their inputs on the auth, job and operator onboarding pages (#260, #261, #262).

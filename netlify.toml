@@ -51,11 +51,6 @@
   to = "/pages/privacy.html"
   status = 301
 
-[[redirects]]
-  from = "/thank-you.html"
-  to = "/pages/thank-you.html"
-  status = 301
-
 # Catch-all for SPA routing
 [[redirects]]
   from = "/*"

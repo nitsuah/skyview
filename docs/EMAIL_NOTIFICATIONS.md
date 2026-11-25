@@ -43,6 +43,8 @@ For more control over email content and delivery, you can use:
   - Adding contacts to CRM/email marketing tools
   - Notifications to Slack/Discord
 
+> The contact form was removed on 2026-09-19 and its thank-you page with it; the notes below are historical.
+
 ### Option 3: Form Success Page + Auto-response
 - User sees the `thank-you.html` page immediately after submission
 - Provides instant feedback to customers
