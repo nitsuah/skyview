@@ -69,16 +69,16 @@ export default function Login() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email</label>
-            <input type="email" value={form.email} placeholder="you@example.com" required
+            <label htmlFor="login-email">Email</label>
+            <input id="login-email" type="email" value={form.email} placeholder="you@example.com" required
               onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
           </div>
           <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <label>Password</label>
+              <label htmlFor="login-password">Password</label>
               <Link to="/app/forgot-password" className="link" style={{ fontSize: 12.5 }}>Forgot password?</Link>
             </div>
-            <input type="password" value={form.password} placeholder="········" required
+            <input id="login-password" type="password" value={form.password} placeholder="········" required
               onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
           </div>
           <button type="submit" className="btn btn-primary btn-full" disabled={busy}>

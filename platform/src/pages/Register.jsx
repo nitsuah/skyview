@@ -94,18 +94,18 @@ export default function Register() {
           </div>
 
           <div className="form-group">
-            <label>Full name</label>
-            <input type="text" value={form.name} placeholder="Your name" required
+            <label htmlFor="register-name">Full name</label>
+            <input id="register-name" type="text" value={form.name} placeholder="Your name" required
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
           </div>
           <div className="form-group">
-            <label>Email</label>
-            <input type="email" value={form.email} placeholder="you@example.com" required
+            <label htmlFor="register-email">Email</label>
+            <input id="register-email" type="email" value={form.email} placeholder="you@example.com" required
               onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
           </div>
           <div className="form-group">
-            <label>Password</label>
-            <input type="password" value={form.password} placeholder="8+ characters" required minLength={8}
+            <label htmlFor="register-password">Password</label>
+            <input id="register-password" type="password" value={form.password} placeholder="8+ characters" required minLength={8}
               onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
           </div>
 
