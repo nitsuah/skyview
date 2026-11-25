@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - The orphaned thank-you page left over from the removed contact form, with its script, redirect and sitemap entry (#263).
+- "Calendly Removed" and "Netlify Forms" entries from `docs/FEATURES.md` and `promo/spots.json` (#271).
+
+### Changed
 
 ### Fixed
 
