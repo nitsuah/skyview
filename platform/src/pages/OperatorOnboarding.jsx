@@ -267,8 +267,8 @@ export default function OperatorOnboarding() {
             </div>
           </div>
           <div className="form-group">
-            <label>Your city / base location</label>
-            <input type="text" placeholder="e.g. Austin, TX"
+            <label htmlFor="op-city">Your city / base location</label>
+            <input type="text" id="op-city" placeholder="e.g. Austin, TX"
               onBlur={e => geocodeCity(e.target.value)} />
             {cityError
               ? <small style={{ color: 'var(--amber, #b45309)' }}>{cityError}</small>
@@ -276,19 +276,19 @@ export default function OperatorOnboarding() {
             }
           </div>
           <div className="form-group">
-            <label>Service radius (miles)</label>
-            <select value={profile.coverage_radius_mi} onChange={e => set('coverage_radius_mi', e.target.value)}>
+            <label htmlFor="op-radius">Service radius (miles)</label>
+            <select id="op-radius" value={profile.coverage_radius_mi} onChange={e => set('coverage_radius_mi', e.target.value)}>
               {[15,25,50,75,100,150].map(r => <option key={r} value={r}>{r} miles</option>)}
             </select>
           </div>
           <div className="form-group">
-            <label>Bio <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
-            <textarea value={profile.bio} placeholder="Tell clients about your experience and specialty…"
+            <label htmlFor="op-bio">Bio <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
+            <textarea id="op-bio" value={profile.bio} placeholder="Tell clients about your experience and specialty…"
               onChange={e => set('bio', e.target.value)} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label>Equipment <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
-            <input type="text" value={profile.equipment}
+            <label htmlFor="op-equipment">Equipment <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
+            <input type="text" id="op-equipment" value={profile.equipment}
               placeholder="e.g. DJI Mavic 3 Pro, DJI Air 3, DJI OM 6"
               onChange={e => set('equipment', e.target.value)} />
           </div>
@@ -306,19 +306,19 @@ export default function OperatorOnboarding() {
           <div className="section-title" style={{ marginBottom: '1.25rem' }}>Rates & booking</div>
           <div className="form-row">
             <div className="form-group">
-              <label>Base / flat rate</label>
+              <label htmlFor="op-base-rate">Base / flat rate</label>
               <div className="currency-wrap">
                 <span className="currency-prefix">$</span>
-                <input type="number" className="currency-input" value={profile.base_rate_cents}
+                <input type="number" id="op-base-rate" className="currency-input" value={profile.base_rate_cents}
                   placeholder="e.g. 350" min={0} step={10}
                   onChange={e => set('base_rate_cents', e.target.value)} />
               </div>
             </div>
             <div className="form-group">
-              <label>Hourly rate</label>
+              <label htmlFor="op-hourly-rate">Hourly rate</label>
               <div className="currency-wrap">
                 <span className="currency-prefix">$</span>
-                <input type="number" className="currency-input" value={profile.hourly_rate_cents}
+                <input type="number" id="op-hourly-rate" className="currency-input" value={profile.hourly_rate_cents}
                   placeholder="e.g. 150" min={0} step={10}
                   onChange={e => set('hourly_rate_cents', e.target.value)} />
               </div>
@@ -328,8 +328,8 @@ export default function OperatorOnboarding() {
             Platform takes 15% on each booking. You receive 85% of each job's total. No monthly fee.
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label>Your booking / calendar link <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
-            <input type="url" value={profile.booking_url}
+            <label htmlFor="op-booking-url">Your booking / calendar link <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
+            <input type="url" id="op-booking-url" value={profile.booking_url}
               placeholder="https://cal.com/yourname or your Calendly link"
               onChange={e => set('booking_url', e.target.value)} />
             <small className="text-muted">Clients booking through SkyView are matched against the availability you set next — this link is just a backup for clients who ask for it directly.</small>
@@ -384,9 +384,9 @@ export default function OperatorOnboarding() {
           </div>
           <div className="divider" />
           <div className="form-group">
-            <label>Blocked dates <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
+            <label htmlFor="op-blocked-date">Blocked dates <span className="text-muted" style={{ fontWeight: 400 }}>(optional)</span></label>
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-              <input type="date" value={newBlockedDate} onChange={e => setNewBlockedDate(e.target.value)} />
+              <input type="date" id="op-blocked-date" value={newBlockedDate} onChange={e => setNewBlockedDate(e.target.value)} />
               <input type="text" placeholder="Reason (optional)" value={newBlockedReason}
                 onChange={e => setNewBlockedReason(e.target.value)} style={{ flex: 1 }} />
               <button type="button" className="btn btn-ghost btn-sm" onClick={addBlockedDate}>Add</button>
@@ -421,14 +421,14 @@ export default function OperatorOnboarding() {
           </p>
           <div className="form-row mb-2">
             <div className="form-group">
-              <label>Certificate number</label>
-              <input type="text" value={profile.faa_cert_number}
+              <label htmlFor="op-cert-number">Certificate number</label>
+              <input type="text" id="op-cert-number" value={profile.faa_cert_number}
                 placeholder="e.g. 4307263"
                 onChange={e => set('faa_cert_number', e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Expiry date</label>
-              <input type="date" value={profile.faa_cert_expires_at}
+              <label htmlFor="op-cert-expiry">Expiry date</label>
+              <input type="date" id="op-cert-expiry" value={profile.faa_cert_expires_at}
                 onChange={e => set('faa_cert_expires_at', e.target.value)} />
             </div>
           </div>
