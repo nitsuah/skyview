@@ -28,11 +28,11 @@ Open 2026 items are tracked below and in `docs/ROADMAP.md` 2027 Q1.
   - #190: `pages/privacy.html:318` loads `scripts/main.js` without `type="module"`, so it throws and nothing initialises.
   - Acceptance Criteria: both fixed; the affected journey baselines regenerated in Docker.
 
-- [ ] Fix the two features the screenshot suite found broken on the real page.
+- [x] Fix the two features the screenshot suite found broken on the real page.
   - Priority: P2
   - Campaign personalization never applies: `scripts/campaign.js` targets `.hero-subline, [data-campaign-subline]`, but `index.html`'s hero uses `.hero-subtitle` (the unit test builds its own `.hero-subline` markup, so it passes). Decide whether organic visitors keep the authored subtitle before wiring it up.
   - The dashboard's CSV / JSON buttons and funnel drop-off rows have no CSS (`.conversion-dashboard__export`, `__actions`, `__funnel*`): the buttons render dark-on-dark.
-  - Done: campaign personalization now targets `.hero-subtitle` and leaves organic visitors on the authored text. Dashboard CSS for the export buttons and funnel rows is in (#253) with a `csv-json-export` capture linked in `promo/spots.json`. Remaining: the `campaign-personalization` capture.
+  - Done: campaign personalization now targets `.hero-subtitle` and leaves organic visitors on the authored text. Dashboard CSS for the export buttons and funnel rows is in (#253) with a `csv-json-export` capture linked in `promo/spots.json`. The `campaign-personalization` capture was added (#285).
   - Acceptance Criteria: both render correctly; add `campaign-personalization` and `csv-json-export` captures to `tests/visual-docs/screenshots.spec.ts` and link them in `promo/spots.json`.
 
 - [ ] Trim `docs/FEATURES.md` to what users can see or do.

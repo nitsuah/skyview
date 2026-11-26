@@ -79,8 +79,13 @@ test.describe('marketing site', () => {
     await shot(page, 'responsive-design');
   });
 
-  // campaign-personalization has no screenshot yet: scripts/campaign.js targets
-  // `.hero-subline`, which index.html doesn't have, so the variant never renders.
+  test('campaign-personalization', async ({ page }) => {
+    await page.goto('/?utm_source=instagram');
+    await settle(page);
+    const subtitle = page.locator('.hero-subtitle');
+    await expect(subtitle).toHaveText('Cinematic aerial content your followers will love.');
+    await shot(page.locator('.hero-content').first(), 'campaign-personalization');
+  });
 
   test('local-dashboard', async ({ page }) => {
     await page.addInitScript((updatedAt) => {

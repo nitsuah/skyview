@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Campaign personalization screenshot added to visual-docs suite (#285).
 - Platform form labels are tied to their inputs on the auth, job and operator onboarding pages (#260, #261, #262).
 - Platform auth form labels (login, register, forgot and reset password) are now tied to their inputs with `htmlFor`/`id`, so screen readers announce them and tests can select by label (#260).
 - The funnel dashboard journey baseline is refreshed for the restyled CSV / JSON buttons and funnel rows (#258).
