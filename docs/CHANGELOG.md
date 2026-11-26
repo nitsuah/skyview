@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Unit tests for `netlify/functions/api-uploads.mjs` (cert and deliverable validation, ownership and happy paths) in `tests/unit/api-uploads.test.js` (#278).
 - Unit tests for `netlify/functions/utils/booking-billing.js` (fee split, priceBooking, paymentsEnabled, authorizePayment, releasePayment, capturePayment, retrievePayment) in `tests/unit/booking-billing.test.js` (#269).
 - Unit tests for `netlify/functions/utils/response.js` (CORS_HEADERS, json, error, cors, redirect, unauthorized, forbidden, notFound, methodNotAllowed) in `tests/unit/api-response.test.js` (#270).
 
