@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Unit tests for `netlify/functions/api-reviews.mjs` (routing, listing, validation, insert, duplicate and error paths) in `tests/unit/api-reviews.test.js` (#275).
 - Unit tests for job creation (`POST /api/jobs`: auth, validation and insert) in `tests/unit/api-jobs-create.test.js` (#279).
 - Unit tests for `netlify/functions/utils/booking-billing.js` (fee split, priceBooking, paymentsEnabled, authorizePayment, releasePayment, capturePayment, retrievePayment) in `tests/unit/booking-billing.test.js` (#269).
 - Unit tests for `netlify/functions/utils/response.js` (CORS_HEADERS, json, error, cors, redirect, unauthorized, forbidden, notFound, methodNotAllowed) in `tests/unit/api-response.test.js` (#270).
