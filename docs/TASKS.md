@@ -19,6 +19,7 @@ Open 2026 items are tracked below and in `docs/ROADMAP.md` 2027 Q1.
   - Priority: P1
   - Blocker: config plumbing is done (see Done above) — this is now purely a data-entry task blocked on the business owner supplying real values. Specifically still needed: **real business phone number**, **real business email** (confirm if `contact@skyviewdynamics.com` is real or a placeholder), **service-area city/region** (or full street address) for `contact.address` in `config.js`, **approximate service-area GPS coordinates** for `contact.geo`, and **real social profile URLs** for `contact.social` (facebook/twitter/instagram/youtube — currently generic homepage URLs, not the business's actual profiles).
   - Acceptance Criteria: production identity fields populated in `config.js`; no placeholder values remain in the rendered page or schema.org JSON-LD.
+  - Run `node scripts/check-launch-identity.mjs` to list remaining placeholders (#286).
 
 ## Todo
 
