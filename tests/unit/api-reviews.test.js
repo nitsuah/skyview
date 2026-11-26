@@ -123,6 +123,10 @@ describe('POST /api/reviews', () => {
     const { status, body } = await call('POST', '', { booking_id: BOOKING.id, rating: 4 });
     expect(status).toBe(201);
     expect(body).toEqual({ id: 'r1' });
+    const lookup = queries().find((q) => /FROM bookings/.test(q.text));
+    expect(lookup.text).toMatch(/client_id = ?/);
+    expect(lookup.text).toMatch(/status = .completed./);
+    expect(lookup.values).toEqual([BOOKING.id, CLIENT.id]);
     const insert = queries().find((q) => /INSERT INTO reviews/.test(q.text));
     expect(insert.values).toEqual([BOOKING.id, CLIENT.id, BOOKING.operator_id, 4, null]);
   });
