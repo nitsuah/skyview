@@ -53,9 +53,8 @@
       "id": "campaign-personalization",
       "title": "Campaign Personalization",
       "category": "Marketing & Personalization",
-      "screenshots": [],
-      "spots": [],
-      "note": "no screenshot: scripts/campaign.js targets .hero-subline, index.html has .hero-subtitle, so the variant never renders"
+      "screenshots": ["docs/screenshots/campaign-personalization.png"],
+      "spots": []
     },
     {
       "id": "a-b-testing-framework",
