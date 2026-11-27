@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Add handler-level regressions proving pending bookings cannot be completed by clients and booking totals are calculated from verified operator rates, ignoring client-supplied amounts.
+
 ### Changed
 
 - Pages site says it is a showcase with demo data (badge, audience line, captions, descriptions); the two cards now match their buttons; the other four videos are linked; screenshots zoom to the relevant area on phones; canonical and `og:image` size tags added.
