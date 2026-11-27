@@ -35,7 +35,7 @@ const BOOKING = {
   status: 'pending', total_cents: 12345, stripe_payment_intent_id: null,
 };
 
-const normalize = (strings) => strings.join('?').replace(/\\s+/g, ' ').trim();
+const normalize = (strings) => strings.join('?').replace(/\s+/g, ' ').trim();
 const post = async (path, body) => {
   const req = new Request(`http://localhost${path}`, {
     method: 'POST',
@@ -58,7 +58,7 @@ describe('booking security regressions', () => {
   it('does not allow a client to complete a pending booking before operator confirmation', async () => {
     sqlMock.mockImplementation(async (strings) => {
       const query = normalize(strings);
-      if (/SELECT b\\.\\*, j\\.status AS job_status/.test(query)) return [{ ...BOOKING, job_status: 'booked' }];
+      if (query.includes('SELECT b.*, j.status AS job_status')) return [{ ...BOOKING, job_status: 'booked' }];
       return [];
     });
 
