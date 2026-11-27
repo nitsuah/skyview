@@ -45,16 +45,34 @@ A stunning, high-tech website for professional drone services featuring a minima
 
 **🛠️ Developer?** See **[Getting Started Guide](docs/GETTING_STARTED.md)** for technical setup.
 
-### Run Locally
+### Run the booking app
 
-Use `npm run dev` for the full development experience (includes Netlify Functions and form handling):
+The booking flow at `/app` needs the Netlify Functions, the React app in `platform/` and a Neon Postgres database ([free tier](https://console.neon.tech)). Needs Node.js 22.
 
 ```bash
-# Full dev server (Netlify CLI included as devDependency)
-npm run dev            # Runs netlify dev on port 8888
+git clone https://github.com/nitsuah/skyview
+cd skyview
+npm install
+npm install --prefix platform
+cp .env.example .env
+```
 
-# Static-only fallback (no Netlify Functions)
+In `.env`, set `DATABASE_URL` (the Neon pooled connection string) and `JWT_SECRET` (32 or more random characters; `.env.example` shows how to generate one). Email, Stripe and Google sign-in are not needed to look around. Then create the tables and start:
+
+```bash
+node --env-file=.env scripts/migrate.js
+npm run dev
+```
+
+The booking app is at [localhost:8888/app](http://localhost:8888/app/). Register at `/app/register`; [FINAL_SETUP.md](docs/FINAL_SETUP.md) sections 6 and 7 cover admin setup for approving pilots.
+
+### Marketing site only
+
+These serve the static pages. They run no functions, so the booking app does not work.
+
+```bash
 npx http-server . -p 3000
+
 
 # Using Python
 python -m http.server 3000
@@ -63,6 +81,8 @@ python -m http.server 3000
 Then open: [localhost:3000](http://localhost:3000)
 
 ### Run With Docker
+
+The `web` service is also marketing-site only.
 
 ```bash
 # Serve the production image locally
