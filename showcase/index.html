@@ -4,17 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyView Dynamics</title>
-    <meta name="description" content="Post a drone job with where and when. Verified, FAA Part 107-certified pilots who cover your area and are free at that time get matched to it.">
+    <meta name="description" content="A portfolio showcase of a drone-pilot booking marketplace: post a job with where and when, and match with pilots who cover the area and are free.">
     <meta property="og:type" content="website">
     <meta property="og:title" content="SkyView Dynamics: book a drone pilot who is nearby and free">
-    <meta property="og:description" content="Post a job with a location and a date. Pilots who cover that area see it, and you book a time they are actually free.">
+    <meta property="og:description" content="A demo of a drone-pilot booking flow with example data. The hosted app is offline; the repo runs it locally.">
     <meta property="og:image" content="https://nitsuah.github.io/skyview/media/book-18s.jpg">
     <meta property="og:url" content="https://nitsuah.github.io/skyview/">
+    <link rel="canonical" href="https://nitsuah.github.io/skyview/">
+    <meta property="og:image:width" content="1920">
+    <meta property="og:image:height" content="1080">
     <meta property="og:video" content="https://nitsuah.github.io/skyview/media/book-18s.mp4">
     <meta property="og:video:type" content="video/mp4">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="SkyView Dynamics: book a drone pilot who is nearby and free">
-    <meta name="twitter:description" content="Post a job with a location and a date. Pilots who cover that area see it, and you book a time they are actually free.">
+    <meta name="twitter:description" content="A demo of a drone-pilot booking flow with example data. The hosted app is offline; the repo runs it locally.">
     <meta name="twitter:image" content="https://nitsuah.github.io/skyview/media/book-18s.jpg">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -70,6 +73,12 @@
             margin: 0 auto 16px; max-width: 16ch;
             font-size: clamp(2.3rem, 6vw, 4.2rem); font-weight: 900; letter-spacing: 0.04em; line-height: 1.04;
         }
+        .badge { display: inline-block; margin-bottom: 18px; padding: 6px 16px; border-radius: 999px; border: 1px solid var(--sunset); color: var(--sunset); font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; }
+        .note { max-width: 620px; margin: 14px auto 0; color: var(--muted); font-size: 0.95rem; }
+        .step figcaption { color: var(--muted); font-size: 0.85rem; margin-top: 8px; }
+        .shot { overflow: hidden; border-radius: 18px; }
+        .more-videos { margin-top: 14px; color: var(--muted); font-size: 0.9rem; }
+        .more-videos a { color: var(--cyan); text-decoration: underline; }
         .grad { background: linear-gradient(135deg, var(--cyan), #ffffff, var(--sunset)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .lede { max-width: 620px; margin: 0 auto; color: var(--muted); font-size: 1.15rem; }
 
@@ -123,6 +132,18 @@
             .video-frame { border-radius: 14px; }
             .cta { padding: 13px 22px; font-size: 0.82rem; }
         }
+        /* On phones, zoom each 1440 px screenshot to the part its step is about.
+           Tapping still opens the full image (expand kit). */
+        @media (max-width: 480px) {
+            .shot { border: 1px solid var(--border); }
+            .step .shot img { max-width: none; border: 0; border-radius: 0; }
+            .shot-post { aspect-ratio: 660 / 900; }
+            .step .shot-post img { width: 218.2%; margin-left: -37.9%; }
+            .shot-find { aspect-ratio: 400 / 390; }
+            .step .shot-find img { width: 360%; margin-left: -62.5%; }
+            .shot-book { aspect-ratio: 460 / 630; }
+            .step .shot-book img { width: 313%; margin-left: -106.5%; margin-top: -29.4%; }
+        }
         @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
     </style>
 <!-- Showcase kit: click-to-expand images, fullscreen button on videos. Spec: https://github.com/nitsuah/.github/blob/main/showcase/STANDARD.md -->
@@ -151,21 +172,24 @@
 
     <main id="top">
         <header class="hero wrap">
+            <p class="badge">Portfolio showcase · demo data</p>
             <h1>Book a drone pilot who is <span class="grad">nearby and free</span></h1>
             <p class="lede">Post a job with where and when. Verified, FAA Part 107-certified pilots who cover that area see it, and you book a time they are actually available.</p>
+            <p class="note">For anyone looking at how a two-sided booking marketplace is built. This is not a live booking service.</p>
             <div class="actions">
-                <a class="cta" href="https://github.com/nitsuah/skyview#-quick-start">RUN IT LOCALLY →</a>
+                <a class="cta" href="https://github.com/nitsuah/skyview#run-the-booking-app">RUN IT LOCALLY →</a>
                 <a class="cta secondary" href="https://github.com/nitsuah/skyview">VIEW SOURCE</a>
             </div>
             <!-- The hosted app (skyviewd.netlify.app) is offline. When it is back, restore the
                  /app/register?role=client and ?role=operator links here and in #start. -->
-            <p class="lede" style="font-size: 0.95rem; margin-top: 14px;">The hosted app is offline for now. The video shows the real booking flow, and the repo runs it locally.</p>
+            <p class="lede" style="font-size: 0.95rem; margin-top: 14px;">The hosted app is offline for now. The video shows the booking flow with example data, and the repo runs it locally.</p>
             <div class="video-frame">
                 <video controls muted loop playsinline preload="metadata" poster="media/book-18s.jpg" aria-label="Booking a drone pilot on SkyView, 18 seconds">
                     <source src="media/book-18s.mp4" type="video/mp4">
                     <a href="media/book-18s.mp4">Watch: booking a pilot on SkyView</a>
                 </video>
             </div>
+            <p class="more-videos">More videos: <a href="media/hero-30s.mp4">30 s overview</a> (<a href="media/hero-30s-vert.mp4">vertical</a>) · <a href="media/site-14s.mp4">marketing site, 14 s</a> · <a href="media/portal-12s.mp4">client portal, 12 s</a></p>
         </header>
 
         <section id="how">
@@ -177,21 +201,21 @@
                     <div class="step-num">01 · WHERE AND WHEN</div>
                     <h3>Post the job</h3>
                     <p>Pick a service, add the address and a preferred date. No payment is taken up front.</p>
-                    <img src="screenshots/two-sided-marketplace-post-job.png" alt="The Post a Job form with Real Estate selected, a job title, Downtown Austin location, a date and a budget" loading="lazy">
+                    <figure><div class="shot shot-post"><img src="screenshots/two-sided-marketplace-post-job.png" alt="The Post a Job form with Real Estate selected, a job title, Downtown Austin location, a date and a budget" loading="lazy"></div><figcaption>Demo data: the client and job are made up.</figcaption></figure>
                 </div>
 
                 <div class="step">
                     <div class="step-num">02 · BY PROXIMITY</div>
                     <h3>Nearby pilots see it</h3>
                     <p>The address is geocoded. Pilots whose coverage radius includes it see the job and get an email; you can also browse verified pilots by service.</p>
-                    <img src="screenshots/two-sided-marketplace-operators.png" alt="Find Operators directory with three verified pilots, their ratings, services and starting rates" loading="lazy">
+                    <figure><div class="shot shot-find"><img src="screenshots/two-sided-marketplace-operators.png" alt="Find Operators directory with three verified pilots, their ratings, services and starting rates" loading="lazy"></div><figcaption>Demo data: these pilots, ratings and prices are made up.</figcaption></figure>
                 </div>
 
                 <div class="step">
                     <div class="step-num">03 · BY TIME</div>
                     <h3>Book a time they are free</h3>
                     <p>Pilots publish weekly hours and blocked dates. The booking dialog tells you whether your time fits before you send the request, and double bookings are blocked.</p>
-                    <img src="screenshots/native-operator-scheduling.png" alt="Booking dialog proposing a date and time, with a note that it is within the pilot's declared availability" loading="lazy">
+                    <figure><div class="shot shot-book"><img src="screenshots/native-operator-scheduling.png" alt="Booking dialog proposing a date and time, with a note that it is within the pilot's declared availability" loading="lazy"></div><figcaption>Demo data: example booking request.</figcaption></figure>
                 </div>
             </div>
         </section>
@@ -201,12 +225,12 @@
                 <div class="sides">
                     <div class="card">
                         <h3>Need aerials?</h3>
-                        <p>Real estate, events, film, mapping and inspection. Post the job and pick from pilots who can make it.</p>
-                        <a class="cta" href="https://github.com/nitsuah/skyview#-quick-start">RUN IT LOCALLY →</a>
+                        <p>See the client side: post a real estate, events, film, mapping or inspection job. Run the app locally to try it.</p>
+                        <a class="cta" href="https://github.com/nitsuah/skyview#run-the-booking-app">RUN IT LOCALLY →</a>
                     </div>
                     <div class="card">
                         <h3>Fly for SkyView</h3>
-                        <p>Set your services, coverage radius and weekly hours once, and only get jobs you can take.</p>
+                        <p>The pilot side sets services, coverage radius and weekly hours once. Read the source to see how jobs are matched.</p>
                         <a class="cta secondary" href="https://github.com/nitsuah/skyview">VIEW SOURCE</a>
                     </div>
                 </div>

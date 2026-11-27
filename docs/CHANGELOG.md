@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Pages site says it is a showcase with demo data (badge, audience line, captions, descriptions); the two cards now match their buttons; the other four videos are linked; screenshots zoom to the relevant area on phones; canonical and `og:image` size tags added.
+- README: new "Run the booking app" steps; the static and Docker options are labelled marketing-site only.
+
 ### Added
 
 - Unit tests for job creation (`POST /api/jobs`: auth, validation and insert) in `tests/unit/api-jobs-create.test.js` (#279).
