@@ -26,5 +26,7 @@ jobs:
       run: node scripts/check-dependency-boundaries.js
     - name: Lint JS/TS (errors fail; warnings don't)
       run: npm run lint:js
+    - name: Lint CSS
+      run: npm run lint:css
     - name: Run Vitest
       run: npm run test:unit

@@ -57,20 +57,6 @@
       "spots": []
     },
     {
-      "id": "a-b-testing-framework",
-      "title": "A/B Testing Framework",
-      "category": "Marketing & Personalization",
-      "visual": "none",
-      "note": "feature-gated off (experiments.enabled: false); nothing renders"
-    },
-    {
-      "id": "conversion-funnel-tracking",
-      "title": "Conversion Funnel Tracking",
-      "category": "Marketing & Personalization",
-      "visual": "none",
-      "note": "event capture; what a user sees is the Local Dashboard"
-    },
-    {
       "id": "local-dashboard",
       "title": "Local Dashboard",
       "category": "Funnel Reporting",
@@ -87,13 +73,6 @@
         "docs/screenshots/csv-json-export.png"
       ],
       "spots": []
-    },
-    {
-      "id": "admin-hardening",
-      "title": "Admin Hardening",
-      "category": "Admin & CMS",
-      "visual": "none",
-      "note": "response headers"
     },
     {
       "id": "rate-limiting",
@@ -118,13 +97,6 @@
         "portal-12s",
         "hero-30s"
       ]
-    },
-    {
-      "id": "server-side-token-validation",
-      "title": "Server-Side Token Validation",
-      "category": "Client Portal",
-      "visual": "none",
-      "note": "server-side check; the visible result is the portal screens"
     },
     {
       "id": "token-generator",
@@ -164,41 +136,6 @@
         "book-18s",
         "hero-30s"
       ]
-    },
-    {
-      "id": "content-security-policy",
-      "title": "Content Security Policy",
-      "category": "Security & Infrastructure",
-      "visual": "none",
-      "note": "response headers"
-    },
-    {
-      "id": "no-store-routes",
-      "title": "No-Store Routes",
-      "category": "Security & Infrastructure",
-      "visual": "none",
-      "note": "cache headers"
-    },
-    {
-      "id": "modular-javascript",
-      "title": "Modular JavaScript",
-      "category": "Security & Infrastructure",
-      "visual": "none",
-      "note": "tech stack"
-    },
-    {
-      "id": "docker-netlify-parity",
-      "title": "Docker/Netlify Parity",
-      "category": "Security & Infrastructure",
-      "visual": "none",
-      "note": "build/deploy detail"
-    },
-    {
-      "id": "docker-validation",
-      "title": "Docker Validation",
-      "category": "Security & Infrastructure",
-      "visual": "none",
-      "note": "test tooling"
     }
   ],
   "spots": [

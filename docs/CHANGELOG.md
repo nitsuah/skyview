@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `npm run lint:css` works from a clean install and passes: stylelint is now a dev dependency, the naming rules accept the BEM and camelCase names already in use, the remaining errors are autofixed (value notation only, plus a merged duplicate `:root` in the platform stylesheet), and CI runs it. `-webkit-` prefixes and prefix media queries are kept for older Safari.
+- `docs/FEATURES.md` and `promo/spots.json` list only what users can see or do.
+
 ### Security
 
 - Add handler-level regressions proving pending bookings cannot be completed by clients and booking totals are calculated from verified operator rates, ignoring client-supplied amounts.

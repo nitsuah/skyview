@@ -2,7 +2,7 @@
 
 > 🧭 [skyview](../README.md) · **Features** · [Roadmap](./ROADMAP.md) · [Tasks](./TASKS.md) · [Changelog](./CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-**Last Validated:** 2026-09-24
+**Last Validated:** 2026-11-28
 
 ## Core Experiences
 
@@ -14,34 +14,22 @@
 ## Marketing & Personalization
 
 - **Campaign Personalization** — UTM param + referrer detection applies per-source hero subline variants on page load; data session-persisted (`scripts/campaign.js`)
-- **A/B Testing Framework** — deterministic per-visitor bucket assignment for hero headline and CTA experiments; feature-gated in `config.js` (`experiments.enabled`) — ready to enable (`scripts/ab-testing.js`)
-- **Conversion Funnel Tracking** — privacy-first event capture across landing → gallery → booking/contact; referrer and campaign metadata captured on landing view
 
 ## Funnel Reporting
 
-- **Local Dashboard** — in-browser conversion dashboard with step-by-step drop-off percentages (owner-only: hidden by default; shown to a logged-in admin, or on `localhost` with `?metrics=1`)
+- **Local Dashboard** — in-browser conversion dashboard for the landing → gallery → booking/contact funnel, with step-by-step drop-off percentages (owner-only: hidden by default; shown to a logged-in admin, or on `localhost` with `?metrics=1`)
 - **CSV / JSON Export** — `exportMetricsCSV()` and `exportMetricsJSON()` for offline analysis
 
 ## Client Portal
 
 - **Rate Limiting** — 5-attempt / 15-minute lockout enforced client-side via localStorage
-- **Time-Bound Token Expiry** — portal detects and rejects expired access codes; clear expiry messaging shown to clients
-- **Server-Side Token Validation** — `netlify/functions/api-portal.mjs` verifies access codes via HMAC-SHA256 (`netlify/functions/utils/portal.js`); `PORTAL_SALT` is a mandatory production secret with no fallback, and the endpoint fails closed (denies access) if it's unset
+- **Time-Bound Token Expiry** — access codes are signed and verified server-side; expired ones are rejected with a clear message to the client
 - **Token Generator** — `scripts/portal-token.js` Node.js CLI produces signed `clientId.expiry_unix.hmac` codes with configurable TTL, sharing the same signing implementation as the verification endpoint
 
 ## Marketplace Platform
 
 - **Two-Sided Marketplace** — Netlify Functions + Neon DB + Stripe Connect + React SPA at `/app` matching clients to drone operators; the marketing site's booking CTAs (hero → `/app/register`, "Find a drone operator" / "Post a job" / "List as an operator") point into it
 - **Native Operator Scheduling** — recurring weekly availability windows and blocked dates (migration `006_operator_availability.sql`); `checkOperatorAvailability()` enforces no overlaps at booking creation and confirmation, backed by a DB-level exclusion constraint; onboarding Availability step and a booking modal that proposes a date/time with a live availability hint
-
-## Security & Infrastructure
-
-- **Content Security Policy** — CSP + Permissions-Policy headers on all pages via `netlify.toml`
-- **No-Store Routes** — client-portal and gallery pages excluded from CDN caching
-- **Modular JavaScript** — ES modules throughout; zero build step required for the marketing site (the marketplace platform SPA at `/app` does have a Vite build, run via `scripts/build.js`)
-- **Docker/Netlify Parity** — the Docker preview image (`Dockerfile`) now runs the same `scripts/build.js` build as Netlify, so it serves the marketplace platform SPA at `/app` identically to production instead of only the static marketing pages
-- **Docker Validation** — `docker compose -f config/docker-compose.yml run --rm unit` runs the Vitest suite with coverage; web smoke build confirms zero import errors. See METRICS.md for the current test count.
-- **Nightly Journeys** — `tests/journeys/` drives the site, client portal and marketplace like a user (mocked `/api`, frozen clock, 9 journeys, visual baselines per step); `.github/workflows/journeys.yml` files and auto-closes `bot:journey` issues with no AI
 
 ## Planned
 
