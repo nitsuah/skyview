@@ -1,3 +1,7 @@
+/* This stylesheet is deliberately written as compact one-line rules, and its
+   badge modifiers mirror database status values (under_review, in_progress). */
+/* stylelint-disable declaration-block-single-line-max-declarations */
+
 /* SkyView Platform — dark tech aesthetic matching the main site */
 :root {
   --bg:          #0b1120;
@@ -9,19 +13,26 @@
   --text:        #f0f6ff;
   --text-muted:  #7a90b8;
   --accent:      #00d4ff;
-  --accent-dim:  rgba(0,212,255,0.10);
-  --accent-mid:  rgba(0,212,255,0.25);
+  --accent-dim:  rgb(0 212 255 / 10%);
+  --accent-mid:  rgb(0 212 255 / 25%);
   --green:       #00e676;
-  --green-dim:   rgba(0,230,118,0.12);
+  --green-dim:   rgb(0 230 118 / 12%);
   --amber:       #ffd740;
-  --amber-dim:   rgba(255,215,64,0.12);
+  --amber-dim:   rgb(255 215 64 / 12%);
   --red:         #ff5252;
-  --red-dim:     rgba(255,82,82,0.12);
+  --red-dim:     rgb(255 82 82 / 12%);
   --purple:      #9c6bff;
-  --purple-dim:  rgba(156,107,255,0.12);
+  --purple-dim:  rgb(156 107 255 / 12%);
   --mono: 'JetBrains Mono','Cascadia Code','Fira Code',ui-monospace,monospace;
   --sans: -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
   --radius: 6px;
+
+  /* Google brand palette — intentionally not using app accent tokens */
+  --google-border: #dadce0;
+  --google-border-hover: #bbbfc4;
+  --google-bg: #fff;
+  --google-bg-hover: #f8f9fa;
+  --google-text: #3c4043;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,6 +41,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 
 /* ── App shell ── */
 .app-shell { display: flex; min-height: 100vh; }
+
 .sidebar {
   width: 220px; min-height: 100vh; flex-shrink: 0;
   background: var(--surface); border-right: 1px solid var(--border);
@@ -51,6 +63,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 .role-chip.role-admin    { background: var(--amber-dim);  color: var(--amber); }
 
 .sidebar-nav { flex: 1; padding: 1rem 0; display: flex; flex-direction: column; gap: 0.125rem; }
+
 .nav-link {
   display: block; padding: 0.6rem 1.25rem; font-size: 13.5px; color: var(--text-muted);
   text-decoration: none; transition: color 0.15s, background 0.15s; border-radius: 0;
@@ -58,7 +71,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 .nav-link:hover, .nav-link.active { color: var(--text); background: var(--surface-2); }
 
 .logout-btn {
-  margin: 0 1rem 0; padding: 0.55rem 0.75rem; background: none; border: 1px solid var(--border);
+  margin: 0 1rem; padding: 0.55rem 0.75rem; background: none; border: 1px solid var(--border);
   border-radius: var(--radius); color: var(--text-muted); font-size: 13px; cursor: pointer;
   text-align: center; transition: border-color 0.15s, color 0.15s;
 }
@@ -69,6 +82,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
   padding: 2rem; background: var(--bg);
 }
+
 .auth-card {
   width: 100%; max-width: 420px;
   background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 2.5rem;
@@ -88,6 +102,7 @@ h3 { font-size: 0.95rem; font-weight: 600; color: var(--text); }
 /* ── Forms ── */
 .form-group { display: flex; flex-direction: column; gap: 0.375rem; margin-bottom: 1.1rem; }
 label { font-size: 12.5px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.03em; }
+
 input[type="text"], input[type="email"], input[type="password"], input[type="number"],
 input[type="date"], input[type="url"], select, textarea {
   background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius);
@@ -112,20 +127,13 @@ select option { background: var(--surface-2); }
 .btn-primary:hover:not(:disabled) { opacity: 0.88; }
 .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
 .btn-ghost:hover:not(:disabled) { border-color: var(--border-mid); color: var(--text); }
-.btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,82,82,0.25); }
-.btn-danger:hover:not(:disabled) { background: rgba(255,82,82,0.2); }
-.btn-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
-.btn-green:hover:not(:disabled) { background: rgba(0,230,118,0.2); }
+.btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgb(255 82 82 / 25%); }
+.btn-danger:hover:not(:disabled) { background: rgb(255 82 82 / 20%); }
+.btn-green { background: var(--green-dim); color: var(--green); border: 1px solid rgb(0 230 118 / 25%); }
+.btn-green:hover:not(:disabled) { background: rgb(0 230 118 / 20%); }
 .btn-sm { padding: 0.4rem 0.8rem; font-size: 12.5px; }
 .btn-full { width: 100%; }
-/* Google brand palette — intentionally not using app accent tokens */
-:root {
-  --google-border: #dadce0;
-  --google-border-hover: #bbbfc4;
-  --google-bg: #ffffff;
-  --google-bg-hover: #f8f9fa;
-  --google-text: #3c4043;
-}
+
 .btn-google {
   align-items: center;
   background: var(--google-bg);
@@ -137,10 +145,12 @@ select option { background: var(--surface-2); }
   justify-content: center;
 }
 .btn-google:hover:not(:disabled) { background: var(--google-bg-hover); border-color: var(--google-border-hover); }
+
 .oauth-divider {
   align-items: center; color: var(--text-muted); display: flex;
   font-size: 12px; gap: 0.75rem; margin: 1rem 0;
 }
+
 .oauth-divider::before, .oauth-divider::after {
   border-top: 1px solid var(--border); content: ''; flex: 1;
 }
@@ -172,16 +182,20 @@ select option { background: var(--surface-2); }
 .badge-cancelled::before { background: var(--red); }
 .badge-pending    { background: var(--surface-3);  color: var(--text-muted); border: 1px solid var(--border); }
 .badge-pending::before { background: var(--text-muted); }
+/* stylelint-disable selector-class-pattern */
 .badge-under_review { background: var(--amber-dim); color: var(--amber); }
 .badge-under_review::before { background: var(--amber); }
+/* stylelint-enable selector-class-pattern */
 .badge-verified   { background: var(--green-dim);  color: var(--green); }
 .badge-verified::before { background: var(--green); }
 .badge-suspended  { background: var(--red-dim);    color: var(--red); }
 .badge-suspended::before { background: var(--red); }
 .badge-rejected   { background: var(--red-dim);    color: var(--red); }
 .badge-rejected::before { background: var(--red); }
+/* stylelint-disable selector-class-pattern */
 .badge-in_progress { background: var(--purple-dim); color: var(--purple); }
 .badge-in_progress::before { background: var(--purple); }
+/* stylelint-enable selector-class-pattern */
 .badge-matched    { background: var(--amber-dim);  color: var(--amber); }
 .badge-matched::before { background: var(--amber); }
 .badge-disputed   { background: var(--red-dim);    color: var(--red); }
@@ -223,7 +237,7 @@ tr:hover td { background: var(--surface-2); }
 
 /* ── Verification banner ── */
 .verify-banner {
-  background: var(--amber-dim); border: 1px solid rgba(255,215,64,0.2);
+  background: var(--amber-dim); border: 1px solid rgb(255 215 64 / 20%);
   border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;
   display: flex; align-items: flex-start; gap: 0.75rem;
 }
@@ -235,6 +249,7 @@ tr:hover td { background: var(--surface-2); }
 /* ── Loading screen ── */
 .loading-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
 .spinner { width: 32px; height: 32px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Misc ── */
@@ -271,10 +286,10 @@ tr:hover td { background: var(--surface-2); }
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .app-shell { flex-direction: column; }
-  .sidebar { width: 100%; min-height: unset; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 0.75rem 1rem; position: static; }
+  .sidebar { width: 100%; min-height: unset; height: auto; flex-flow: row wrap; align-items: center; padding: 0.75rem 1rem; position: static; }
   .sidebar-brand { padding: 0; border: none; flex: 1; }
   .user-badge { display: none; }
-  .sidebar-nav { flex-direction: row; flex-wrap: wrap; padding: 0; gap: 0.25rem; }
+  .sidebar-nav { flex-flow: row wrap; padding: 0; gap: 0.25rem; }
   .flex-between { flex-wrap: wrap; gap: 0.75rem; }
   .logout-btn { margin: 0; padding: 0.4rem 0.6rem; }
   .main-content { padding: 1.25rem; }

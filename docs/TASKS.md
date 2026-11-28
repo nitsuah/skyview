@@ -2,7 +2,7 @@
 
 > 🧭 [skyview](../README.md) · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · **Tasks** · [Changelog](./CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-**Last Updated:** 2026-10-15
+**Last Updated:** 2026-11-28
 
 > **Delivery split:** public FE covers the marketing site and funnel. Secure client portal/download auth is a separate backend workstream.
 
@@ -33,13 +33,11 @@ Open 2026 items are tracked below and in `docs/ROADMAP.md` 2027 Q1.
   - Priority: P2
   - Campaign personalization never applies: `scripts/campaign.js` targets `.hero-subline, [data-campaign-subline]`, but `index.html`'s hero uses `.hero-subtitle` (the unit test builds its own `.hero-subline` markup, so it passes). Decide whether organic visitors keep the authored subtitle before wiring it up.
   - The dashboard's CSV / JSON buttons and funnel drop-off rows have no CSS (`.conversion-dashboard__export`, `__actions`, `__funnel*`): the buttons render dark-on-dark.
-  - Done: campaign personalization now targets `.hero-subtitle` and leaves organic visitors on the authored text. Dashboard CSS for the export buttons and funnel rows is in (#253) with a `csv-json-export` capture linked in `promo/spots.json`. The `campaign-personalization` capture was added (#285).
+  - Done: campaign personalization now targets `.hero-subtitle` and leaves organic visitors on the authored text. Dashboard CSS for the export buttons and funnel rows is in (#253) with a `csv-json-export` capture linked in `promo/spots.json`. The `campaign-personalization` capture was added (#285) and visually checked 2026-11-28: the Instagram subtitle renders in place of the authored one.
   - Acceptance Criteria: both render correctly; add `campaign-personalization` and `csv-json-export` captures to `tests/visual-docs/screenshots.spec.ts` and link them in `promo/spots.json`.
 
-- [ ] Trim `docs/FEATURES.md` to what users can see or do.
+- [x] Trim `docs/FEATURES.md` to what users can see or do. Done 2026-11-28: removed the A/B framework (gated off), funnel tracking and server-side validation entries (folded into Local Dashboard and Time-Bound Token Expiry), the Security & Infrastructure section and Nightly Journeys; removed the matching `promo/spots.json` entries, plus the stale `admin-hardening` one (#264).
   - Priority: P3
-  - 11 of 24 entries have nothing to show (`"visual": "none"` in `promo/spots.json`). "Netlify Forms" is no longer true (the contact form was removed 2026-09-19); "Calendly Removed" is a changelog entry, not a feature.
-  - **Removed:** "Calendly Removed" and "Netlify Forms" entries deleted from `docs/FEATURES.md` and `promo/spots.json`.
 
 - [ ] Build a real per-client storage backend for the client portal.
   - Priority: P2
@@ -68,8 +66,8 @@ Open 2026 items are tracked below and in `docs/ROADMAP.md` 2027 Q1.
 
 - [ ] Test and tooling debt surfaced by the 2026-09 auth + scheduling pass.
   - Priority: P3
-  - Progress 2026-11-18: `npm run lint:js` now exits 0 (the 5 errors are fixed; 149 warnings remain) and runs in the Unit Tests workflow. Stylelint is still unverified in CI.
-  - The stylelint pre-commit hook now runs (local node hook, stylelint 17.15.0) and reports 134 pre-existing errors in `styles/style.css`, mostly camelCase `@keyframes` names (`keyframes-name-pattern`) and `selector-class-pattern`. Any commit that touches CSS will fail the hook until they're fixed. Either rename them (and update the JS/HTML references), or relax those two rules in `config/stylelint.config.mjs`.
+  - Progress 2026-11-18: `npm run lint:js` now exits 0 (the 5 errors are fixed; 149 warnings remain) and runs in the Unit Tests workflow.
+  - Stylelint fixed 2026-11-28 (#264): the naming rules now accept the BEM and camelCase names the HTML/JS already use (no renames), the rest was autofixed, and `npm run lint:css` runs in the Unit Tests workflow.
   - `tests/site.spec.ts` "gallery interaction" times out intermittently under heavy parallel load (passes alone and with `--workers=2`); CI uses 1 worker, so low risk, but worth de-flaking.
     - `vite preview` logs `/api/notifications` proxy errors during e2e (the `Layout` bell polls an unmocked endpoint); mock it in the specs to quiet the noise.
   - Dead code left after the contact form was removed (2026-09-19; people are sent to the platform, contact email/phone live only on `pages/privacy.html`): the `.contact-*` styles in `styles/style.css`, `scripts/form.js` (no-ops without the form), the `contact_submit` step in the admin funnel panel (`scripts/conversion-tracking.js` + tests). (The orphaned thank-you page, its script, redirect and sitemap entry were removed in #263.) Also: the privacy page's phone number is still the `+1 (555) 123-4567` placeholder (see the production-identity item).
